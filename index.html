@@ -20,7 +20,10 @@
   <link rel="preload" as="image" href="apple.webp">
   <link rel="preload" as="image" href="banana.webp">
   <link rel="preload" as="image" href="orange.webp">
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="preload" as="image" href="strawberry.webp">
+  <link rel="preload" as="image" href="grapes.webp">
+  <link rel="preload" as="image" href="watermelon.webp">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <main class="app-shell">
@@ -38,7 +41,7 @@
     <section id="home-screen" class="panel home-panel" aria-labelledby="home-title">
       <div class="welcome-row">
         <div>
-          <span class="welcome-badge">الإصدار الأول</span>
+          <span class="welcome-badge">الإصدار الثاني</span>
           <h2 id="home-title">ماذا سنلعب اليوم؟</h2>
           <p>تطبيق واحد يجمع ألعاب المعلّم الصغير، وسنضيف إليه ألعابًا جديدة باستمرار.</p>
         </div>
@@ -52,10 +55,10 @@
           <span class="game-preview fruit-preview" aria-hidden="true">
             <img src="apple.webp" alt="">
             <img src="card-back.webp" alt="">
-            <img src="banana.webp" alt="">
+            <img src="strawberry.webp" alt="">
           </span>
           <span class="game-copy">
-            <span class="game-status">متاحة الآن</span>
+            <span class="game-status">مستويان متاحان</span>
             <strong>ذاكرة الفواكه</strong>
             <small>اقلب البطاقات وطابق الصور المتشابهة</small>
           </span>
@@ -88,31 +91,31 @@
       <div class="hero-cards" aria-hidden="true">
         <img src="apple.webp" alt="">
         <img src="card-back.webp" alt="">
-        <img src="banana.webp" alt="">
+        <img src="strawberry.webp" alt="">
       </div>
       <p>اقلب بطاقتين في كل مرة، وحاول العثور على الفواكه المتشابهة.</p>
 
       <div class="level-picker" aria-label="اختيار المستوى">
-        <button class="level-card selected" type="button" aria-pressed="true">
+        <button id="easy-level-button" class="level-card selected" type="button" data-level="easy" aria-pressed="true">
           <span class="level-icon">⭐</span>
           <strong>المستوى السهل</strong>
           <small>6 بطاقات · 3 أزواج</small>
         </button>
-        <button class="level-card locked" type="button" disabled>
-          <span class="level-icon">🔒</span>
+        <button id="advanced-level-button" class="level-card" type="button" data-level="advanced" aria-pressed="false">
+          <span class="level-icon">🏆</span>
           <strong>المستوى الأكبر</strong>
-          <small>12 بطاقة · قريبًا</small>
+          <small>12 بطاقة · 6 أزواج</small>
         </button>
       </div>
 
-      <button id="start-button" class="primary-button" type="button">ابدأ اللعب</button>
+      <button id="start-button" class="primary-button" type="button">ابدأ المستوى السهل</button>
     </section>
 
     <section id="game-screen" class="panel game-panel hidden" aria-label="لوحة اللعب">
       <div class="game-title-row">
         <button id="back-button" class="mini-back-button" type="button" aria-label="العودة إلى اختيار المستوى">←</button>
         <div>
-          <p class="screen-kicker">المستوى السهل</p>
+          <p id="game-level-label" class="screen-kicker">المستوى السهل</p>
           <h2>ذاكرة الفواكه</h2>
         </div>
       </div>
@@ -124,7 +127,7 @@
         </div>
         <div class="progress-box" aria-label="الأزواج المكتشفة">
           <span id="matched-count">0</span>
-          <span>من 3 أزواج</span>
+          <span id="pairs-total">من 3 أزواج</span>
         </div>
         <button id="reset-button" class="icon-button" type="button" aria-label="إعادة اللعبة">↻</button>
       </div>
@@ -138,12 +141,12 @@
       <div class="stars" aria-hidden="true">⭐ ⭐ ⭐</div>
       <h2 id="win-title">أحسنت يا بطل!</h2>
       <p>لقد طابقت جميع الفواكه في <strong id="final-moves">0</strong> محاولات.</p>
-      <div class="celebration-fruits" aria-hidden="true">🍎 🍌 🍊</div>
+      <div id="celebration-fruits" class="celebration-fruits" aria-hidden="true">🍎 🍌 🍊</div>
       <button id="play-again-button" class="primary-button" type="button">العب مرة أخرى</button>
       <button id="home-button" class="text-button" type="button">العودة إلى جميع الألعاب</button>
     </div>
   </div>
 
-  <script src="script.js?v=5"></script>
+  <script src="script.js?v=6"></script>
 </body>
 </html>

@@ -1,15 +1,18 @@
-const CACHE_NAME = 'almoallem-games-v5-flat';
+const CACHE_NAME = 'almoallem-games-v6-flat';
 const APP_SHELL = [
   './',
   './index.html',
-  './style.css?v=5',
-  './script.js?v=5',
+  './style.css?v=6',
+  './script.js?v=6',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
   './apple.webp',
   './banana.webp',
   './orange.webp',
+  './strawberry.webp',
+  './grapes.webp',
+  './watermelon.webp',
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png'

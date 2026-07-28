@@ -403,3 +403,15 @@ h1 { margin: 0; font-size: clamp(1.7rem, 6.5vw, 2.6rem); line-height: 1.1; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* Version 6: two playable memory levels */
+.level-card { cursor: pointer; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+.level-card:not(.selected):hover { transform: translateY(-2px); border-color: #aadff7; }
+.level-card.selected { transform: translateY(-2px); }
+.game-board.advanced-board { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 2vw, 13px); }
+.game-board.advanced-board .memory-card,
+.game-board.advanced-board .card-face { border-radius: 14px; }
+@media (max-width: 620px) {
+  .game-board.advanced-board { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .game-board.advanced-board .card-face { border-radius: 11px; }
+}

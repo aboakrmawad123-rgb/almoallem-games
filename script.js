@@ -1,8 +1,28 @@
-const cardData = [
-  { id: 'apple', label: 'تفاحة', image: 'apple.webp' },
-  { id: 'banana', label: 'موزة', image: 'banana.webp' },
-  { id: 'orange', label: 'برتقالة', image: 'orange.webp' }
-];
+const levels = {
+  easy: {
+    label: 'المستوى السهل',
+    startLabel: 'ابدأ المستوى السهل',
+    celebration: '🍎 🍌 🍊',
+    cards: [
+      { id: 'apple', label: 'تفاحة', image: 'apple.webp' },
+      { id: 'banana', label: 'موزة', image: 'banana.webp' },
+      { id: 'orange', label: 'برتقالة', image: 'orange.webp' }
+    ]
+  },
+  advanced: {
+    label: 'المستوى الأكبر',
+    startLabel: 'ابدأ المستوى الأكبر',
+    celebration: '🍎 🍌 🍊 🍓 🍇 🍉',
+    cards: [
+      { id: 'apple', label: 'تفاحة', image: 'apple.webp' },
+      { id: 'banana', label: 'موزة', image: 'banana.webp' },
+      { id: 'orange', label: 'برتقالة', image: 'orange.webp' },
+      { id: 'strawberry', label: 'فراولة', image: 'strawberry.webp' },
+      { id: 'grapes', label: 'عنب', image: 'grapes.webp' },
+      { id: 'watermelon', label: 'بطيخ', image: 'watermelon.webp' }
+    ]
+  }
+};
 
 const homeScreen = document.querySelector('#home-screen');
 const levelScreen = document.querySelector('#level-screen');
@@ -10,18 +30,24 @@ const gameScreen = document.querySelector('#game-screen');
 const board = document.querySelector('#game-board');
 const memoryGameCard = document.querySelector('#memory-game-card');
 const levelHomeButton = document.querySelector('#level-home-button');
+const levelButtons = [...document.querySelectorAll('.level-card[data-level]')];
 const startButton = document.querySelector('#start-button');
 const resetButton = document.querySelector('#reset-button');
 const backButton = document.querySelector('#back-button');
 const movesCount = document.querySelector('#moves-count');
 const matchedCount = document.querySelector('#matched-count');
+const pairsTotal = document.querySelector('#pairs-total');
+const gameLevelLabel = document.querySelector('#game-level-label');
 const winModal = document.querySelector('#win-modal');
 const finalMoves = document.querySelector('#final-moves');
+const celebrationFruits = document.querySelector('#celebration-fruits');
 const playAgainButton = document.querySelector('#play-again-button');
 const homeButton = document.querySelector('#home-button');
 const installButton = document.querySelector('#install-button');
 const headerSubtitle = document.querySelector('#header-subtitle');
 
+let selectedLevel = 'easy';
+let activeCards = levels.easy.cards;
 let firstCard = null;
 let secondCard = null;
 let lockBoard = false;
@@ -39,7 +65,7 @@ function shuffle(items) {
 }
 
 function buildDeck() {
-  return shuffle(cardData.flatMap((fruit) => [
+  return shuffle(activeCards.flatMap((fruit) => [
     { ...fruit, uniqueId: `${fruit.id}-1` },
     { ...fruit, uniqueId: `${fruit.id}-2` }
   ]));
@@ -66,7 +92,12 @@ function createCard(card) {
 }
 
 function renderGame() {
+  activeCards = levels[selectedLevel].cards;
+  board.classList.toggle('advanced-board', selectedLevel === 'advanced');
   board.replaceChildren(...buildDeck().map(createCard));
+  gameLevelLabel.textContent = levels[selectedLevel].label;
+  pairsTotal.textContent = `من ${activeCards.length} أزواج`;
+  celebrationFruits.textContent = levels[selectedLevel].celebration;
   resetState();
 }
 
@@ -78,6 +109,17 @@ function resetState() {
   matches = 0;
   movesCount.textContent = '0';
   matchedCount.textContent = '0';
+}
+
+function selectLevel(levelName) {
+  if (!levels[levelName]) return;
+  selectedLevel = levelName;
+  levelButtons.forEach((button) => {
+    const isSelected = button.dataset.level === selectedLevel;
+    button.classList.toggle('selected', isSelected);
+    button.setAttribute('aria-pressed', String(isSelected));
+  });
+  startButton.textContent = levels[selectedLevel].startLabel;
 }
 
 function flipCard(card, label) {
@@ -108,7 +150,7 @@ function checkMatch() {
     matchedCount.textContent = String(matches);
     clearTurn();
 
-    if (matches === cardData.length) {
+    if (matches === activeCards.length) {
       window.setTimeout(showWin, 650);
     }
     return;
@@ -160,6 +202,9 @@ function showWin() {
 
 memoryGameCard.addEventListener('click', showLevels);
 levelHomeButton.addEventListener('click', showHome);
+levelButtons.forEach((button) => {
+  button.addEventListener('click', () => selectLevel(button.dataset.level));
+});
 startButton.addEventListener('click', showGame);
 resetButton.addEventListener('click', renderGame);
 backButton.addEventListener('click', showLevels);
