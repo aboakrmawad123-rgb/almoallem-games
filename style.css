@@ -938,6 +938,24 @@ body.menu-open { overflow: hidden; }
   animation: playlist-spin .85s linear infinite;
 }
 @keyframes playlist-spin { to { transform: rotate(360deg); } }
+
+.youtube-metadata-shell {
+  position: fixed;
+  inset-inline-start: -1200px;
+  top: -600px;
+  width: 480px;
+  height: 270px;
+  opacity: .01;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: -1;
+}
+.youtube-metadata-shell iframe {
+  width: 480px !important;
+  height: 270px !important;
+  display: block;
+  border: 0;
+}
 .youtube-discovery-shell {
   width: 100%;
   max-width: 480px;

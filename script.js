@@ -145,6 +145,10 @@ const VIDEO_PAGE_SIZE = 12;
 const playlistVideoCache = new Map();
 const videoTitleCache = new Map();
 const videoTitleRequests = new Map();
+let metadataPlayerPromise = null;
+let metadataPlayer = null;
+let metadataTitleQueue = [];
+let metadataTitleBusy = false;
 
 function openSocialMenu() {
   socialMenu.classList.remove('hidden');
@@ -553,6 +557,168 @@ function storeVideoTitle(videoId, title) {
   try { window.localStorage.setItem(`youtube-title:${videoId}`, title); } catch {}
 }
 
+function recreateMetadataMount() {
+  const shell = document.querySelector('.youtube-metadata-shell');
+  if (!shell) throw new Error('تعذر تجهيز قارئ أسماء المقاطع');
+
+  try {
+    if (metadataPlayer && typeof metadataPlayer.destroy === 'function') metadataPlayer.destroy();
+  } catch {}
+
+  metadataPlayer = null;
+  metadataPlayerPromise = null;
+  shell.replaceChildren();
+  const mount = document.createElement('div');
+  mount.id = 'youtube-metadata-player';
+  shell.appendChild(mount);
+  return mount;
+}
+
+function ensureMetadataPlayer() {
+  if (metadataPlayer && typeof metadataPlayer.cueVideoById === 'function') {
+    return Promise.resolve(metadataPlayer);
+  }
+  if (metadataPlayerPromise) return metadataPlayerPromise;
+
+  const mount = document.querySelector('#youtube-metadata-player') || recreateMetadataMount();
+  if (!mount) return Promise.reject(new Error('تعذر تجهيز قارئ أسماء المقاطع'));
+
+  metadataPlayerPromise = ensureYouTubeApi().then(() => new Promise((resolve, reject) => {
+    let settled = false;
+    const finishResolve = (player) => {
+      if (settled) return;
+      settled = true;
+      resolve(player);
+    };
+    const finishReject = (error) => {
+      if (settled) return;
+      settled = true;
+      metadataPlayerPromise = null;
+      reject(error);
+    };
+
+    metadataPlayer = new window.YT.Player('youtube-metadata-player', {
+      width: '480',
+      height: '270',
+      host: 'https://www.youtube.com',
+      playerVars: {
+        autoplay: 0,
+        controls: 0,
+        disablekb: 1,
+        fs: 0,
+        playsinline: 1,
+        rel: 0,
+        hl: 'ar',
+        origin: window.location.origin
+      },
+      events: {
+        onReady: (event) => finishResolve(event.target),
+        onError: () => {}
+      }
+    });
+
+    window.setTimeout(() => finishReject(new Error('انتهت مهلة قارئ أسماء المقاطع')), 15000);
+  }));
+
+  metadataPlayerPromise.catch(() => {
+    try { recreateMetadataMount(); } catch {}
+  });
+  return metadataPlayerPromise;
+}
+
+function cueVideoAndReadTitle(player, videoId) {
+  return new Promise((resolve, reject) => {
+    const startedAt = Date.now();
+    let settled = false;
+    let timer = null;
+
+    const finish = (error, title = '') => {
+      if (settled) return;
+      settled = true;
+      if (timer) window.clearInterval(timer);
+      if (error) reject(error);
+      else resolve(title);
+    };
+
+    try {
+      player.cueVideoById({ videoId, startSeconds: 0 });
+    } catch (error) {
+      finish(error);
+      return;
+    }
+
+    timer = window.setInterval(() => {
+      try {
+        const data = player.getVideoData ? player.getVideoData() || {} : {};
+        const loadedVideoId = typeof data.video_id === 'string' ? data.video_id : '';
+        const title = typeof data.title === 'string' ? data.title.trim() : '';
+        if (loadedVideoId === videoId && title) {
+          finish(null, title);
+          return;
+        }
+      } catch {}
+
+      if (Date.now() - startedAt >= 12000) {
+        finish(new Error('تعذر قراءة اسم الفيديو من المشغّل'));
+      }
+    }, 250);
+  });
+}
+
+function readTitleThroughYouTubePlayer(videoId) {
+  return new Promise((resolve, reject) => {
+    metadataTitleQueue.push({ videoId, resolve, reject });
+    processMetadataTitleQueue();
+  });
+}
+
+async function processMetadataTitleQueue() {
+  if (metadataTitleBusy) return;
+  metadataTitleBusy = true;
+
+  while (metadataTitleQueue.length) {
+    const item = metadataTitleQueue.shift();
+    try {
+      const player = await ensureMetadataPlayer();
+      const title = await cueVideoAndReadTitle(player, item.videoId);
+      item.resolve(title);
+    } catch (error) {
+      item.reject(error);
+    }
+  }
+
+  metadataTitleBusy = false;
+}
+
+async function fetchVideoTitleFromNetwork(videoId) {
+  const watchUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
+  const endpoints = [
+    { url: `/youtube-oembed?url=${encodeURIComponent(watchUrl)}&format=json`, options: { cache: 'no-store', credentials: 'same-origin' } },
+    { url: `https://www.youtube.com/oembed?url=${encodeURIComponent(watchUrl)}&format=json`, options: { mode: 'cors', cache: 'no-store' } },
+    { url: `https://noembed.com/embed?url=${encodeURIComponent(watchUrl)}`, options: { mode: 'cors', cache: 'no-store' } }
+  ];
+
+  let lastError = null;
+  for (const endpoint of endpoints) {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 10000);
+    try {
+      const response = await fetch(endpoint.url, { ...endpoint.options, signal: controller.signal });
+      if (!response.ok) throw new Error('تعذر قراءة اسم الفيديو');
+      const data = await response.json();
+      const title = typeof data.title === 'string' ? data.title.trim() : '';
+      if (!title) throw new Error('اسم الفيديو فارغ');
+      return title;
+    } catch (error) {
+      lastError = error;
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
+  throw lastError || new Error('تعذر قراءة اسم الفيديو');
+}
+
 async function fetchVideoTitle(videoId) {
   const cached = readStoredVideoTitle(videoId);
   if (cached) return cached;
@@ -560,33 +726,17 @@ async function fetchVideoTitle(videoId) {
   if (videoTitleRequests.has(videoId)) return videoTitleRequests.get(videoId);
 
   const requestPromise = (async () => {
-    const watchUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
-    const endpoints = [
-      { url: `/youtube-title/${encodeURIComponent(videoId)}`, options: { cache: 'no-store', credentials: 'same-origin' } },
-      { url: `https://www.youtube.com/oembed?url=${encodeURIComponent(watchUrl)}&format=json`, options: { mode: 'cors', cache: 'no-store' } },
-      { url: `https://noembed.com/embed?url=${encodeURIComponent(watchUrl)}`, options: { mode: 'cors', cache: 'no-store' } }
-    ];
+    // نبدأ طريقتين معًا: بروكسي Vercel ومشغّل يوتيوب نفسه.
+    // أول طريقة تنجح تعتمد، والثانية تبقى احتياطًا صامتًا.
+    const title = await Promise.any([
+      fetchVideoTitleFromNetwork(videoId),
+      readTitleThroughYouTubePlayer(videoId)
+    ]);
 
-    let lastError = null;
-    for (const endpoint of endpoints) {
-      const controller = new AbortController();
-      const timeout = window.setTimeout(() => controller.abort(), 12000);
-      try {
-        const response = await fetch(endpoint.url, { ...endpoint.options, signal: controller.signal });
-        if (!response.ok) throw new Error('تعذر قراءة اسم الفيديو');
-        const data = await response.json();
-        const title = typeof data.title === 'string' ? data.title.trim() : '';
-        if (!title) throw new Error('اسم الفيديو فارغ');
-        storeVideoTitle(videoId, title);
-        return title;
-      } catch (error) {
-        lastError = error;
-      } finally {
-        window.clearTimeout(timeout);
-      }
-    }
-
-    throw lastError || new Error('تعذر قراءة اسم الفيديو');
+    const cleanTitle = typeof title === 'string' ? title.trim() : '';
+    if (!cleanTitle) throw new Error('اسم الفيديو فارغ');
+    storeVideoTitle(videoId, cleanTitle);
+    return cleanTitle;
   })();
 
   videoTitleRequests.set(videoId, requestPromise);
@@ -642,7 +792,7 @@ function createVideoItem(videoId, index, playlistKey) {
       <span class="video-item-number" aria-hidden="true">${index + 1}</span>
     </span>
     <span class="video-item-copy">
-      <strong>${playlist.itemLabel} ${index + 1}</strong>
+      <strong>جارٍ قراءة الاسم...</strong>
       <small>اضغط للمشاهدة</small>
     </span>
   `;
