@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2196f3">
+  <meta name="description" content="ألعاب تعليمية ممتعة للأطفال من المعلّم الصغير">
+  <meta name="application-name" content="ألعاب المعلّم الصغير">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="المعلّم الصغير">
+  <meta name="format-detection" content="telephone=no">
+  <title>ألعاب المعلّم الصغير</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+  <link rel="preload" as="image" href="assets/card-back.webp">
+  <link rel="preload" as="image" href="assets/apple.webp">
+  <link rel="preload" as="image" href="assets/banana.webp">
+  <link rel="preload" as="image" href="assets/orange.webp">
+  <link rel="stylesheet" href="style.css?v=4">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="brand-header">
+      <div class="brand-mark" aria-hidden="true">
+        <img src="assets/card-back.webp" alt="">
+      </div>
+      <div>
+        <p class="eyebrow">المعلّم الصغير</p>
+        <h1>ألعاب تعليمية ممتعة</h1>
+        <p id="header-subtitle" class="subtitle">اختر لعبتك وابدأ التحدي</p>
+      </div>
+    </header>
+
+    <section id="home-screen" class="panel home-panel" aria-labelledby="home-title">
+      <div class="welcome-row">
+        <div>
+          <span class="welcome-badge">الإصدار الأول</span>
+          <h2 id="home-title">ماذا سنلعب اليوم؟</h2>
+          <p>تطبيق واحد يجمع ألعاب المعلّم الصغير، وسنضيف إليه ألعابًا جديدة باستمرار.</p>
+        </div>
+        <div class="welcome-avatar" aria-hidden="true">
+          <img src="assets/card-back.webp" alt="">
+        </div>
+      </div>
+
+      <div class="games-grid" aria-label="الألعاب المتاحة">
+        <button id="memory-game-card" class="game-choice available" type="button">
+          <span class="game-preview fruit-preview" aria-hidden="true">
+            <img src="assets/apple.webp" alt="">
+            <img src="assets/card-back.webp" alt="">
+            <img src="assets/banana.webp" alt="">
+          </span>
+          <span class="game-copy">
+            <span class="game-status">متاحة الآن</span>
+            <strong>ذاكرة الفواكه</strong>
+            <small>اقلب البطاقات وطابق الصور المتشابهة</small>
+          </span>
+          <span class="game-arrow" aria-hidden="true">←</span>
+        </button>
+
+        <button class="game-choice coming-soon" type="button" disabled>
+          <span class="game-preview emoji-preview" aria-hidden="true">🔤</span>
+          <span class="game-copy">
+            <span class="game-status">قريبًا</span>
+            <strong>لعبة الحروف</strong>
+            <small>لعبة تعليمية جديدة ستُضاف لاحقًا</small>
+          </span>
+          <span class="lock-mark" aria-hidden="true">🔒</span>
+        </button>
+      </div>
+
+      <button id="install-button" class="secondary-button hidden" type="button">ثبّت التطبيق على الهاتف</button>
+    </section>
+
+    <section id="level-screen" class="panel start-panel hidden" aria-labelledby="level-title">
+      <div class="screen-heading">
+        <button id="level-home-button" class="mini-back-button" type="button" aria-label="العودة إلى الألعاب">←</button>
+        <div>
+          <p class="screen-kicker">ذاكرة الفواكه</p>
+          <h2 id="level-title">اختر المستوى</h2>
+        </div>
+      </div>
+
+      <div class="hero-cards" aria-hidden="true">
+        <img src="assets/apple.webp" alt="">
+        <img src="assets/card-back.webp" alt="">
+        <img src="assets/banana.webp" alt="">
+      </div>
+      <p>اقلب بطاقتين في كل مرة، وحاول العثور على الفواكه المتشابهة.</p>
+
+      <div class="level-picker" aria-label="اختيار المستوى">
+        <button class="level-card selected" type="button" aria-pressed="true">
+          <span class="level-icon">⭐</span>
+          <strong>المستوى السهل</strong>
+          <small>6 بطاقات · 3 أزواج</small>
+        </button>
+        <button class="level-card locked" type="button" disabled>
+          <span class="level-icon">🔒</span>
+          <strong>المستوى الأكبر</strong>
+          <small>12 بطاقة · قريبًا</small>
+        </button>
+      </div>
+
+      <button id="start-button" class="primary-button" type="button">ابدأ اللعب</button>
+    </section>
+
+    <section id="game-screen" class="panel game-panel hidden" aria-label="لوحة اللعب">
+      <div class="game-title-row">
+        <button id="back-button" class="mini-back-button" type="button" aria-label="العودة إلى اختيار المستوى">←</button>
+        <div>
+          <p class="screen-kicker">المستوى السهل</p>
+          <h2>ذاكرة الفواكه</h2>
+        </div>
+      </div>
+
+      <div class="game-toolbar">
+        <div class="score-box">
+          <span>المحاولات</span>
+          <strong id="moves-count">0</strong>
+        </div>
+        <div class="progress-box" aria-label="الأزواج المكتشفة">
+          <span id="matched-count">0</span>
+          <span>من 3 أزواج</span>
+        </div>
+        <button id="reset-button" class="icon-button" type="button" aria-label="إعادة اللعبة">↻</button>
+      </div>
+
+      <div id="game-board" class="game-board" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <div id="win-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="win-title">
+    <div class="modal-card">
+      <div class="stars" aria-hidden="true">⭐ ⭐ ⭐</div>
+      <h2 id="win-title">أحسنت يا بطل!</h2>
+      <p>لقد طابقت جميع الفواكه في <strong id="final-moves">0</strong> محاولات.</p>
+      <div class="celebration-fruits" aria-hidden="true">🍎 🍌 🍊</div>
+      <button id="play-again-button" class="primary-button" type="button">العب مرة أخرى</button>
+      <button id="home-button" class="text-button" type="button">العودة إلى جميع الألعاب</button>
+    </div>
+  </div>
+
+  <script src="script.js?v=4"></script>
+</body>
+</html>
