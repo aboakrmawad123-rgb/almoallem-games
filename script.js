@@ -1,7 +1,7 @@
 const cardData = [
-  { id: 'apple', label: 'تفاحة', image: 'assets/apple.webp' },
-  { id: 'banana', label: 'موزة', image: 'assets/banana.webp' },
-  { id: 'orange', label: 'برتقالة', image: 'assets/orange.webp' }
+  { id: 'apple', label: 'تفاحة', image: 'apple.webp' },
+  { id: 'banana', label: 'موزة', image: 'banana.webp' },
+  { id: 'orange', label: 'برتقالة', image: 'orange.webp' }
 ];
 
 const homeScreen = document.querySelector('#home-screen');
@@ -54,7 +54,7 @@ function createCard(card) {
   button.innerHTML = `
     <span class="card-inner">
       <span class="card-face card-back">
-        <img src="assets/card-back.webp" alt="ظهر بطاقة عزّام" draggable="false">
+        <img src="card-back.webp" alt="ظهر بطاقة عزّام" draggable="false">
       </span>
       <span class="card-face card-front">
         <img src="${card.image}" alt="${card.label}" draggable="false">

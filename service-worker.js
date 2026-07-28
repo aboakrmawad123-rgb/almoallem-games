@@ -1,18 +1,18 @@
-const CACHE_NAME = 'almoallem-games-v4';
+const CACHE_NAME = 'almoallem-games-v5-flat';
 const APP_SHELL = [
   './',
   './index.html',
-  './style.css?v=4',
-  './script.js?v=4',
+  './style.css?v=5',
+  './script.js?v=5',
   './manifest.webmanifest',
   './favicon.ico',
-  './assets/card-back.webp',
-  './assets/apple.webp',
-  './assets/banana.webp',
-  './assets/orange.webp',
-  './assets/icons/icon-192.png',
-  './assets/icons/icon-512.png',
-  './assets/icons/apple-touch-icon.png'
+  './card-back.webp',
+  './apple.webp',
+  './banana.webp',
+  './orange.webp',
+  './icon-192.png',
+  './icon-512.png',
+  './apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
