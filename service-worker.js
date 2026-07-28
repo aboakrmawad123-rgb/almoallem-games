@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-games-v12-video-list-fix';
+const CACHE_NAME = 'almoallem-games-v13-playlist-titles-longpress-fix';
 const APP_SHELL = [
   './',
   './index.html',
-  './style.css?v=12',
-  './script.js?v=12',
+  './style.css?v=13',
+  './script.js?v=13',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',

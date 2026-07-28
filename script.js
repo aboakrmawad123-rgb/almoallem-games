@@ -135,6 +135,7 @@ let animalLocked = false;
 let youtubeApiPromise = null;
 let discoveryPlayerPromise = null;
 let discoveryPlayer = null;
+let discoveryPlayerGeneration = 0;
 let requestedPlaylistKey = null;
 let activePlaylistKey = null;
 let playlistPollTimer = null;
@@ -142,6 +143,7 @@ let activeVideoIds = [];
 let visibleVideoCount = 0;
 const VIDEO_PAGE_SIZE = 12;
 const playlistVideoCache = new Map();
+const videoTitleCache = new Map();
 
 function openSocialMenu() {
   socialMenu.classList.remove('hidden');
@@ -386,20 +388,39 @@ function ensureYouTubeApi() {
   return youtubeApiPromise;
 }
 
-function ensureDiscoveryPlayer() {
-  if (discoveryPlayer) return Promise.resolve(discoveryPlayer);
-  if (discoveryPlayerPromise) return discoveryPlayerPromise;
+function recreateDiscoveryMount() {
+  const shell = document.querySelector('.youtube-discovery-shell');
+  if (!shell) throw new Error('تعذر تجهيز قارئ قائمة التشغيل');
+
+  try {
+    if (discoveryPlayer && typeof discoveryPlayer.destroy === 'function') discoveryPlayer.destroy();
+  } catch {}
+
+  discoveryPlayer = null;
+  discoveryPlayerPromise = null;
+  shell.replaceChildren();
+  const mount = document.createElement('div');
+  mount.id = 'youtube-discovery-player';
+  shell.appendChild(mount);
+  return mount;
+}
+
+function createDiscoveryPlayer(playlistKey) {
+  const playlist = videoPlaylists[playlistKey];
+  if (!playlist) return Promise.reject(new Error('قائمة غير معروفة'));
+
+  const generation = ++discoveryPlayerGeneration;
+  recreateDiscoveryMount();
 
   discoveryPlayerPromise = ensureYouTubeApi().then(() => new Promise((resolve, reject) => {
-    const initialPlaylist = videoPlaylists[requestedPlaylistKey] || videoPlaylists['juz-amma'];
     let settled = false;
     const finishResolve = (player) => {
-      if (settled) return;
+      if (settled || generation !== discoveryPlayerGeneration) return;
       settled = true;
       resolve(player);
     };
     const finishReject = (error) => {
-      if (settled) return;
+      if (settled || generation !== discoveryPlayerGeneration) return;
       settled = true;
       try {
         if (discoveryPlayer && typeof discoveryPlayer.destroy === 'function') discoveryPlayer.destroy();
@@ -415,7 +436,7 @@ function ensureDiscoveryPlayer() {
       host: 'https://www.youtube.com',
       playerVars: {
         listType: 'playlist',
-        list: initialPlaylist.playlistId,
+        list: playlist.playlistId,
         autoplay: 0,
         controls: 0,
         disablekb: 1,
@@ -505,18 +526,88 @@ async function loadPlaylistVideos(playlistKey) {
   window.clearTimeout(playlistPollTimer);
 
   try {
-    const player = await ensureDiscoveryPlayer();
+    await createDiscoveryPlayer(playlistKey);
     if (requestedPlaylistKey !== playlistKey) return;
-    player.cuePlaylist({
-      listType: 'playlist',
-      list: playlist.playlistId,
-      index: 0,
-      startSeconds: 0
-    });
-    window.setTimeout(() => pollPlaylistVideos(playlistKey), 350);
+    window.setTimeout(() => pollPlaylistVideos(playlistKey), 450);
   } catch {
     showPlaylistLoadError(playlistKey);
   }
+}
+
+function readStoredVideoTitle(videoId) {
+  if (videoTitleCache.has(videoId)) return videoTitleCache.get(videoId);
+  try {
+    const stored = window.localStorage.getItem(`youtube-title:${videoId}`);
+    if (stored) {
+      videoTitleCache.set(videoId, stored);
+      return stored;
+    }
+  } catch {}
+  return '';
+}
+
+function storeVideoTitle(videoId, title) {
+  if (!title) return;
+  videoTitleCache.set(videoId, title);
+  try { window.localStorage.setItem(`youtube-title:${videoId}`, title); } catch {}
+}
+
+async function fetchVideoTitle(videoId) {
+  const cached = readStoredVideoTitle(videoId);
+  if (cached) return cached;
+
+  const watchUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
+  const endpoints = [
+    `https://www.youtube.com/oembed?url=${encodeURIComponent(watchUrl)}&format=json`,
+    `https://noembed.com/embed?url=${encodeURIComponent(watchUrl)}`
+  ];
+
+  let lastError = null;
+  for (const endpoint of endpoints) {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 9000);
+    try {
+      const response = await fetch(endpoint, { signal: controller.signal, mode: 'cors' });
+      if (!response.ok) throw new Error('تعذر قراءة اسم الفيديو');
+      const data = await response.json();
+      const title = typeof data.title === 'string' ? data.title.trim() : '';
+      if (!title) throw new Error('اسم الفيديو فارغ');
+      storeVideoTitle(videoId, title);
+      return title;
+    } catch (error) {
+      lastError = error;
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
+  throw lastError || new Error('تعذر قراءة اسم الفيديو');
+}
+
+function applyVideoTitle(button, videoId, playlistKey, index, title) {
+  if (!button.isConnected || button.dataset.videoId !== videoId || !title) return;
+  const titleElement = button.querySelector('strong');
+  const image = button.querySelector('img');
+  if (titleElement) titleElement.textContent = title;
+  if (image) image.alt = `صورة ${title}`;
+  button.dataset.videoTitle = title;
+  button.setAttribute('aria-label', `تشغيل ${title}`);
+
+  if (!videoPlayerSection.classList.contains('hidden') && videoPlayer.dataset.videoId === videoId) {
+    activeVideoTitle.textContent = title;
+  }
+}
+
+function hydrateVideoTitle(button, videoId, playlistKey, index) {
+  const cached = readStoredVideoTitle(videoId);
+  if (cached) {
+    applyVideoTitle(button, videoId, playlistKey, index, cached);
+    return;
+  }
+
+  fetchVideoTitle(videoId)
+    .then((title) => applyVideoTitle(button, videoId, playlistKey, index, title))
+    .catch(() => {});
 }
 
 function createVideoItem(videoId, index, playlistKey) {
@@ -525,6 +616,7 @@ function createVideoItem(videoId, index, playlistKey) {
   button.type = 'button';
   button.className = 'video-item-card';
   button.dataset.videoId = videoId;
+  button.dataset.videoTitle = '';
   button.setAttribute('aria-label', `تشغيل ${playlist.itemLabel} ${index + 1} من ${playlist.title}`);
   button.innerHTML = `
     <span class="video-thumbnail-wrap">
@@ -537,7 +629,8 @@ function createVideoItem(videoId, index, playlistKey) {
       <small>اضغط للمشاهدة</small>
     </span>
   `;
-  button.addEventListener('click', () => playSingleVideo(playlistKey, videoId, index));
+  button.addEventListener('click', () => playSingleVideo(playlistKey, videoId, index, button.dataset.videoTitle));
+  hydrateVideoTitle(button, videoId, playlistKey, index);
   return button;
 }
 
@@ -600,11 +693,12 @@ function closeVideoBrowser() {
 function stopVideoPlayback() {
   if (!videoPlayer) return;
   videoPlayer.src = 'about:blank';
+  videoPlayer.dataset.videoId = '';
   videoPlayerSection.classList.add('hidden');
   videoItemsGrid.querySelectorAll('.video-item-card').forEach((button) => button.classList.remove('playing'));
 }
 
-function playSingleVideo(playlistKey, videoId, index) {
+function playSingleVideo(playlistKey, videoId, index, resolvedTitle = '') {
   const playlist = videoPlaylists[playlistKey];
   if (!playlist) return;
 
@@ -618,7 +712,9 @@ function playSingleVideo(playlistKey, videoId, index) {
 
   videoConnectionNote.textContent = 'تحتاج مشاهدة المقاطع إلى اتصال بالإنترنت.';
   videoConnectionNote.classList.remove('offline-note');
-  activeVideoTitle.textContent = `${playlist.itemLabel} ${index + 1} · ${playlist.title}`;
+  const exactTitle = resolvedTitle || readStoredVideoTitle(videoId);
+  activeVideoTitle.textContent = exactTitle || `${playlist.itemLabel} ${index + 1} · ${playlist.title}`;
+  videoPlayer.dataset.videoId = videoId;
   openVideoYoutube.href = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&list=${encodeURIComponent(playlist.playlistId)}`;
   videoPlayer.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&playsinline=1&hl=ar&rel=0`;
   videoPlayerSection.classList.remove('hidden');
@@ -768,3 +864,18 @@ if ('serviceWorker' in navigator) {
     }
   });
 }
+
+
+function shouldAllowTextInteraction(target) {
+  return Boolean(target && target.closest && target.closest('input, textarea, [contenteditable="true"]'));
+}
+
+document.addEventListener('contextmenu', (event) => {
+  if (!shouldAllowTextInteraction(event.target)) event.preventDefault();
+});
+document.addEventListener('selectstart', (event) => {
+  if (!shouldAllowTextInteraction(event.target)) event.preventDefault();
+});
+document.addEventListener('dragstart', (event) => {
+  if (!shouldAllowTextInteraction(event.target)) event.preventDefault();
+});
