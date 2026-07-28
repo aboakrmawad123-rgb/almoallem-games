@@ -26,7 +26,7 @@
   <link rel="preload" as="image" href="lion.webp">
   <link rel="preload" as="image" href="duck.webp">
   <link rel="preload" as="image" href="crocodile.webp">
-  <link rel="stylesheet" href="style.css?v=8">
+  <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
   <main class="app-shell">
@@ -45,7 +45,7 @@
     <section id="home-screen" class="panel home-panel" aria-labelledby="home-title">
       <div class="welcome-row">
         <div>
-          <span class="welcome-badge">الإصدار الرابع</span>
+          <span class="welcome-badge">الإصدار الخامس</span>
           <h2 id="home-title">ماذا سنلعب اليوم؟</h2>
           <p>تطبيق واحد يجمع ألعاب المعلّم الصغير، وسنضيف إليه ألعابًا جديدة باستمرار.</p>
         </div>
@@ -73,6 +73,19 @@
             <span class="game-status">المستوى الأول متاح</span>
             <strong>الحرف والحيوان</strong>
             <small>اختر الحيوان الذي يبدأ بالحرف المطلوب</small>
+          </span>
+          <span class="game-arrow" aria-hidden="true">←</span>
+        </button>
+
+        <button id="video-library-card" class="game-choice available" type="button">
+          <span class="game-preview video-preview" aria-hidden="true">
+            <span class="video-preview-card quran-preview-card"><span>📖</span><i>▶</i></span>
+            <span class="video-preview-card azzam-preview-card"><span>🎬</span><i>▶</i></span>
+          </span>
+          <span class="game-copy">
+            <span class="game-status">قائمتان متاحتان</span>
+            <strong>مكتبة الفيديو</strong>
+            <small>شاهد جزء عم ويوميات عزّام داخل التطبيق</small>
           </span>
           <span class="game-arrow" aria-hidden="true">←</span>
         </button>
@@ -157,6 +170,41 @@
       <p id="letters-feedback" class="letters-feedback" aria-live="assertive">اختر بطاقة واحدة</p>
       <button id="letters-reset-button" class="secondary-button letters-reset-button" type="button">إعادة المستوى</button>
     </section>
+
+
+    <section id="video-library-screen" class="panel video-library-panel hidden" aria-labelledby="video-library-title">
+      <div class="screen-heading video-library-heading">
+        <button id="video-library-home-button" class="mini-back-button" type="button" aria-label="العودة إلى الألعاب">←</button>
+        <div><p class="screen-kicker">مقاطع المعلّم الصغير</p><h2 id="video-library-title">مكتبة الفيديو</h2></div>
+      </div>
+
+      <div id="playlist-picker" class="playlist-picker" aria-label="اختر قائمة المشاهدة">
+        <button class="playlist-card" type="button" data-playlist="juz-amma">
+          <span class="playlist-art quran-playlist-art" aria-hidden="true"><span class="playlist-emoji">📖</span><span class="playlist-play-icon">▶</span></span>
+          <span class="playlist-copy"><span class="playlist-badge">حفظ القرآن الكريم</span><strong>جزء عم</strong><small>شاهد المقاطع بالتسلسل داخل التطبيق</small></span>
+          <span class="game-arrow" aria-hidden="true">←</span>
+        </button>
+
+        <button class="playlist-card" type="button" data-playlist="azzam-diaries">
+          <span class="playlist-art azzam-playlist-art" aria-hidden="true"><span class="playlist-emoji">🎬</span><span class="playlist-play-icon">▶</span></span>
+          <span class="playlist-copy"><span class="playlist-badge">آداب وأدعية للأطفال</span><strong>يوميات عزّام</strong><small>شاهد حلقات عزّام التعليمية داخل التطبيق</small></span>
+          <span class="game-arrow" aria-hidden="true">←</span>
+        </button>
+      </div>
+
+      <section id="video-player-section" class="video-player-section hidden" aria-labelledby="active-playlist-title">
+        <div class="video-player-header">
+          <div><p class="screen-kicker">يُعرض الآن</p><h3 id="active-playlist-title">جزء عم</h3></div>
+          <button id="close-video-player" class="video-close-button" type="button">إيقاف</button>
+        </div>
+        <div class="video-frame-wrap">
+          <iframe id="video-player" title="مشغّل فيديو المعلّم الصغير" src="about:blank" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+        <p id="video-connection-note" class="video-connection-note">تحتاج مشاهدة المقاطع إلى اتصال بالإنترنت.</p>
+        <a id="open-playlist-youtube" class="youtube-fallback-link" href="#" target="_blank" rel="noopener noreferrer">فتح القائمة في يوتيوب</a>
+      </section>
+    </section>
+
   </main>
 
   <div id="menu-backdrop" class="menu-backdrop hidden" aria-hidden="true"></div>
@@ -228,6 +276,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=8"></script>
+  <script src="script.js?v=9"></script>
 </body>
 </html>

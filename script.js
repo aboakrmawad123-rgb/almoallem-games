@@ -30,16 +30,31 @@ const animalLevelOne = [
   { id: 'crocodile', letter: 'ت', label: 'تمساح', image: 'crocodile.webp' }
 ];
 
+const videoPlaylists = {
+  'juz-amma': {
+    title: 'جزء عم',
+    playlistId: 'PLpDIigZEd1R8DY3gi0WthA3KWAyIZkmLQ',
+    youtubeUrl: 'https://youtube.com/playlist?list=PLpDIigZEd1R8DY3gi0WthA3KWAyIZkmLQ'
+  },
+  'azzam-diaries': {
+    title: 'يوميات عزّام',
+    playlistId: 'PLJ8q6LNI4S5s',
+    youtubeUrl: 'https://youtube.com/playlist?list=PLJ8q6LNI4S5s'
+  }
+};
+
 const homeScreen = document.querySelector('#home-screen');
 const levelScreen = document.querySelector('#level-screen');
 const gameScreen = document.querySelector('#game-screen');
 const lettersLevelScreen = document.querySelector('#letters-level-screen');
 const lettersGameScreen = document.querySelector('#letters-game-screen');
-const allScreens = [homeScreen, levelScreen, gameScreen, lettersLevelScreen, lettersGameScreen];
+const videoLibraryScreen = document.querySelector('#video-library-screen');
+const allScreens = [homeScreen, levelScreen, gameScreen, lettersLevelScreen, lettersGameScreen, videoLibraryScreen];
 
 const board = document.querySelector('#game-board');
 const memoryGameCard = document.querySelector('#memory-game-card');
 const lettersGameCard = document.querySelector('#letters-game-card');
+const videoLibraryCard = document.querySelector('#video-library-card');
 const levelHomeButton = document.querySelector('#level-home-button');
 const levelButtons = [...document.querySelectorAll('.level-card[data-level]')];
 const startButton = document.querySelector('#start-button');
@@ -69,6 +84,15 @@ const lettersFeedback = document.querySelector('#letters-feedback');
 const lettersWinModal = document.querySelector('#letters-win-modal');
 const lettersPlayAgainButton = document.querySelector('#letters-play-again-button');
 const lettersHomeButton = document.querySelector('#letters-home-button');
+
+const videoLibraryHomeButton = document.querySelector('#video-library-home-button');
+const playlistButtons = [...document.querySelectorAll('.playlist-card[data-playlist]')];
+const videoPlayerSection = document.querySelector('#video-player-section');
+const videoPlayer = document.querySelector('#video-player');
+const activePlaylistTitle = document.querySelector('#active-playlist-title');
+const openPlaylistYoutube = document.querySelector('#open-playlist-youtube');
+const closeVideoPlayerButton = document.querySelector('#close-video-player');
+const videoConnectionNote = document.querySelector('#video-connection-note');
 
 
 const moreMenuButton = document.querySelector('#more-menu-button');
@@ -309,7 +333,44 @@ function checkAnimalAnswer(button, isCorrect) {
   }, 850);
 }
 
+function stopVideoPlayback() {
+  if (!videoPlayer) return;
+  videoPlayer.src = 'about:blank';
+  videoPlayerSection.classList.add('hidden');
+  playlistButtons.forEach((button) => button.classList.remove('selected'));
+}
+
+function playVideoPlaylist(playlistKey) {
+  const playlist = videoPlaylists[playlistKey];
+  if (!playlist) return;
+
+  if (!navigator.onLine) {
+    videoConnectionNote.textContent = 'لا يوجد اتصال بالإنترنت حاليًا. اتصل بالإنترنت ثم حاول مرة أخرى.';
+    videoConnectionNote.classList.add('offline-note');
+    videoPlayerSection.classList.remove('hidden');
+    videoPlayer.src = 'about:blank';
+    activePlaylistTitle.textContent = playlist.title;
+    openPlaylistYoutube.href = playlist.youtubeUrl;
+    return;
+  }
+
+  videoConnectionNote.textContent = 'تحتاج مشاهدة المقاطع إلى اتصال بالإنترنت.';
+  videoConnectionNote.classList.remove('offline-note');
+  activePlaylistTitle.textContent = playlist.title;
+  openPlaylistYoutube.href = playlist.youtubeUrl;
+  playlistButtons.forEach((button) => button.classList.toggle('selected', button.dataset.playlist === playlistKey));
+  videoPlayer.src = `https://www.youtube-nocookie.com/embed?listType=playlist&list=${encodeURIComponent(playlist.playlistId)}&playsinline=1&hl=ar&rel=0`;
+  videoPlayerSection.classList.remove('hidden');
+  window.setTimeout(() => videoPlayerSection.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+}
+
+function showVideoLibrary() {
+  headerSubtitle.textContent = 'شاهد مقاطع المعلّم الصغير';
+  showOnly(videoLibraryScreen);
+}
+
 function showOnly(screen) {
+  if (screen !== videoLibraryScreen) stopVideoPlayback();
   allScreens.forEach((item) => item.classList.add('hidden'));
   screen.classList.remove('hidden');
   winModal.classList.add('hidden');
@@ -375,6 +436,7 @@ document.addEventListener('keydown', (event) => {
 
 memoryGameCard.addEventListener('click', showLevels);
 lettersGameCard.addEventListener('click', showLettersLevels);
+videoLibraryCard.addEventListener('click', showVideoLibrary);
 levelHomeButton.addEventListener('click', showHome);
 levelButtons.forEach((button) => button.addEventListener('click', () => selectLevel(button.dataset.level)));
 startButton.addEventListener('click', showGame);
@@ -390,6 +452,19 @@ lettersResetButton.addEventListener('click', startAnimalGame);
 lettersPlayAgainButton.addEventListener('click', showLettersGame);
 lettersHomeButton.addEventListener('click', showHome);
 
+videoLibraryHomeButton.addEventListener('click', showHome);
+playlistButtons.forEach((button) => button.addEventListener('click', () => playVideoPlaylist(button.dataset.playlist)));
+closeVideoPlayerButton.addEventListener('click', stopVideoPlayback);
+window.addEventListener('offline', () => {
+  if (!videoLibraryScreen.classList.contains('hidden')) {
+    videoConnectionNote.textContent = 'انقطع اتصال الإنترنت. قد يتوقف تشغيل المقاطع مؤقتًا.';
+    videoConnectionNote.classList.add('offline-note');
+  }
+});
+window.addEventListener('online', () => {
+  videoConnectionNote.textContent = 'تحتاج مشاهدة المقاطع إلى اتصال بالإنترنت.';
+  videoConnectionNote.classList.remove('offline-note');
+});
 window.addEventListener('beforeinstallprompt', (event) => {
   event.preventDefault();
   deferredInstallPrompt = event;
