@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-games-v7-flat';
+const CACHE_NAME = 'almoallem-games-v8-social-menu';
 const APP_SHELL = [
   './',
   './index.html',
-  './style.css?v=7',
-  './script.js?v=7',
+  './style.css?v=8',
+  './script.js?v=8',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',

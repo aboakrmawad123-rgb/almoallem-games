@@ -28,6 +28,7 @@ button { font: inherit; }
 button:focus-visible { outline: 4px solid rgba(255, 201, 40, .75); outline-offset: 3px; }
 
 .app-shell {
+  position: relative;
   width: min(100% - 24px, 760px);
   margin: 0 auto;
   padding: max(18px, env(safe-area-inset-top)) 0 max(28px, env(safe-area-inset-bottom));
@@ -538,4 +539,135 @@ h1 { margin: 0; font-size: clamp(1.7rem, 6.5vw, 2.6rem); line-height: 1.1; }
 @media (max-width: 410px) {
   .animal-preview img { width: 37px; }
   .animal-options { gap: 7px; }
+}
+
+
+/* Version 8: contact and social menu */
+.more-menu-button {
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  left: 0;
+  z-index: 10;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(255, 255, 255, .95);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .86);
+  color: var(--blue-900);
+  box-shadow: 0 8px 24px rgba(20, 105, 154, .16);
+  cursor: pointer;
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+  backdrop-filter: blur(10px);
+}
+.more-menu-button:active { transform: scale(.95); }
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgba(6, 55, 91, .48);
+  backdrop-filter: blur(5px);
+}
+.social-menu {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 31;
+  width: min(92vw, 390px);
+  height: 100dvh;
+  overflow-y: auto;
+  padding: max(22px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, #f8fdff 0%, #eef9ff 64%, #fff9e9 100%);
+  box-shadow: 18px 0 55px rgba(4, 48, 80, .28);
+  animation: social-menu-in .24s ease both;
+}
+.social-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  text-align: right;
+}
+.social-menu-header h2 { margin: 3px 0 0; font-size: 1.55rem; }
+.menu-close-button {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 14px;
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: 0 7px 18px rgba(25, 111, 162, .14);
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.social-menu-links { display: grid; gap: 10px; }
+.social-menu-link {
+  width: 100%;
+  min-height: 70px;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 2px solid #dceef8;
+  border-radius: 19px;
+  background: rgba(255, 255, 255, .92);
+  color: var(--ink);
+  text-decoration: none;
+  text-align: right;
+  box-shadow: 0 8px 18px rgba(25, 111, 162, .08);
+  cursor: pointer;
+}
+.menu-action-button { font: inherit; }
+.social-menu-link:hover { border-color: #9cdcff; transform: translateY(-1px); }
+.social-menu-link strong { display: block; font-size: .98rem; }
+.social-menu-link small { display: block; margin-top: 2px; color: var(--muted); font-weight: 700; font-size: .78rem; }
+.social-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: var(--white);
+  background: var(--blue-700);
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+.social-letter { font-family: Arial, sans-serif; font-size: 1.45rem; }
+.external-arrow { color: var(--blue-700); font-size: 1.25rem; font-weight: 900; }
+.whatsapp-link .social-icon, .channel-link .social-icon { background: #22a85a; }
+.youtube-link .social-icon { background: #e32929; }
+.facebook-link .social-icon { background: #1877f2; }
+.instagram-link .social-icon { background: linear-gradient(135deg, #6b44c4, #dd2a7b, #f58529); }
+.tiktok-link .social-icon { background: #151515; }
+.share-link .social-icon { background: var(--blue-700); }
+.about-link .social-icon { background: #7b61b7; }
+.about-app-modal { z-index: 40; }
+.about-app-card { max-width: 420px; }
+.about-app-logo {
+  width: 92px;
+  aspect-ratio: 1;
+  margin: 0 auto 12px;
+  border: 5px solid var(--white);
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--white);
+  box-shadow: 0 10px 25px rgba(11, 94, 168, .2);
+}
+.about-app-logo img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.65); }
+.about-app-card .primary-button { margin-top: 12px; }
+body.menu-open { overflow: hidden; }
+@keyframes social-menu-in {
+  from { opacity: 0; transform: translateX(-32px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@media (max-width: 620px) {
+  .more-menu-button { left: 2px; width: 44px; height: 44px; border-radius: 14px; }
+  .brand-header { padding-left: 44px; }
+  .social-menu { width: min(94vw, 370px); }
 }

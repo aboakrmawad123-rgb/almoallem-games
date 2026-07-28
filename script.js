@@ -70,6 +70,17 @@ const lettersWinModal = document.querySelector('#letters-win-modal');
 const lettersPlayAgainButton = document.querySelector('#letters-play-again-button');
 const lettersHomeButton = document.querySelector('#letters-home-button');
 
+
+const moreMenuButton = document.querySelector('#more-menu-button');
+const socialMenu = document.querySelector('#social-menu');
+const menuBackdrop = document.querySelector('#menu-backdrop');
+const closeSocialMenuButton = document.querySelector('#close-social-menu');
+const shareAppButton = document.querySelector('#share-app-button');
+const shareAppStatus = document.querySelector('#share-app-status');
+const aboutAppButton = document.querySelector('#about-app-button');
+const aboutAppModal = document.querySelector('#about-app-modal');
+const closeAboutAppButton = document.querySelector('#close-about-app');
+
 let selectedLevel = 'easy';
 let activeCards = levels.easy.cards;
 let firstCard = null;
@@ -83,6 +94,57 @@ let animalQuestions = [];
 let animalQuestionIndex = 0;
 let animalCorrectCount = 0;
 let animalLocked = false;
+
+
+function openSocialMenu() {
+  socialMenu.classList.remove('hidden');
+  menuBackdrop.classList.remove('hidden');
+  socialMenu.setAttribute('aria-hidden', 'false');
+  moreMenuButton.setAttribute('aria-expanded', 'true');
+  document.body.classList.add('menu-open');
+  closeSocialMenuButton.focus();
+}
+
+function closeSocialMenu() {
+  socialMenu.classList.add('hidden');
+  menuBackdrop.classList.add('hidden');
+  socialMenu.setAttribute('aria-hidden', 'true');
+  moreMenuButton.setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('menu-open');
+}
+
+async function shareApp() {
+  const shareData = {
+    title: 'ألعاب المعلّم الصغير',
+    text: 'جرّب ألعاب المعلّم الصغير التعليمية الممتعة للأطفال.',
+    url: 'https://almoallemmemorygame.vercel.app/'
+  };
+
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+      return;
+    }
+    await navigator.clipboard.writeText(shareData.url);
+    shareAppStatus.textContent = 'تم نسخ رابط التطبيق ✓';
+    window.setTimeout(() => { shareAppStatus.textContent = 'أرسل التطبيق إلى الأصدقاء'; }, 2200);
+  } catch (error) {
+    if (error && error.name === 'AbortError') return;
+    shareAppStatus.textContent = 'تعذرت المشاركة، حاول مرة أخرى';
+    window.setTimeout(() => { shareAppStatus.textContent = 'أرسل التطبيق إلى الأصدقاء'; }, 2200);
+  }
+}
+
+function showAboutApp() {
+  closeSocialMenu();
+  aboutAppModal.classList.remove('hidden');
+  closeAboutAppButton.focus();
+}
+
+function closeAboutApp() {
+  aboutAppModal.classList.add('hidden');
+  moreMenuButton.focus();
+}
 
 function shuffle(items) {
   const shuffled = [...items];
@@ -292,6 +354,24 @@ function showAnimalWin() {
   lettersWinModal.classList.remove('hidden');
   lettersPlayAgainButton.focus();
 }
+
+
+
+moreMenuButton.addEventListener('click', openSocialMenu);
+closeSocialMenuButton.addEventListener('click', closeSocialMenu);
+menuBackdrop.addEventListener('click', closeSocialMenu);
+socialMenu.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeSocialMenu));
+shareAppButton.addEventListener('click', shareApp);
+aboutAppButton.addEventListener('click', showAboutApp);
+closeAboutAppButton.addEventListener('click', closeAboutApp);
+aboutAppModal.addEventListener('click', (event) => {
+  if (event.target === aboutAppModal) closeAboutApp();
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  if (!aboutAppModal.classList.contains('hidden')) closeAboutApp();
+  else if (!socialMenu.classList.contains('hidden')) closeSocialMenu();
+});
 
 memoryGameCard.addEventListener('click', showLevels);
 lettersGameCard.addEventListener('click', showLettersLevels);
