@@ -144,6 +144,7 @@ let visibleVideoCount = 0;
 const VIDEO_PAGE_SIZE = 12;
 const playlistVideoCache = new Map();
 const videoTitleCache = new Map();
+const videoTitleRequests = new Map();
 
 function openSocialMenu() {
   socialMenu.classList.remove('hidden');
@@ -556,32 +557,44 @@ async function fetchVideoTitle(videoId) {
   const cached = readStoredVideoTitle(videoId);
   if (cached) return cached;
 
-  const watchUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
-  const endpoints = [
-    `https://www.youtube.com/oembed?url=${encodeURIComponent(watchUrl)}&format=json`,
-    `https://noembed.com/embed?url=${encodeURIComponent(watchUrl)}`
-  ];
+  if (videoTitleRequests.has(videoId)) return videoTitleRequests.get(videoId);
 
-  let lastError = null;
-  for (const endpoint of endpoints) {
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 9000);
-    try {
-      const response = await fetch(endpoint, { signal: controller.signal, mode: 'cors' });
-      if (!response.ok) throw new Error('تعذر قراءة اسم الفيديو');
-      const data = await response.json();
-      const title = typeof data.title === 'string' ? data.title.trim() : '';
-      if (!title) throw new Error('اسم الفيديو فارغ');
-      storeVideoTitle(videoId, title);
-      return title;
-    } catch (error) {
-      lastError = error;
-    } finally {
-      window.clearTimeout(timeout);
+  const requestPromise = (async () => {
+    const watchUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
+    const endpoints = [
+      { url: `/youtube-title/${encodeURIComponent(videoId)}`, options: { cache: 'no-store', credentials: 'same-origin' } },
+      { url: `https://www.youtube.com/oembed?url=${encodeURIComponent(watchUrl)}&format=json`, options: { mode: 'cors', cache: 'no-store' } },
+      { url: `https://noembed.com/embed?url=${encodeURIComponent(watchUrl)}`, options: { mode: 'cors', cache: 'no-store' } }
+    ];
+
+    let lastError = null;
+    for (const endpoint of endpoints) {
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 12000);
+      try {
+        const response = await fetch(endpoint.url, { ...endpoint.options, signal: controller.signal });
+        if (!response.ok) throw new Error('تعذر قراءة اسم الفيديو');
+        const data = await response.json();
+        const title = typeof data.title === 'string' ? data.title.trim() : '';
+        if (!title) throw new Error('اسم الفيديو فارغ');
+        storeVideoTitle(videoId, title);
+        return title;
+      } catch (error) {
+        lastError = error;
+      } finally {
+        window.clearTimeout(timeout);
+      }
     }
-  }
 
-  throw lastError || new Error('تعذر قراءة اسم الفيديو');
+    throw lastError || new Error('تعذر قراءة اسم الفيديو');
+  })();
+
+  videoTitleRequests.set(videoId, requestPromise);
+  try {
+    return await requestPromise;
+  } finally {
+    videoTitleRequests.delete(videoId);
+  }
 }
 
 function applyVideoTitle(button, videoId, playlistKey, index, title) {
@@ -598,7 +611,7 @@ function applyVideoTitle(button, videoId, playlistKey, index, title) {
   }
 }
 
-function hydrateVideoTitle(button, videoId, playlistKey, index) {
+function hydrateVideoTitle(button, videoId, playlistKey, index, attempt = 0) {
   const cached = readStoredVideoTitle(videoId);
   if (cached) {
     applyVideoTitle(button, videoId, playlistKey, index, cached);
@@ -607,7 +620,11 @@ function hydrateVideoTitle(button, videoId, playlistKey, index) {
 
   fetchVideoTitle(videoId)
     .then((title) => applyVideoTitle(button, videoId, playlistKey, index, title))
-    .catch(() => {});
+    .catch(() => {
+      if (!button.isConnected || button.dataset.videoId !== videoId || attempt >= 2) return;
+      const delays = [2500, 8000, 20000];
+      window.setTimeout(() => hydrateVideoTitle(button, videoId, playlistKey, index, attempt + 1), delays[attempt]);
+    });
 }
 
 function createVideoItem(videoId, index, playlistKey) {

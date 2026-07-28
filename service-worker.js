@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-games-v13-playlist-titles-longpress-fix';
+const CACHE_NAME = 'almoallem-games-v14-stable-youtube-titles';
 const APP_SHELL = [
   './',
   './index.html',
-  './style.css?v=13',
-  './script.js?v=13',
+  './style.css?v=14',
+  './script.js?v=14',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
@@ -40,6 +40,12 @@ self.addEventListener('fetch', (event) => {
 
   const requestUrl = new URL(event.request.url);
   if (requestUrl.origin !== self.location.origin) return;
+
+  // أسماء فيديوهات يوتيوب يجب أن تبقى من الشبكة ولا تُخزَّن كملف ثابت.
+  if (requestUrl.pathname.startsWith('/youtube-title/')) {
+    event.respondWith(fetch(event.request, { cache: 'no-store' }));
+    return;
+  }
 
   if (event.request.mode === 'navigate') {
     event.respondWith(
