@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.almoallem.alsagheer.games",
+        "sha256_cert_fingerprints": ["61:28:3B:05:2C:BD:21:B5:71:DE:DE:D6:00:3D:79:95:36:ED:18:32:FC:E9:2F:D1:6D:72:F8:39:CE:A0:AD:E2"]
+      }
+    }]
