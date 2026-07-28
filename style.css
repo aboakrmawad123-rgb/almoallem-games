@@ -672,54 +672,42 @@ body.menu-open { overflow: hidden; }
   .social-menu { width: min(94vw, 370px); }
 }
 
-/* Version 9: video library */
-.video-preview {
-  position: relative;
-  direction: ltr;
-  gap: 8px;
-  padding: 12px;
-  background: linear-gradient(145deg, #e9f8ff, #fff8db);
-}
-.video-preview-card {
-  position: relative;
-  width: 58px;
-  aspect-ratio: 3 / 4;
+/* Version 10: main tabs and individual video chooser */
+.main-tabs {
   display: grid;
-  place-items: center;
-  border: 3px solid var(--white);
-  border-radius: 12px;
-  background: linear-gradient(180deg, #48b9f6, #238fd4);
-  box-shadow: 0 8px 16px rgba(30, 91, 128, .2);
-  font-size: 2rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+  padding: 7px;
+  border: 2px solid #d9eef8;
+  border-radius: 22px;
+  background: #eff9fe;
 }
-.video-preview-card:nth-child(1) { transform: rotate(-7deg); }
-.video-preview-card:nth-child(2) { transform: rotate(7deg); }
-.video-preview-card i {
-  position: absolute;
-  right: 5px;
-  bottom: 5px;
-  width: 22px;
-  height: 22px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
+.main-tab {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1.02rem;
+}
+.main-tab span { font-size: 1.25rem; }
+.main-tab.active {
   background: var(--white);
-  color: #e32929;
-  font-style: normal;
-  font-size: .72rem;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, .15);
+  color: var(--blue-900);
+  box-shadow: 0 8px 20px rgba(25, 111, 162, .15);
 }
-.quran-preview-card { background: linear-gradient(180deg, #f6c94b, #e9a72f); }
-.azzam-preview-card { background: linear-gradient(180deg, #55c5fa, #278fd4); }
+.home-tab-panel { min-width: 0; }
+.watch-intro { margin-bottom: 22px; text-align: right; }
+.watch-intro h2 { margin: 8px 0 6px; font-size: clamp(1.55rem, 5.5vw, 2rem); }
+.watch-intro p { margin: 0; color: var(--muted); line-height: 1.8; font-weight: 700; }
 
-.video-library-panel {
-  padding: clamp(18px, 4vw, 30px);
-}
-.video-library-heading { margin-bottom: 20px; }
-.playlist-picker {
-  display: grid;
-  gap: 14px;
-}
+.playlist-picker { display: grid; gap: 14px; }
 .playlist-card {
   width: 100%;
   min-height: 148px;
@@ -790,8 +778,87 @@ body.menu-open { overflow: hidden; }
   font-size: .8rem;
   font-weight: 900;
 }
+
+.video-browser-section { scroll-margin-top: 16px; }
+.video-browser-header {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 15px;
+  text-align: right;
+}
+.video-browser-header h3 { margin: 2px 0 0; font-size: clamp(1.4rem, 5vw, 1.85rem); }
+.video-list-status {
+  margin: 13px 0;
+  padding: 11px 14px;
+  border-radius: 15px;
+  background: var(--blue-100);
+  color: var(--blue-900);
+  text-align: center;
+  font-weight: 900;
+}
+.video-list-status.error-status { background: #fff0f0; color: #aa3333; }
+.video-items-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+.video-item-card {
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid #d7edf8;
+  border-radius: 19px;
+  background: var(--white);
+  color: var(--ink);
+  text-align: right;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(25, 111, 162, .11);
+}
+.video-item-card.playing { border-color: #e32929; box-shadow: 0 10px 24px rgba(227, 41, 41, .17); }
+.video-thumbnail-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #dbeaf1;
+}
+.video-thumbnail-wrap img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.video-item-play {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(227, 41, 41, .93);
+  color: var(--white);
+  font-size: 1.15rem;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 7px 16px rgba(60, 0, 0, .28);
+}
+.video-item-number {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  min-width: 32px;
+  min-height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(10, 30, 42, .82);
+  color: var(--white);
+  font-weight: 900;
+}
+.video-item-copy { display: flex; flex-direction: column; gap: 2px; padding: 11px 12px 13px; }
+.video-item-copy strong { font-size: 1rem; }
+.video-item-copy small { color: var(--muted); font-weight: 700; }
+
 .video-player-section {
-  margin-top: 22px;
+  margin-bottom: 16px;
   padding: 16px;
   border: 2px solid #cceaf8;
   border-radius: 25px;
@@ -806,7 +873,7 @@ body.menu-open { overflow: hidden; }
   margin-bottom: 12px;
   text-align: right;
 }
-.video-player-header h3 { margin: 3px 0 0; font-size: 1.35rem; }
+.video-player-header h3 { margin: 3px 0 0; font-size: 1.22rem; }
 .video-close-button {
   min-width: 74px;
   min-height: 42px;
@@ -826,18 +893,8 @@ body.menu-open { overflow: hidden; }
   background: #0e2433;
   box-shadow: 0 12px 26px rgba(8, 50, 77, .22);
 }
-.video-frame-wrap iframe {
-  width: 100%;
-  height: 100%;
-  display: block;
-  border: 0;
-}
-.video-connection-note {
-  margin: 12px 0 10px;
-  color: var(--muted);
-  text-align: center;
-  font-weight: 700;
-}
+.video-frame-wrap iframe { width: 100%; height: 100%; display: block; border: 0; }
+.video-connection-note { margin: 12px 0 10px; color: var(--muted); text-align: center; font-weight: 700; }
 .video-connection-note.offline-note { color: #b23b3b; }
 .youtube-fallback-link {
   min-height: 48px;
@@ -852,9 +909,22 @@ body.menu-open { overflow: hidden; }
   font-weight: 900;
   text-decoration: none;
 }
+.playlist-error-link { grid-column: 1 / -1; }
+.youtube-discovery-shell {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  opacity: .01;
+  pointer-events: none;
+}
 
 @media (max-width: 620px) {
-  .video-preview-card { width: 46px; border-radius: 10px; font-size: 1.55rem; }
+  .home-panel { padding: 16px; }
+  .main-tabs { margin-bottom: 18px; }
+  .main-tab { min-height: 54px; font-size: .93rem; }
   .playlist-card { grid-template-columns: 105px minmax(0, 1fr) auto; min-height: 126px; gap: 11px; padding: 12px; }
   .playlist-art { min-height: 96px; border-radius: 17px; }
   .playlist-emoji { font-size: 3rem; }
@@ -863,7 +933,100 @@ body.menu-open { overflow: hidden; }
   .video-frame-wrap { border-radius: 15px; }
 }
 @media (max-width: 410px) {
+  .main-tab { gap: 6px; font-size: .84rem; }
+  .main-tab span { font-size: 1.05rem; }
   .playlist-card { grid-template-columns: 90px minmax(0, 1fr); }
   .playlist-card .game-arrow { display: none; }
   .playlist-copy small { font-size: .78rem; }
+  .video-items-grid { gap: 10px; }
+  .video-item-play { width: 42px; height: 42px; }
+  .video-item-copy { padding: 9px 10px 11px; }
+  .video-item-copy strong { font-size: .9rem; }
+}
+
+
+/* Version 11: principal section cards and nested section navigation */
+.main-sections-grid { margin-top: 4px; }
+.section-choice { min-height: 162px; }
+.mixed-games-preview {
+  direction: ltr;
+  padding: 10px 4px;
+}
+.mixed-games-preview img {
+  width: 54px;
+  border-radius: 9px;
+  border: 2px solid var(--white);
+  box-shadow: 0 7px 14px rgba(30, 91, 128, .18);
+}
+.mixed-games-preview img:nth-child(1) { transform: rotate(-9deg) translateX(11px); }
+.mixed-games-preview img:nth-child(2) { z-index: 2; transform: translateY(-5px); }
+.mixed-games-preview img:nth-child(3) { transform: rotate(9deg) translateX(-11px); }
+.learning-preview {
+  position: relative;
+  direction: ltr;
+  gap: 0;
+  padding: 10px 6px;
+  background: linear-gradient(145deg, #fff8d8, #e6f8ff);
+}
+.learning-tile {
+  position: relative;
+  width: 68px;
+  aspect-ratio: .78;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 3px solid var(--white);
+  border-radius: 12px;
+  box-shadow: 0 8px 17px rgba(30, 91, 128, .2);
+}
+.learning-tile:first-child { transform: rotate(-8deg) translateX(7px); }
+.learning-tile:last-child { transform: rotate(8deg) translateX(-7px); }
+.quran-learning-tile { background: linear-gradient(145deg, #fff3b2, #f2c64f); }
+.azzam-learning-tile { background: #dff5ff; }
+.azzam-learning-tile img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.48); }
+.learning-letter { color: #75570a; font-size: 2.05rem; font-weight: 900; }
+.learning-play {
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e32929;
+  color: #fff;
+  font-size: .65rem;
+  box-shadow: 0 4px 9px rgba(150, 20, 20, .22);
+}
+.section-screen-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  margin-bottom: 24px;
+  text-align: right;
+}
+.section-screen-heading h2 {
+  margin: 2px 0 5px;
+  font-size: clamp(1.55rem, 5.5vw, 2rem);
+}
+.section-screen-heading p:last-child {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.75;
+  font-weight: 700;
+}
+
+@media (max-width: 620px) {
+  .section-choice { min-height: 134px; }
+  .mixed-games-preview img { width: 42px; }
+  .learning-tile { width: 53px; border-radius: 10px; }
+  .learning-letter { font-size: 1.7rem; }
+  .learning-play { width: 21px; height: 21px; font-size: .57rem; }
+  .section-screen-heading { margin-bottom: 19px; }
+}
+@media (max-width: 410px) {
+  .mixed-games-preview img { width: 37px; }
+  .learning-tile { width: 44px; }
+  .learning-letter { font-size: 1.45rem; }
 }

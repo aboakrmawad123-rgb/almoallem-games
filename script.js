@@ -33,28 +33,35 @@ const animalLevelOne = [
 const videoPlaylists = {
   'juz-amma': {
     title: 'جزء عم',
+    itemLabel: 'المقطع',
     playlistId: 'PLpDIigZEd1R8DY3gi0WthA3KWAyIZkmLQ',
     youtubeUrl: 'https://youtube.com/playlist?list=PLpDIigZEd1R8DY3gi0WthA3KWAyIZkmLQ'
   },
   'azzam-diaries': {
     title: 'يوميات عزّام',
+    itemLabel: 'الحلقة',
     playlistId: 'PLJ8q6LNI4S5s',
     youtubeUrl: 'https://youtube.com/playlist?list=PLJ8q6LNI4S5s'
   }
 };
 
 const homeScreen = document.querySelector('#home-screen');
+const gamesMenuScreen = document.querySelector('#games-menu-screen');
+const watchMenuScreen = document.querySelector('#watch-menu-screen');
 const levelScreen = document.querySelector('#level-screen');
 const gameScreen = document.querySelector('#game-screen');
 const lettersLevelScreen = document.querySelector('#letters-level-screen');
 const lettersGameScreen = document.querySelector('#letters-game-screen');
-const videoLibraryScreen = document.querySelector('#video-library-screen');
-const allScreens = [homeScreen, levelScreen, gameScreen, lettersLevelScreen, lettersGameScreen, videoLibraryScreen];
+const allScreens = [homeScreen, gamesMenuScreen, watchMenuScreen, levelScreen, gameScreen, lettersLevelScreen, lettersGameScreen];
+
+const openGamesSectionButton = document.querySelector('#open-games-section');
+const openWatchSectionButton = document.querySelector('#open-watch-section');
+const gamesMenuHomeButton = document.querySelector('#games-menu-home-button');
+const watchMenuHomeButton = document.querySelector('#watch-menu-home-button');
 
 const board = document.querySelector('#game-board');
 const memoryGameCard = document.querySelector('#memory-game-card');
 const lettersGameCard = document.querySelector('#letters-game-card');
-const videoLibraryCard = document.querySelector('#video-library-card');
 const levelHomeButton = document.querySelector('#level-home-button');
 const levelButtons = [...document.querySelectorAll('.level-card[data-level]')];
 const startButton = document.querySelector('#start-button');
@@ -85,15 +92,19 @@ const lettersWinModal = document.querySelector('#letters-win-modal');
 const lettersPlayAgainButton = document.querySelector('#letters-play-again-button');
 const lettersHomeButton = document.querySelector('#letters-home-button');
 
-const videoLibraryHomeButton = document.querySelector('#video-library-home-button');
+const playlistPicker = document.querySelector('#playlist-picker');
 const playlistButtons = [...document.querySelectorAll('.playlist-card[data-playlist]')];
+const videoBrowserSection = document.querySelector('#video-browser-section');
+const videoBrowserBackButton = document.querySelector('#video-browser-back');
+const videoBrowserTitle = document.querySelector('#video-browser-title');
+const videoListStatus = document.querySelector('#video-list-status');
+const videoItemsGrid = document.querySelector('#video-items-grid');
 const videoPlayerSection = document.querySelector('#video-player-section');
 const videoPlayer = document.querySelector('#video-player');
-const activePlaylistTitle = document.querySelector('#active-playlist-title');
-const openPlaylistYoutube = document.querySelector('#open-playlist-youtube');
+const activeVideoTitle = document.querySelector('#active-video-title');
+const openVideoYoutube = document.querySelector('#open-video-youtube');
 const closeVideoPlayerButton = document.querySelector('#close-video-player');
 const videoConnectionNote = document.querySelector('#video-connection-note');
-
 
 const moreMenuButton = document.querySelector('#more-menu-button');
 const socialMenu = document.querySelector('#social-menu');
@@ -119,6 +130,13 @@ let animalQuestionIndex = 0;
 let animalCorrectCount = 0;
 let animalLocked = false;
 
+let youtubeApiPromise = null;
+let discoveryPlayerPromise = null;
+let discoveryPlayer = null;
+let requestedPlaylistKey = null;
+let activePlaylistKey = null;
+let playlistPollTimer = null;
+const playlistVideoCache = new Map();
 
 function openSocialMenu() {
   socialMenu.classList.remove('hidden');
@@ -333,14 +351,209 @@ function checkAnimalAnswer(button, isCorrect) {
   }, 850);
 }
 
+function ensureYouTubeApi() {
+  if (window.YT && window.YT.Player) return Promise.resolve(window.YT);
+  if (youtubeApiPromise) return youtubeApiPromise;
+
+  youtubeApiPromise = new Promise((resolve, reject) => {
+    const existingCallback = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      if (typeof existingCallback === 'function') existingCallback();
+      resolve(window.YT);
+    };
+
+    let script = document.querySelector('script[data-youtube-iframe-api]');
+    if (!script) {
+      script = document.createElement('script');
+      script.src = 'https://www.youtube.com/iframe_api';
+      script.async = true;
+      script.dataset.youtubeIframeApi = 'true';
+      script.onerror = () => reject(new Error('تعذر تحميل مشغّل يوتيوب'));
+      document.head.appendChild(script);
+    }
+
+    window.setTimeout(() => {
+      if (!(window.YT && window.YT.Player)) reject(new Error('انتهت مهلة تحميل مشغّل يوتيوب'));
+    }, 15000);
+  });
+
+  return youtubeApiPromise;
+}
+
+function ensureDiscoveryPlayer() {
+  if (discoveryPlayer) return Promise.resolve(discoveryPlayer);
+  if (discoveryPlayerPromise) return discoveryPlayerPromise;
+
+  discoveryPlayerPromise = ensureYouTubeApi().then(() => new Promise((resolve, reject) => {
+    const initialPlaylist = videoPlaylists[requestedPlaylistKey] || videoPlaylists['juz-amma'];
+    discoveryPlayer = new window.YT.Player('youtube-discovery-player', {
+      width: '200',
+      height: '200',
+      host: 'https://www.youtube-nocookie.com',
+      playerVars: {
+        listType: 'playlist',
+        list: initialPlaylist.playlistId,
+        autoplay: 0,
+        controls: 0,
+        playsinline: 1,
+        rel: 0,
+        hl: 'ar',
+        origin: window.location.origin
+      },
+      events: {
+        onReady: (event) => resolve(event.target),
+        onError: () => {
+          if (requestedPlaylistKey) showPlaylistLoadError(requestedPlaylistKey);
+        }
+      }
+    });
+    window.setTimeout(() => reject(new Error('تعذر إنشاء قارئ قائمة التشغيل')), 12000);
+  }));
+
+  return discoveryPlayerPromise;
+}
+
+function showPlaylistLoadError(playlistKey) {
+  if (playlistKey !== activePlaylistKey) return;
+  window.clearTimeout(playlistPollTimer);
+  const playlist = videoPlaylists[playlistKey];
+  videoListStatus.classList.remove('hidden');
+  videoListStatus.classList.add('error-status');
+  videoListStatus.innerHTML = `تعذر تحميل مقاطع ${playlist.title}. تأكد من اتصال الإنترنت أو افتح القائمة في يوتيوب.`;
+  videoItemsGrid.replaceChildren();
+  const link = document.createElement('a');
+  link.className = 'youtube-fallback-link playlist-error-link';
+  link.href = playlist.youtubeUrl;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = 'فتح القائمة في يوتيوب';
+  videoItemsGrid.appendChild(link);
+}
+
+function pollPlaylistVideos(playlistKey, attempt = 0) {
+  if (playlistKey !== requestedPlaylistKey || playlistKey !== activePlaylistKey) return;
+  let videoIds = [];
+  try {
+    videoIds = discoveryPlayer && discoveryPlayer.getPlaylist ? discoveryPlayer.getPlaylist() || [] : [];
+  } catch {
+    videoIds = [];
+  }
+
+  if (videoIds.length > 0) {
+    playlistVideoCache.set(playlistKey, [...videoIds]);
+    renderVideoItems(playlistKey, videoIds);
+    return;
+  }
+
+  if (attempt >= 35) {
+    showPlaylistLoadError(playlistKey);
+    return;
+  }
+
+  playlistPollTimer = window.setTimeout(() => pollPlaylistVideos(playlistKey, attempt + 1), 400);
+}
+
+async function loadPlaylistVideos(playlistKey) {
+  const playlist = videoPlaylists[playlistKey];
+  if (!playlist) return;
+
+  const cached = playlistVideoCache.get(playlistKey);
+  if (cached && cached.length) {
+    renderVideoItems(playlistKey, cached);
+    return;
+  }
+
+  if (!navigator.onLine) {
+    showPlaylistLoadError(playlistKey);
+    return;
+  }
+
+  videoListStatus.textContent = `جارٍ تحميل مقاطع ${playlist.title}...`;
+  videoListStatus.classList.remove('hidden', 'error-status');
+  videoItemsGrid.replaceChildren();
+  requestedPlaylistKey = playlistKey;
+  window.clearTimeout(playlistPollTimer);
+
+  try {
+    const player = await ensureDiscoveryPlayer();
+    if (requestedPlaylistKey !== playlistKey) return;
+    player.cuePlaylist({
+      listType: 'playlist',
+      list: playlist.playlistId,
+      index: 0,
+      startSeconds: 0
+    });
+    pollPlaylistVideos(playlistKey);
+  } catch {
+    showPlaylistLoadError(playlistKey);
+  }
+}
+
+function createVideoItem(videoId, index, playlistKey) {
+  const playlist = videoPlaylists[playlistKey];
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'video-item-card';
+  button.dataset.videoId = videoId;
+  button.setAttribute('aria-label', `تشغيل ${playlist.itemLabel} ${index + 1} من ${playlist.title}`);
+  button.innerHTML = `
+    <span class="video-thumbnail-wrap">
+      <img src="https://i.ytimg.com/vi/${encodeURIComponent(videoId)}/hqdefault.jpg" alt="صورة ${playlist.itemLabel} ${index + 1}" loading="lazy" referrerpolicy="no-referrer">
+      <span class="video-item-play" aria-hidden="true">▶</span>
+      <span class="video-item-number" aria-hidden="true">${index + 1}</span>
+    </span>
+    <span class="video-item-copy">
+      <strong>${playlist.itemLabel} ${index + 1}</strong>
+      <small>اضغط للمشاهدة</small>
+    </span>
+  `;
+  button.addEventListener('click', () => playSingleVideo(playlistKey, videoId, index));
+  return button;
+}
+
+function renderVideoItems(playlistKey, videoIds) {
+  if (playlistKey !== activePlaylistKey) return;
+  const playlist = videoPlaylists[playlistKey];
+  videoListStatus.textContent = `${videoIds.length} ${playlist.itemLabel === 'الحلقة' ? 'حلقة متاحة' : 'مقطع متاح'}`;
+  videoListStatus.classList.remove('hidden', 'error-status');
+  const items = videoIds.map((videoId, index) => createVideoItem(videoId, index, playlistKey));
+  videoItemsGrid.replaceChildren(...items);
+}
+
+function openVideoBrowser(playlistKey) {
+  const playlist = videoPlaylists[playlistKey];
+  if (!playlist) return;
+  activePlaylistKey = playlistKey;
+  playlistButtons.forEach((button) => button.classList.toggle('selected', button.dataset.playlist === playlistKey));
+  playlistPicker.classList.add('hidden');
+  videoBrowserSection.classList.remove('hidden');
+  videoBrowserTitle.textContent = playlist.title;
+  stopVideoPlayback();
+  loadPlaylistVideos(playlistKey);
+  window.setTimeout(() => videoBrowserSection.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+}
+
+function closeVideoBrowser() {
+  requestedPlaylistKey = null;
+  activePlaylistKey = null;
+  window.clearTimeout(playlistPollTimer);
+  stopVideoPlayback();
+  videoBrowserSection.classList.add('hidden');
+  playlistPicker.classList.remove('hidden');
+  playlistButtons.forEach((button) => button.classList.remove('selected'));
+  videoItemsGrid.replaceChildren();
+  videoListStatus.textContent = 'جارٍ تحميل المقاطع...';
+  videoListStatus.classList.remove('error-status');
+}
+
 function stopVideoPlayback() {
   if (!videoPlayer) return;
   videoPlayer.src = 'about:blank';
   videoPlayerSection.classList.add('hidden');
-  playlistButtons.forEach((button) => button.classList.remove('selected'));
+  videoItemsGrid.querySelectorAll('.video-item-card').forEach((button) => button.classList.remove('playing'));
 }
 
-function playVideoPlaylist(playlistKey) {
+function playSingleVideo(playlistKey, videoId, index) {
   const playlist = videoPlaylists[playlistKey];
   if (!playlist) return;
 
@@ -349,28 +562,23 @@ function playVideoPlaylist(playlistKey) {
     videoConnectionNote.classList.add('offline-note');
     videoPlayerSection.classList.remove('hidden');
     videoPlayer.src = 'about:blank';
-    activePlaylistTitle.textContent = playlist.title;
-    openPlaylistYoutube.href = playlist.youtubeUrl;
     return;
   }
 
   videoConnectionNote.textContent = 'تحتاج مشاهدة المقاطع إلى اتصال بالإنترنت.';
   videoConnectionNote.classList.remove('offline-note');
-  activePlaylistTitle.textContent = playlist.title;
-  openPlaylistYoutube.href = playlist.youtubeUrl;
-  playlistButtons.forEach((button) => button.classList.toggle('selected', button.dataset.playlist === playlistKey));
-  videoPlayer.src = `https://www.youtube-nocookie.com/embed?listType=playlist&list=${encodeURIComponent(playlist.playlistId)}&playsinline=1&hl=ar&rel=0`;
+  activeVideoTitle.textContent = `${playlist.itemLabel} ${index + 1} · ${playlist.title}`;
+  openVideoYoutube.href = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&list=${encodeURIComponent(playlist.playlistId)}`;
+  videoPlayer.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&playsinline=1&hl=ar&rel=0`;
   videoPlayerSection.classList.remove('hidden');
+  videoItemsGrid.querySelectorAll('.video-item-card').forEach((button) => {
+    button.classList.toggle('playing', button.dataset.videoId === videoId);
+  });
   window.setTimeout(() => videoPlayerSection.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
 }
 
-function showVideoLibrary() {
-  headerSubtitle.textContent = 'شاهد مقاطع المعلّم الصغير';
-  showOnly(videoLibraryScreen);
-}
-
 function showOnly(screen) {
-  if (screen !== videoLibraryScreen) stopVideoPlayback();
+  if (screen !== watchMenuScreen) closeVideoBrowser();
   allScreens.forEach((item) => item.classList.add('hidden'));
   screen.classList.remove('hidden');
   winModal.classList.add('hidden');
@@ -379,8 +587,19 @@ function showOnly(screen) {
 }
 
 function showHome() {
-  headerSubtitle.textContent = 'اختر لعبتك وابدأ التحدي';
+  headerSubtitle.textContent = 'اختر القسم الذي يناسبك';
   showOnly(homeScreen);
+}
+
+function showGamesMenu() {
+  headerSubtitle.textContent = 'اختر لعبتك وابدأ التحدي';
+  showOnly(gamesMenuScreen);
+}
+
+function showWatchMenu() {
+  headerSubtitle.textContent = 'اختر مقطعك وشاهد وتعلّم';
+  showOnly(watchMenuScreen);
+  closeVideoBrowser();
 }
 
 function showLevels() {
@@ -416,8 +635,6 @@ function showAnimalWin() {
   lettersPlayAgainButton.focus();
 }
 
-
-
 moreMenuButton.addEventListener('click', openSocialMenu);
 closeSocialMenuButton.addEventListener('click', closeSocialMenu);
 menuBackdrop.addEventListener('click', closeSocialMenu);
@@ -434,29 +651,33 @@ document.addEventListener('keydown', (event) => {
   else if (!socialMenu.classList.contains('hidden')) closeSocialMenu();
 });
 
+openGamesSectionButton.addEventListener('click', showGamesMenu);
+openWatchSectionButton.addEventListener('click', showWatchMenu);
+gamesMenuHomeButton.addEventListener('click', showHome);
+watchMenuHomeButton.addEventListener('click', showHome);
+
 memoryGameCard.addEventListener('click', showLevels);
 lettersGameCard.addEventListener('click', showLettersLevels);
-videoLibraryCard.addEventListener('click', showVideoLibrary);
-levelHomeButton.addEventListener('click', showHome);
+levelHomeButton.addEventListener('click', showGamesMenu);
 levelButtons.forEach((button) => button.addEventListener('click', () => selectLevel(button.dataset.level)));
 startButton.addEventListener('click', showGame);
 resetButton.addEventListener('click', renderGame);
 backButton.addEventListener('click', showLevels);
 playAgainButton.addEventListener('click', showGame);
-homeButton.addEventListener('click', showHome);
+homeButton.addEventListener('click', showGamesMenu);
 
-lettersLevelHomeButton.addEventListener('click', showHome);
+lettersLevelHomeButton.addEventListener('click', showGamesMenu);
 lettersStartButton.addEventListener('click', showLettersGame);
 lettersBackButton.addEventListener('click', showLettersLevels);
 lettersResetButton.addEventListener('click', startAnimalGame);
 lettersPlayAgainButton.addEventListener('click', showLettersGame);
-lettersHomeButton.addEventListener('click', showHome);
+lettersHomeButton.addEventListener('click', showGamesMenu);
 
-videoLibraryHomeButton.addEventListener('click', showHome);
-playlistButtons.forEach((button) => button.addEventListener('click', () => playVideoPlaylist(button.dataset.playlist)));
+playlistButtons.forEach((button) => button.addEventListener('click', () => openVideoBrowser(button.dataset.playlist)));
+videoBrowserBackButton.addEventListener('click', closeVideoBrowser);
 closeVideoPlayerButton.addEventListener('click', stopVideoPlayback);
 window.addEventListener('offline', () => {
-  if (!videoLibraryScreen.classList.contains('hidden')) {
+  if (!watchMenuScreen.classList.contains('hidden')) {
     videoConnectionNote.textContent = 'انقطع اتصال الإنترنت. قد يتوقف تشغيل المقاطع مؤقتًا.';
     videoConnectionNote.classList.add('offline-note');
   }
@@ -465,6 +686,7 @@ window.addEventListener('online', () => {
   videoConnectionNote.textContent = 'تحتاج مشاهدة المقاطع إلى اتصال بالإنترنت.';
   videoConnectionNote.classList.remove('offline-note');
 });
+
 window.addEventListener('beforeinstallprompt', (event) => {
   event.preventDefault();
   deferredInstallPrompt = event;
