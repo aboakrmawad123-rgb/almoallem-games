@@ -415,3 +415,127 @@ h1 { margin: 0; font-size: clamp(1.7rem, 6.5vw, 2.6rem); line-height: 1.1; }
   .game-board.advanced-board { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .game-board.advanced-board .card-face { border-radius: 11px; }
 }
+
+/* Version 7: الحرف والحيوان - المستوى الأول */
+.animal-preview {
+  direction: ltr;
+  gap: 0;
+  padding: 9px 2px;
+}
+.animal-preview img {
+  width: 54px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 9px;
+  border: 2px solid var(--white);
+  box-shadow: 0 7px 14px rgba(30, 91, 128, .18);
+}
+.animal-preview img:nth-child(1) { transform: rotate(-9deg) translateX(11px); }
+.animal-preview img:nth-child(2) { z-index: 2; transform: translateY(-5px); }
+.animal-preview img:nth-child(3) { transform: rotate(9deg) translateX(-11px); }
+.animal-hero-cards img { object-fit: cover; aspect-ratio: 3 / 4; }
+.letters-level-picker { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.letters-game-panel { padding: clamp(16px, 4vw, 26px); }
+.letters-progress-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 18px 0 14px;
+  padding: 11px 16px;
+  border-radius: 17px;
+  background: #f0faff;
+  border: 2px solid #d8f0fb;
+  color: var(--blue-900);
+  font-weight: 900;
+}
+.letter-prompt {
+  text-align: center;
+  margin: 0 auto 18px;
+  padding: 16px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #fff8d8, #fffdf1);
+  border: 3px solid #ffe38a;
+}
+.letter-prompt p { margin: 0 0 4px; color: var(--muted); font-weight: 900; }
+.target-letter {
+  display: grid;
+  place-items: center;
+  width: 104px;
+  height: 104px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: var(--white);
+  color: #f08019;
+  border: 5px solid var(--yellow);
+  box-shadow: 0 10px 22px rgba(218, 155, 0, .18);
+  font-size: 4.3rem;
+  line-height: 1;
+}
+.animal-options {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(9px, 2.5vw, 16px);
+}
+.animal-option {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  border: 3px solid rgba(255, 255, 255, .95);
+  border-radius: 18px;
+  background: transparent;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(24, 89, 129, .2);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.animal-option:not(:disabled):hover { transform: translateY(-3px); }
+.animal-option img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.animal-option.correct {
+  border-color: #49bd72;
+  box-shadow: 0 0 0 5px rgba(73, 189, 114, .23), 0 13px 24px rgba(24, 89, 129, .18);
+  animation: animal-correct .55s ease;
+}
+.animal-option.wrong {
+  border-color: #f05a5a;
+  box-shadow: 0 0 0 5px rgba(240, 90, 90, .18);
+  animation: animal-wrong .42s ease;
+}
+.letters-feedback {
+  min-height: 34px;
+  margin: 14px 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-weight: 900;
+  font-size: 1.06rem;
+}
+.correct-feedback { color: #23874a; }
+.wrong-feedback { color: #c74141; }
+.letters-reset-button { margin-top: 8px; min-height: 48px; }
+@keyframes animal-correct {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+@keyframes animal-wrong {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+@media (max-width: 620px) {
+  .animal-preview img { width: 42px; }
+  .letters-level-picker { grid-template-columns: 1fr; }
+  .target-letter { width: 90px; height: 90px; font-size: 3.8rem; }
+  .animal-option { border-radius: 13px; }
+}
+@media (max-width: 410px) {
+  .animal-preview img { width: 37px; }
+  .animal-options { gap: 7px; }
+}

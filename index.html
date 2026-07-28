@@ -23,14 +23,15 @@
   <link rel="preload" as="image" href="strawberry.webp">
   <link rel="preload" as="image" href="grapes.webp">
   <link rel="preload" as="image" href="watermelon.webp">
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="preload" as="image" href="lion.webp">
+  <link rel="preload" as="image" href="duck.webp">
+  <link rel="preload" as="image" href="crocodile.webp">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
   <main class="app-shell">
     <header class="brand-header">
-      <div class="brand-mark" aria-hidden="true">
-        <img src="card-back.webp" alt="">
-      </div>
+      <div class="brand-mark" aria-hidden="true"><img src="card-back.webp" alt=""></div>
       <div>
         <p class="eyebrow">المعلّم الصغير</p>
         <h1>ألعاب تعليمية ممتعة</h1>
@@ -41,21 +42,17 @@
     <section id="home-screen" class="panel home-panel" aria-labelledby="home-title">
       <div class="welcome-row">
         <div>
-          <span class="welcome-badge">الإصدار الثاني</span>
+          <span class="welcome-badge">الإصدار الثالث</span>
           <h2 id="home-title">ماذا سنلعب اليوم؟</h2>
           <p>تطبيق واحد يجمع ألعاب المعلّم الصغير، وسنضيف إليه ألعابًا جديدة باستمرار.</p>
         </div>
-        <div class="welcome-avatar" aria-hidden="true">
-          <img src="card-back.webp" alt="">
-        </div>
+        <div class="welcome-avatar" aria-hidden="true"><img src="card-back.webp" alt=""></div>
       </div>
 
       <div class="games-grid" aria-label="الألعاب المتاحة">
         <button id="memory-game-card" class="game-choice available" type="button">
           <span class="game-preview fruit-preview" aria-hidden="true">
-            <img src="apple.webp" alt="">
-            <img src="card-back.webp" alt="">
-            <img src="strawberry.webp" alt="">
+            <img src="apple.webp" alt=""><img src="card-back.webp" alt=""><img src="strawberry.webp" alt="">
           </span>
           <span class="game-copy">
             <span class="game-status">مستويان متاحان</span>
@@ -65,14 +62,16 @@
           <span class="game-arrow" aria-hidden="true">←</span>
         </button>
 
-        <button class="game-choice coming-soon" type="button" disabled>
-          <span class="game-preview emoji-preview" aria-hidden="true">🔤</span>
-          <span class="game-copy">
-            <span class="game-status">قريبًا</span>
-            <strong>لعبة الحروف</strong>
-            <small>لعبة تعليمية جديدة ستُضاف لاحقًا</small>
+        <button id="letters-game-card" class="game-choice available" type="button">
+          <span class="game-preview animal-preview" aria-hidden="true">
+            <img src="lion.webp" alt=""><img src="duck.webp" alt=""><img src="crocodile.webp" alt="">
           </span>
-          <span class="lock-mark" aria-hidden="true">🔒</span>
+          <span class="game-copy">
+            <span class="game-status">المستوى الأول متاح</span>
+            <strong>الحرف والحيوان</strong>
+            <small>اختر الحيوان الذي يبدأ بالحرف المطلوب</small>
+          </span>
+          <span class="game-arrow" aria-hidden="true">←</span>
         </button>
       </div>
 
@@ -82,57 +81,78 @@
     <section id="level-screen" class="panel start-panel hidden" aria-labelledby="level-title">
       <div class="screen-heading">
         <button id="level-home-button" class="mini-back-button" type="button" aria-label="العودة إلى الألعاب">←</button>
-        <div>
-          <p class="screen-kicker">ذاكرة الفواكه</p>
-          <h2 id="level-title">اختر المستوى</h2>
-        </div>
+        <div><p class="screen-kicker">ذاكرة الفواكه</p><h2 id="level-title">اختر المستوى</h2></div>
       </div>
-
       <div class="hero-cards" aria-hidden="true">
-        <img src="apple.webp" alt="">
-        <img src="card-back.webp" alt="">
-        <img src="strawberry.webp" alt="">
+        <img src="apple.webp" alt=""><img src="card-back.webp" alt=""><img src="strawberry.webp" alt="">
       </div>
       <p>اقلب بطاقتين في كل مرة، وحاول العثور على الفواكه المتشابهة.</p>
-
       <div class="level-picker" aria-label="اختيار المستوى">
         <button id="easy-level-button" class="level-card selected" type="button" data-level="easy" aria-pressed="true">
-          <span class="level-icon">⭐</span>
-          <strong>المستوى السهل</strong>
-          <small>6 بطاقات · 3 أزواج</small>
+          <span class="level-icon">⭐</span><strong>المستوى السهل</strong><small>6 بطاقات · 3 أزواج</small>
         </button>
         <button id="advanced-level-button" class="level-card" type="button" data-level="advanced" aria-pressed="false">
-          <span class="level-icon">🏆</span>
-          <strong>المستوى الأكبر</strong>
-          <small>12 بطاقة · 6 أزواج</small>
+          <span class="level-icon">🏆</span><strong>المستوى الأكبر</strong><small>12 بطاقة · 6 أزواج</small>
         </button>
       </div>
-
       <button id="start-button" class="primary-button" type="button">ابدأ المستوى السهل</button>
     </section>
 
-    <section id="game-screen" class="panel game-panel hidden" aria-label="لوحة اللعب">
+    <section id="game-screen" class="panel game-panel hidden" aria-label="لوحة لعب ذاكرة الفواكه">
       <div class="game-title-row">
         <button id="back-button" class="mini-back-button" type="button" aria-label="العودة إلى اختيار المستوى">←</button>
-        <div>
-          <p id="game-level-label" class="screen-kicker">المستوى السهل</p>
-          <h2>ذاكرة الفواكه</h2>
-        </div>
+        <div><p id="game-level-label" class="screen-kicker">المستوى السهل</p><h2>ذاكرة الفواكه</h2></div>
       </div>
-
       <div class="game-toolbar">
-        <div class="score-box">
-          <span>المحاولات</span>
-          <strong id="moves-count">0</strong>
-        </div>
-        <div class="progress-box" aria-label="الأزواج المكتشفة">
-          <span id="matched-count">0</span>
-          <span id="pairs-total">من 3 أزواج</span>
-        </div>
+        <div class="score-box"><span>المحاولات</span><strong id="moves-count">0</strong></div>
+        <div class="progress-box" aria-label="الأزواج المكتشفة"><span id="matched-count">0</span><span id="pairs-total">من 3 أزواج</span></div>
         <button id="reset-button" class="icon-button" type="button" aria-label="إعادة اللعبة">↻</button>
       </div>
-
       <div id="game-board" class="game-board" aria-live="polite"></div>
+    </section>
+
+    <section id="letters-level-screen" class="panel start-panel hidden" aria-labelledby="letters-level-title">
+      <div class="screen-heading">
+        <button id="letters-level-home-button" class="mini-back-button" type="button" aria-label="العودة إلى الألعاب">←</button>
+        <div><p class="screen-kicker">الحرف والحيوان</p><h2 id="letters-level-title">اختر المستوى</h2></div>
+      </div>
+      <div class="hero-cards animal-hero-cards" aria-hidden="true">
+        <img src="lion.webp" alt=""><img src="duck.webp" alt=""><img src="crocodile.webp" alt="">
+      </div>
+      <p>شاهد الحرف، ثم اختر الحيوان الذي يبدأ اسمه بهذا الحرف.</p>
+      <div class="level-picker letters-level-picker" aria-label="اختيار مستوى الحروف">
+        <button class="level-card selected" type="button" aria-pressed="true">
+          <span class="level-icon">🐣</span><strong>المستوى الأول</strong><small>3 حروف · 3 حيوانات</small>
+        </button>
+        <button class="level-card locked" type="button" disabled>
+          <span class="level-icon">🐾</span><strong>المستوى الثاني</strong><small>قريبًا</small>
+        </button>
+        <button class="level-card locked" type="button" disabled>
+          <span class="level-icon">🦁</span><strong>المستوى الثالث</strong><small>قريبًا</small>
+        </button>
+      </div>
+      <button id="letters-start-button" class="primary-button" type="button">ابدأ المستوى الأول</button>
+    </section>
+
+    <section id="letters-game-screen" class="panel letters-game-panel hidden" aria-label="لعبة الحرف والحيوان">
+      <div class="game-title-row">
+        <button id="letters-back-button" class="mini-back-button" type="button" aria-label="العودة إلى اختيار المستوى">←</button>
+        <div><p class="screen-kicker">المستوى الأول</p><h2>الحرف والحيوان</h2></div>
+      </div>
+
+      <div class="letters-progress-row">
+        <span id="letters-question-count">السؤال 1 من 3</span>
+        <span id="letters-score">⭐ 0</span>
+      </div>
+
+      <div class="letter-prompt" aria-live="polite">
+        <p>أي حيوان يبدأ بحرف</p>
+        <strong id="target-letter" class="target-letter">أ</strong>
+      </div>
+
+      <div id="animal-options" class="animal-options" aria-label="اختر الحيوان الصحيح"></div>
+      <p id="letters-feedback" class="letters-feedback" aria-live="assertive">اختر بطاقة واحدة</p>
+      <button id="letters-reset-button" class="secondary-button letters-reset-button" type="button">إعادة المستوى</button>
     </section>
   </main>
 
@@ -147,6 +167,17 @@
     </div>
   </div>
 
-  <script src="script.js?v=6"></script>
+  <div id="letters-win-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="letters-win-title">
+    <div class="modal-card">
+      <div class="stars" aria-hidden="true">⭐ ⭐ ⭐</div>
+      <h2 id="letters-win-title">رائع يا بطل!</h2>
+      <p>تعرّفت إلى الحيوانات الثلاثة واختَرت الإجابات الصحيحة.</p>
+      <div class="celebration-fruits" aria-hidden="true">🦁 🦆 🐊</div>
+      <button id="letters-play-again-button" class="primary-button" type="button">العب مرة أخرى</button>
+      <button id="letters-home-button" class="text-button" type="button">العودة إلى جميع الألعاب</button>
+    </div>
+  </div>
+
+  <script src="script.js?v=7"></script>
 </body>
 </html>

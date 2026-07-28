@@ -24,11 +24,22 @@ const levels = {
   }
 };
 
+const animalLevelOne = [
+  { id: 'lion', letter: 'أ', label: 'أسد', image: 'lion.webp' },
+  { id: 'duck', letter: 'ب', label: 'بطة', image: 'duck.webp' },
+  { id: 'crocodile', letter: 'ت', label: 'تمساح', image: 'crocodile.webp' }
+];
+
 const homeScreen = document.querySelector('#home-screen');
 const levelScreen = document.querySelector('#level-screen');
 const gameScreen = document.querySelector('#game-screen');
+const lettersLevelScreen = document.querySelector('#letters-level-screen');
+const lettersGameScreen = document.querySelector('#letters-game-screen');
+const allScreens = [homeScreen, levelScreen, gameScreen, lettersLevelScreen, lettersGameScreen];
+
 const board = document.querySelector('#game-board');
 const memoryGameCard = document.querySelector('#memory-game-card');
+const lettersGameCard = document.querySelector('#letters-game-card');
 const levelHomeButton = document.querySelector('#level-home-button');
 const levelButtons = [...document.querySelectorAll('.level-card[data-level]')];
 const startButton = document.querySelector('#start-button');
@@ -46,6 +57,19 @@ const homeButton = document.querySelector('#home-button');
 const installButton = document.querySelector('#install-button');
 const headerSubtitle = document.querySelector('#header-subtitle');
 
+const lettersLevelHomeButton = document.querySelector('#letters-level-home-button');
+const lettersStartButton = document.querySelector('#letters-start-button');
+const lettersBackButton = document.querySelector('#letters-back-button');
+const lettersResetButton = document.querySelector('#letters-reset-button');
+const lettersQuestionCount = document.querySelector('#letters-question-count');
+const lettersScore = document.querySelector('#letters-score');
+const targetLetter = document.querySelector('#target-letter');
+const animalOptions = document.querySelector('#animal-options');
+const lettersFeedback = document.querySelector('#letters-feedback');
+const lettersWinModal = document.querySelector('#letters-win-modal');
+const lettersPlayAgainButton = document.querySelector('#letters-play-again-button');
+const lettersHomeButton = document.querySelector('#letters-home-button');
+
 let selectedLevel = 'easy';
 let activeCards = levels.easy.cards;
 let firstCard = null;
@@ -54,6 +78,11 @@ let lockBoard = false;
 let moves = 0;
 let matches = 0;
 let deferredInstallPrompt = null;
+
+let animalQuestions = [];
+let animalQuestionIndex = 0;
+let animalCorrectCount = 0;
+let animalLocked = false;
 
 function shuffle(items) {
   const shuffled = [...items];
@@ -79,12 +108,8 @@ function createCard(card) {
   button.setAttribute('aria-label', 'بطاقة مقلوبة');
   button.innerHTML = `
     <span class="card-inner">
-      <span class="card-face card-back">
-        <img src="card-back.webp" alt="ظهر بطاقة عزّام" draggable="false">
-      </span>
-      <span class="card-face card-front">
-        <img src="${card.image}" alt="${card.label}" draggable="false">
-      </span>
+      <span class="card-face card-back"><img src="card-back.webp" alt="ظهر بطاقة عزّام" draggable="false"></span>
+      <span class="card-face card-front"><img src="${card.image}" alt="${card.label}" draggable="false"></span>
     </span>
   `;
   button.addEventListener('click', () => flipCard(button, card.label));
@@ -124,15 +149,12 @@ function selectLevel(levelName) {
 
 function flipCard(card, label) {
   if (lockBoard || card === firstCard || card.classList.contains('matched')) return;
-
   card.classList.add('flipped');
   card.setAttribute('aria-label', label);
-
   if (!firstCard) {
     firstCard = card;
     return;
   }
-
   secondCard = card;
   moves += 1;
   movesCount.textContent = String(moves);
@@ -149,13 +171,9 @@ function checkMatch() {
     matches += 1;
     matchedCount.textContent = String(matches);
     clearTurn();
-
-    if (matches === activeCards.length) {
-      window.setTimeout(showWin, 650);
-    }
+    if (matches === activeCards.length) window.setTimeout(showWin, 650);
     return;
   }
-
   lockBoard = true;
   window.setTimeout(() => {
     firstCard.classList.remove('flipped');
@@ -171,10 +189,69 @@ function clearTurn() {
   lockBoard = false;
 }
 
+function createAnimalOption(animal, correctId) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'animal-option';
+  button.dataset.animal = animal.id;
+  button.setAttribute('aria-label', animal.label);
+  button.innerHTML = `<img src="${animal.image}" alt="${animal.label}" draggable="false">`;
+  button.addEventListener('click', () => checkAnimalAnswer(button, animal.id === correctId));
+  return button;
+}
+
+function startAnimalGame() {
+  animalQuestions = shuffle(animalLevelOne);
+  animalQuestionIndex = 0;
+  animalCorrectCount = 0;
+  animalLocked = false;
+  lettersScore.textContent = '⭐ 0';
+  renderAnimalQuestion();
+}
+
+function renderAnimalQuestion() {
+  const question = animalQuestions[animalQuestionIndex];
+  if (!question) {
+    showAnimalWin();
+    return;
+  }
+  animalLocked = false;
+  lettersQuestionCount.textContent = `السؤال ${animalQuestionIndex + 1} من ${animalQuestions.length}`;
+  targetLetter.textContent = question.letter;
+  lettersFeedback.textContent = 'اختر بطاقة واحدة';
+  lettersFeedback.className = 'letters-feedback';
+  const options = shuffle(animalLevelOne).map((animal) => createAnimalOption(animal, question.id));
+  animalOptions.replaceChildren(...options);
+}
+
+function checkAnimalAnswer(button, isCorrect) {
+  if (animalLocked) return;
+  if (!isCorrect) {
+    button.classList.add('wrong');
+    lettersFeedback.textContent = 'حاول مرة أخرى';
+    lettersFeedback.className = 'letters-feedback wrong-feedback';
+    window.setTimeout(() => button.classList.remove('wrong'), 500);
+    return;
+  }
+
+  animalLocked = true;
+  button.classList.add('correct');
+  [...animalOptions.children].forEach((option) => { option.disabled = true; });
+  animalCorrectCount += 1;
+  lettersScore.textContent = `⭐ ${animalCorrectCount}`;
+  lettersFeedback.textContent = 'أحسنت! إجابة صحيحة';
+  lettersFeedback.className = 'letters-feedback correct-feedback';
+  window.setTimeout(() => {
+    animalQuestionIndex += 1;
+    renderAnimalQuestion();
+  }, 850);
+}
+
 function showOnly(screen) {
-  [homeScreen, levelScreen, gameScreen].forEach((item) => item.classList.add('hidden'));
+  allScreens.forEach((item) => item.classList.add('hidden'));
   screen.classList.remove('hidden');
   winModal.classList.add('hidden');
+  lettersWinModal.classList.add('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -194,22 +271,44 @@ function showGame() {
   renderGame();
 }
 
+function showLettersLevels() {
+  headerSubtitle.textContent = 'اختر مستوى الحروف والحيوانات';
+  showOnly(lettersLevelScreen);
+}
+
+function showLettersGame() {
+  headerSubtitle.textContent = 'اختر الحيوان الذي يبدأ بالحرف';
+  showOnly(lettersGameScreen);
+  startAnimalGame();
+}
+
 function showWin() {
   finalMoves.textContent = String(moves);
   winModal.classList.remove('hidden');
   playAgainButton.focus();
 }
 
+function showAnimalWin() {
+  lettersWinModal.classList.remove('hidden');
+  lettersPlayAgainButton.focus();
+}
+
 memoryGameCard.addEventListener('click', showLevels);
+lettersGameCard.addEventListener('click', showLettersLevels);
 levelHomeButton.addEventListener('click', showHome);
-levelButtons.forEach((button) => {
-  button.addEventListener('click', () => selectLevel(button.dataset.level));
-});
+levelButtons.forEach((button) => button.addEventListener('click', () => selectLevel(button.dataset.level)));
 startButton.addEventListener('click', showGame);
 resetButton.addEventListener('click', renderGame);
 backButton.addEventListener('click', showLevels);
 playAgainButton.addEventListener('click', showGame);
 homeButton.addEventListener('click', showHome);
+
+lettersLevelHomeButton.addEventListener('click', showHome);
+lettersStartButton.addEventListener('click', showLettersGame);
+lettersBackButton.addEventListener('click', showLettersLevels);
+lettersResetButton.addEventListener('click', startAnimalGame);
+lettersPlayAgainButton.addEventListener('click', showLettersGame);
+lettersHomeButton.addEventListener('click', showHome);
 
 window.addEventListener('beforeinstallprompt', (event) => {
   event.preventDefault();
