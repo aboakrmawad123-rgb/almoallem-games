@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-games-v11-main-sections';
+const CACHE_NAME = 'almoallem-games-v12-video-list-fix';
 const APP_SHELL = [
   './',
   './index.html',
-  './style.css?v=11',
-  './script.js?v=11',
+  './style.css?v=12',
+  './script.js?v=12',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',

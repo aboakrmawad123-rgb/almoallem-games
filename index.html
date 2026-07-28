@@ -26,7 +26,7 @@
   <link rel="preload" as="image" href="lion.webp">
   <link rel="preload" as="image" href="duck.webp">
   <link rel="preload" as="image" href="crocodile.webp">
-  <link rel="stylesheet" href="style.css?v=11">
+  <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
   <main class="app-shell">
@@ -45,7 +45,7 @@
     <section id="home-screen" class="panel home-panel" aria-label="الواجهة الرئيسية">
       <div class="welcome-row">
         <div>
-          <span class="welcome-badge">الإصدار السابع</span>
+          <span class="welcome-badge">الإصدار الثامن</span>
           <h2>ماذا تريد أن تفعل اليوم؟</h2>
           <p>اختر قسم الألعاب أو قسم المشاهدة والتعلّم.</p>
         </div>
@@ -164,11 +164,17 @@
           <a id="open-video-youtube" class="youtube-fallback-link" href="#" target="_blank" rel="noopener noreferrer">فتح هذا المقطع في يوتيوب</a>
         </section>
 
+        <div id="playlist-loader" class="playlist-loader hidden" aria-live="polite">
+          <div class="playlist-loader-copy">
+            <span class="loading-spinner" aria-hidden="true"></span>
+            <div><strong>جارٍ تجهيز المقاطع...</strong><small>انتظر لحظات، لن يتم تشغيل أي فيديو تلقائيًا.</small></div>
+          </div>
+          <div class="youtube-discovery-shell" aria-hidden="true"><div id="youtube-discovery-player"></div></div>
+        </div>
         <p id="video-list-status" class="video-list-status" aria-live="polite">جارٍ تحميل المقاطع...</p>
         <div id="video-items-grid" class="video-items-grid" aria-label="المقاطع المتاحة"></div>
+        <button id="show-more-videos" class="secondary-button show-more-videos hidden" type="button">عرض المزيد من المقاطع</button>
       </section>
-
-      <div class="youtube-discovery-shell" aria-hidden="true"><div id="youtube-discovery-player"></div></div>
     </section>
 
     <section id="level-screen" class="panel start-panel hidden" aria-labelledby="level-title">
@@ -322,6 +328,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=11"></script>
+  <script src="script.js?v=12"></script>
 </body>
 </html>
