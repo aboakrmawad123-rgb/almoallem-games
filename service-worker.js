@@ -1,10 +1,10 @@
-const CACHE_NAME = 'almoallem-v19-history-brand-ready';
+const CACHE_NAME = 'almoallem-v20-transparent-splash-icon';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=19',
   './script.js?v=19',
-  './manifest.webmanifest',
+  './manifest.webmanifest?v=2',
   './favicon.ico',
   './card-back.webp',
   './apple.webp',
@@ -16,10 +16,10 @@ const APP_SHELL = [
   './lion.webp',
   './duck.webp',
   './crocodile.webp',
-  './icon-192.png',
-  './icon-512.png',
-  './apple-touch-icon.png',
-  './icon-maskable-512.png'
+  './icon-192-v2.png',
+  './icon-512-v2.png',
+  './apple-touch-icon-v2.png',
+  './icon-maskable-512-v2.png'
 ];
 
 self.addEventListener('install', (event) => {
