@@ -132,22 +132,12 @@ let animalQuestionIndex = 0;
 let animalCorrectCount = 0;
 let animalLocked = false;
 
-let youtubeApiPromise = null;
-let discoveryPlayerPromise = null;
-let discoveryPlayer = null;
-let discoveryPlayerGeneration = 0;
 let requestedPlaylistKey = null;
 let activePlaylistKey = null;
-let playlistPollTimer = null;
-let activeVideoIds = [];
+let activeVideoItems = [];
 let visibleVideoCount = 0;
 const VIDEO_PAGE_SIZE = 12;
 const playlistVideoCache = new Map();
-const videoTitleCache = new Map();
-const videoTitleRequests = new Map();
-let videoTitleQueue = [];
-let videoTitleActive = 0;
-const VIDEO_TITLE_CONCURRENCY = 6;
 
 function openSocialMenu() {
   socialMenu.classList.remove('hidden');
@@ -362,378 +352,191 @@ function checkAnimalAnswer(button, isCorrect) {
   }, 850);
 }
 
-function ensureYouTubeApi() {
-  if (window.YT && window.YT.Player) return Promise.resolve(window.YT);
-  if (youtubeApiPromise) return youtubeApiPromise;
-
-  youtubeApiPromise = new Promise((resolve, reject) => {
-    const existingCallback = window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady = () => {
-      if (typeof existingCallback === 'function') existingCallback();
-      resolve(window.YT);
-    };
-
-    let script = document.querySelector('script[data-youtube-iframe-api]');
-    if (!script) {
-      script = document.createElement('script');
-      script.src = 'https://www.youtube.com/iframe_api';
-      script.async = true;
-      script.dataset.youtubeIframeApi = 'true';
-      script.onerror = () => reject(new Error('تعذر تحميل مشغّل يوتيوب'));
-      document.head.appendChild(script);
-    }
-
-    window.setTimeout(() => {
-      if (!(window.YT && window.YT.Player)) reject(new Error('انتهت مهلة تحميل مشغّل يوتيوب'));
-    }, 15000);
-  });
-
-  youtubeApiPromise.catch(() => { youtubeApiPromise = null; });
-  return youtubeApiPromise;
-}
-
-function recreateDiscoveryMount() {
-  const shell = document.querySelector('.youtube-discovery-shell');
-  if (!shell) throw new Error('تعذر تجهيز قارئ قائمة التشغيل');
-
+function getStoredPlaylist(playlistKey) {
   try {
-    if (discoveryPlayer && typeof discoveryPlayer.destroy === 'function') discoveryPlayer.destroy();
-  } catch {}
-
-  discoveryPlayer = null;
-  discoveryPlayerPromise = null;
-  shell.replaceChildren();
-  const mount = document.createElement('div');
-  mount.id = 'youtube-discovery-player';
-  shell.appendChild(mount);
-  return mount;
+    const raw = window.localStorage.getItem(`youtube-playlist:${playlistKey}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.items)) return null;
+    const items = parsed.items.filter((item) => (
+      item &&
+      typeof item.videoId === 'string' &&
+      typeof item.title === 'string' &&
+      item.videoId.length > 5 &&
+      item.title.trim()
+    ));
+    return items.length ? items : null;
+  } catch {
+    return null;
+  }
 }
 
-function createDiscoveryPlayer(playlistKey) {
-  const playlist = videoPlaylists[playlistKey];
-  if (!playlist) return Promise.reject(new Error('قائمة غير معروفة'));
-
-  const generation = ++discoveryPlayerGeneration;
-  recreateDiscoveryMount();
-
-  discoveryPlayerPromise = ensureYouTubeApi().then(() => new Promise((resolve, reject) => {
-    let settled = false;
-    const finishResolve = (player) => {
-      if (settled || generation !== discoveryPlayerGeneration) return;
-      settled = true;
-      resolve(player);
-    };
-    const finishReject = (error) => {
-      if (settled || generation !== discoveryPlayerGeneration) return;
-      settled = true;
-      try {
-        if (discoveryPlayer && typeof discoveryPlayer.destroy === 'function') discoveryPlayer.destroy();
-      } catch {}
-      discoveryPlayer = null;
-      discoveryPlayerPromise = null;
-      reject(error);
-    };
-
-    discoveryPlayer = new window.YT.Player('youtube-discovery-player', {
-      width: '480',
-      height: '270',
-      host: 'https://www.youtube.com',
-      playerVars: {
-        listType: 'playlist',
-        list: playlist.playlistId,
-        autoplay: 0,
-        controls: 0,
-        disablekb: 1,
-        fs: 0,
-        playsinline: 1,
-        rel: 0,
-        hl: 'ar',
-        origin: window.location.origin
-      },
-      events: {
-        onReady: (event) => finishResolve(event.target),
-        onError: () => finishReject(new Error('تعذر قراءة قائمة التشغيل'))
-      }
-    });
-
-    window.setTimeout(() => finishReject(new Error('تعذر إنشاء قارئ قائمة التشغيل')), 15000);
-  }));
-
-  return discoveryPlayerPromise;
+function storePlaylist(playlistKey, items) {
+  try {
+    window.localStorage.setItem(`youtube-playlist:${playlistKey}`, JSON.stringify({
+      savedAt: Date.now(),
+      items
+    }));
+  } catch {
+    // The live list still works if storage is unavailable.
+  }
 }
 
-function showPlaylistLoadError(playlistKey) {
+function showPlaylistLoadError(playlistKey, message = '') {
   if (playlistKey !== activePlaylistKey) return;
-  window.clearTimeout(playlistPollTimer);
   playlistLoader.classList.add('hidden');
+  showMoreVideosButton.classList.add('hidden');
   const playlist = videoPlaylists[playlistKey];
+  videoListStatus.textContent = message || `تعذر تحميل مقاطع ${playlist.title} الآن.`;
   videoListStatus.classList.remove('hidden');
   videoListStatus.classList.add('error-status');
-  videoListStatus.textContent = `تعذر تحميل مقاطع ${playlist.title} داخل التطبيق الآن.`;
   videoItemsGrid.replaceChildren();
-  showMoreVideosButton.classList.add('hidden');
+
+  const actions = document.createElement('div');
+  actions.className = 'playlist-error-actions';
+
+  const retry = document.createElement('button');
+  retry.type = 'button';
+  retry.className = 'secondary-button';
+  retry.textContent = 'إعادة المحاولة';
+  retry.addEventListener('click', () => loadPlaylistVideos(playlistKey, true));
+
   const link = document.createElement('a');
   link.className = 'youtube-fallback-link playlist-error-link';
   link.href = playlist.youtubeUrl;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
   link.textContent = 'فتح القائمة في يوتيوب';
-  videoItemsGrid.appendChild(link);
+
+  actions.append(retry, link);
+  videoItemsGrid.appendChild(actions);
 }
 
-function pollPlaylistVideos(playlistKey, attempt = 0) {
-  if (playlistKey !== requestedPlaylistKey || playlistKey !== activePlaylistKey) return;
-  let videoIds = [];
-  try {
-    videoIds = discoveryPlayer && discoveryPlayer.getPlaylist ? discoveryPlayer.getPlaylist() || [] : [];
-  } catch {
-    videoIds = [];
-  }
-
-  if (videoIds.length > 0) {
-    playlistVideoCache.set(playlistKey, [...videoIds]);
-    playlistLoader.classList.add('hidden');
-    renderVideoItems(playlistKey, videoIds);
-    return;
-  }
-
-  if (attempt >= 30) {
-    showPlaylistLoadError(playlistKey);
-    return;
-  }
-
-  playlistPollTimer = window.setTimeout(() => pollPlaylistVideos(playlistKey, attempt + 1), 400);
-}
-
-async function loadPlaylistVideos(playlistKey) {
+async function fetchPlaylistFromServer(playlistKey) {
   const playlist = videoPlaylists[playlistKey];
-  if (!playlist) return;
-
-  const cached = playlistVideoCache.get(playlistKey);
-  if (cached && cached.length) {
-    playlistLoader.classList.add('hidden');
-    renderVideoItems(playlistKey, cached);
-    return;
-  }
-
-  if (!navigator.onLine) {
-    showPlaylistLoadError(playlistKey);
-    return;
-  }
-
-  playlistLoader.classList.remove('hidden');
-  videoListStatus.textContent = `جارٍ تحميل مقاطع ${playlist.title}...`;
-  videoListStatus.classList.remove('hidden', 'error-status');
-  videoItemsGrid.replaceChildren();
-  showMoreVideosButton.classList.add('hidden');
-  requestedPlaylistKey = playlistKey;
-  window.clearTimeout(playlistPollTimer);
-
-  try {
-    await createDiscoveryPlayer(playlistKey);
-    if (requestedPlaylistKey !== playlistKey) return;
-    window.setTimeout(() => pollPlaylistVideos(playlistKey), 450);
-  } catch {
-    showPlaylistLoadError(playlistKey);
-  }
-}
-
-function isUsableVideoTitle(title) {
-  const cleanTitle = typeof title === 'string' ? title.trim() : '';
-  if (!cleanTitle || cleanTitle === 'جارٍ قراءة الاسم...') return false;
-  return !/^(?:المقطع|الحلقة)\s+\d+$/u.test(cleanTitle);
-}
-
-function readStoredVideoTitle(videoId) {
-  if (videoTitleCache.has(videoId)) {
-    const cached = videoTitleCache.get(videoId);
-    if (isUsableVideoTitle(cached)) return cached;
-    videoTitleCache.delete(videoId);
-  }
-  try {
-    const key = `youtube-title:${videoId}`;
-    const stored = window.localStorage.getItem(key);
-    if (isUsableVideoTitle(stored)) {
-      videoTitleCache.set(videoId, stored.trim());
-      return stored.trim();
-    }
-    if (stored) window.localStorage.removeItem(key);
-  } catch {}
-  return '';
-}
-
-function storeVideoTitle(videoId, title) {
-  if (!isUsableVideoTitle(title)) return;
-  const cleanTitle = title.trim();
-  videoTitleCache.set(videoId, cleanTitle);
-  try { window.localStorage.setItem(`youtube-title:${videoId}`, cleanTitle); } catch {}
-}
-
-async function fetchJsonWithTimeout(url, timeoutMs = 5000) {
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  const timeout = window.setTimeout(() => controller.abort(), 20000);
   try {
-    const response = await fetch(url, {
-      cache: 'no-store',
-      credentials: 'same-origin',
+    const endpoint = `/api/youtube-playlist?playlistId=${encodeURIComponent(playlist.playlistId)}`;
+    const response = await fetch(endpoint, {
+      method: 'GET',
       headers: { Accept: 'application/json' },
+      cache: 'no-store',
       signal: controller.signal
     });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
+    let data = null;
+    try { data = await response.json(); } catch {}
+    if (!response.ok) {
+      throw new Error(data && data.error ? data.error : 'تعذر الاتصال بخدمة يوتيوب');
+    }
+    const items = Array.isArray(data && data.items) ? data.items.filter((item) => (
+      item &&
+      typeof item.videoId === 'string' &&
+      typeof item.title === 'string' &&
+      item.videoId.length > 5 &&
+      item.title.trim()
+    )) : [];
+    if (!items.length) throw new Error('لم نجد مقاطع متاحة في هذه القائمة');
+    return items;
   } finally {
     window.clearTimeout(timeout);
   }
 }
 
-async function fetchVideoTitleFromProxy(videoId) {
-  const safeId = encodeURIComponent(videoId);
-  const endpoints = [
-    `/api/youtube-title/${safeId}`,
-    `/api/noembed-title/${safeId}`
-  ];
-  let lastError = null;
+async function loadPlaylistVideos(playlistKey, forceRefresh = false) {
+  const playlist = videoPlaylists[playlistKey];
+  if (!playlist) return;
 
-  for (const endpoint of endpoints) {
-    try {
-      const data = await fetchJsonWithTimeout(endpoint);
-      const title = data && typeof data.title === 'string' ? data.title.trim() : '';
-      if (!isUsableVideoTitle(title)) throw new Error('اسم الفيديو غير متاح');
-      return title;
-    } catch (error) {
-      lastError = error;
-    }
+  requestedPlaylistKey = playlistKey;
+  const memoryItems = !forceRefresh ? playlistVideoCache.get(playlistKey) : null;
+  const storedItems = !forceRefresh ? getStoredPlaylist(playlistKey) : null;
+  const firstAvailable = memoryItems || storedItems;
+
+  if (firstAvailable && playlistKey === activePlaylistKey) {
+    renderVideoItems(playlistKey, firstAvailable);
+  } else {
+    playlistLoader.classList.remove('hidden');
+    videoListStatus.textContent = `جارٍ تحميل مقاطع ${playlist.title}...`;
+    videoListStatus.classList.remove('hidden', 'error-status');
+    videoItemsGrid.replaceChildren();
+    showMoreVideosButton.classList.add('hidden');
   }
 
-  throw lastError || new Error('تعذر قراءة اسم الفيديو');
-}
-
-function enqueueVideoTitle(videoId) {
-  return new Promise((resolve, reject) => {
-    videoTitleQueue.push({ videoId, resolve, reject });
-    processVideoTitleQueue();
-  });
-}
-
-function processVideoTitleQueue() {
-  while (videoTitleActive < VIDEO_TITLE_CONCURRENCY && videoTitleQueue.length) {
-    const item = videoTitleQueue.shift();
-    videoTitleActive += 1;
-    fetchVideoTitleFromProxy(item.videoId)
-      .then(item.resolve, item.reject)
-      .finally(() => {
-        videoTitleActive -= 1;
-        processVideoTitleQueue();
-      });
-  }
-}
-
-async function fetchVideoTitle(videoId) {
-  const cached = readStoredVideoTitle(videoId);
-  if (cached) return cached;
-  if (videoTitleRequests.has(videoId)) return videoTitleRequests.get(videoId);
-
-  const requestPromise = enqueueVideoTitle(videoId).then((title) => {
-    if (!isUsableVideoTitle(title)) throw new Error('اسم الفيديو فارغ');
-    storeVideoTitle(videoId, title);
-    return title.trim();
-  });
-
-  videoTitleRequests.set(videoId, requestPromise);
-  try {
-    return await requestPromise;
-  } finally {
-    videoTitleRequests.delete(videoId);
-  }
-}
-
-function applyVideoTitle(button, videoId, playlistKey, index, title) {
-  if (!button.isConnected || button.dataset.videoId !== videoId || !title) return;
-  const titleElement = button.querySelector('strong');
-  const image = button.querySelector('img');
-  if (titleElement) titleElement.textContent = title;
-  if (image) image.alt = `صورة ${title}`;
-  button.dataset.videoTitle = title;
-  button.setAttribute('aria-label', `تشغيل ${title}`);
-
-  if (!videoPlayerSection.classList.contains('hidden') && videoPlayer.dataset.videoId === videoId) {
-    activeVideoTitle.textContent = title;
-  }
-}
-
-function hydrateVideoTitle(button, videoId, playlistKey, index, attempt = 0) {
-  const cached = readStoredVideoTitle(videoId);
-  if (cached) {
-    applyVideoTitle(button, videoId, playlistKey, index, cached);
+  if (!navigator.onLine) {
+    if (!firstAvailable) showPlaylistLoadError(playlistKey, 'لا يوجد اتصال بالإنترنت حاليًا.');
     return;
   }
 
-  fetchVideoTitle(videoId)
-    .then((title) => applyVideoTitle(button, videoId, playlistKey, index, title))
-    .catch(() => {
-      if (!button.isConnected || button.dataset.videoId !== videoId) return;
-      const playlist = videoPlaylists[playlistKey];
-      const fallbackTitle = `${playlist.itemLabel} ${index + 1}`;
-      applyVideoTitle(button, videoId, playlistKey, index, fallbackTitle);
-    });
+  try {
+    const items = await fetchPlaylistFromServer(playlistKey);
+    if (requestedPlaylistKey !== playlistKey || activePlaylistKey !== playlistKey) return;
+    playlistVideoCache.set(playlistKey, items);
+    storePlaylist(playlistKey, items);
+    playlistLoader.classList.add('hidden');
+    renderVideoItems(playlistKey, items);
+  } catch (error) {
+    if (requestedPlaylistKey !== playlistKey || activePlaylistKey !== playlistKey) return;
+    playlistLoader.classList.add('hidden');
+    if (!firstAvailable) {
+      const message = error && error.name === 'AbortError'
+        ? 'استغرق تحميل المقاطع وقتًا طويلًا. حاول مرة أخرى.'
+        : (error && error.message ? error.message : 'تعذر تحميل المقاطع الآن.');
+      showPlaylistLoadError(playlistKey, message);
+    }
+  }
 }
 
-function createVideoItem(videoId, index, playlistKey) {
+function createVideoItem(item, index, playlistKey) {
   const playlist = videoPlaylists[playlistKey];
+  const title = item.title.trim();
+  const videoId = item.videoId;
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'video-item-card';
   button.dataset.videoId = videoId;
-  button.dataset.videoTitle = '';
-  button.setAttribute('aria-label', `تشغيل ${playlist.itemLabel} ${index + 1} من ${playlist.title}`);
+  button.dataset.videoTitle = title;
+  button.setAttribute('aria-label', `تشغيل ${title}`);
   button.innerHTML = `
     <span class="video-thumbnail-wrap">
-      <img src="https://i.ytimg.com/vi/${encodeURIComponent(videoId)}/mqdefault.jpg" alt="صورة ${playlist.itemLabel} ${index + 1}" loading="lazy" referrerpolicy="no-referrer">
+      <img src="https://i.ytimg.com/vi/${encodeURIComponent(videoId)}/mqdefault.jpg" alt="" loading="lazy" referrerpolicy="no-referrer">
       <span class="video-item-play" aria-hidden="true">▶</span>
       <span class="video-item-number" aria-hidden="true">${index + 1}</span>
     </span>
     <span class="video-item-copy">
-      <strong>جارٍ قراءة الاسم...</strong>
+      <strong></strong>
       <small>اضغط للمشاهدة</small>
     </span>
   `;
-  button.addEventListener('click', () => playSingleVideo(playlistKey, videoId, index, button.dataset.videoTitle));
-  hydrateVideoTitle(button, videoId, playlistKey, index);
-
-  // Never leave the loading label hanging forever if the connection is blocked.
-  window.setTimeout(() => {
-    if (!button.isConnected || button.dataset.videoTitle) return;
-    const titleElement = button.querySelector('strong');
-    if (titleElement && titleElement.textContent.includes('جارٍ قراءة الاسم')) {
-      applyVideoTitle(button, videoId, playlistKey, index, `${playlist.itemLabel} ${index + 1}`);
-    }
-  }, 22000);
-
+  const image = button.querySelector('img');
+  const titleElement = button.querySelector('strong');
+  image.alt = `صورة ${title}`;
+  titleElement.textContent = title;
+  button.addEventListener('click', () => playSingleVideo(playlistKey, videoId, index, title));
   return button;
 }
 
 function appendNextVideoBatch() {
-  if (!activePlaylistKey || !activeVideoIds.length) return;
-  const nextIds = activeVideoIds.slice(visibleVideoCount, visibleVideoCount + VIDEO_PAGE_SIZE);
+  if (!activePlaylistKey || !activeVideoItems.length) return;
+  const nextItems = activeVideoItems.slice(visibleVideoCount, visibleVideoCount + VIDEO_PAGE_SIZE);
   const fragment = document.createDocumentFragment();
-  nextIds.forEach((videoId, offset) => {
-    fragment.appendChild(createVideoItem(videoId, visibleVideoCount + offset, activePlaylistKey));
+  nextItems.forEach((item, offset) => {
+    fragment.appendChild(createVideoItem(item, visibleVideoCount + offset, activePlaylistKey));
   });
   videoItemsGrid.appendChild(fragment);
-  visibleVideoCount += nextIds.length;
-  showMoreVideosButton.classList.toggle('hidden', visibleVideoCount >= activeVideoIds.length);
-  if (visibleVideoCount < activeVideoIds.length) {
-    showMoreVideosButton.textContent = `عرض المزيد (${activeVideoIds.length - visibleVideoCount})`;
+  visibleVideoCount += nextItems.length;
+  showMoreVideosButton.classList.toggle('hidden', visibleVideoCount >= activeVideoItems.length);
+  if (visibleVideoCount < activeVideoItems.length) {
+    showMoreVideosButton.textContent = `عرض المزيد (${activeVideoItems.length - visibleVideoCount})`;
   }
 }
 
-function renderVideoItems(playlistKey, videoIds) {
+function renderVideoItems(playlistKey, items) {
   if (playlistKey !== activePlaylistKey) return;
   const playlist = videoPlaylists[playlistKey];
-  activeVideoIds = [...videoIds];
+  activeVideoItems = [...items];
   visibleVideoCount = 0;
   videoItemsGrid.replaceChildren();
-  videoListStatus.textContent = `${videoIds.length} ${playlist.itemLabel === 'الحلقة' ? 'حلقة متاحة' : 'مقطع متاح'} — اختر المقطع الذي تريده`;
+  videoListStatus.textContent = `${items.length} ${playlist.itemLabel === 'الحلقة' ? 'حلقة متاحة' : 'مقطع متاح'} — اختر المقطع الذي تريده`;
   videoListStatus.classList.remove('hidden', 'error-status');
   appendNextVideoBatch();
 }
@@ -754,12 +557,11 @@ function openVideoBrowser(playlistKey) {
 function closeVideoBrowser() {
   requestedPlaylistKey = null;
   activePlaylistKey = null;
-  window.clearTimeout(playlistPollTimer);
   stopVideoPlayback();
   videoBrowserSection.classList.add('hidden');
   playlistPicker.classList.remove('hidden');
   playlistButtons.forEach((button) => button.classList.remove('selected'));
-  activeVideoIds = [];
+  activeVideoItems = [];
   visibleVideoCount = 0;
   playlistLoader.classList.add('hidden');
   showMoreVideosButton.classList.add('hidden');
@@ -790,7 +592,7 @@ function playSingleVideo(playlistKey, videoId, index, resolvedTitle = '') {
 
   videoConnectionNote.textContent = 'تحتاج مشاهدة المقاطع إلى اتصال بالإنترنت.';
   videoConnectionNote.classList.remove('offline-note');
-  const exactTitle = resolvedTitle || readStoredVideoTitle(videoId);
+  const exactTitle = resolvedTitle;
   activeVideoTitle.textContent = exactTitle || `${playlist.itemLabel} ${index + 1} · ${playlist.title}`;
   videoPlayer.dataset.videoId = videoId;
   openVideoYoutube.href = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&list=${encodeURIComponent(playlist.playlistId)}`;
@@ -933,17 +735,6 @@ window.addEventListener('appinstalled', () => {
 });
 
 
-function dismissAppSplash() {
-  const splash = document.querySelector('#app-splash');
-  if (!splash || splash.classList.contains('app-splash-hidden')) return;
-  splash.classList.add('app-splash-hidden');
-  window.setTimeout(() => splash.remove(), 650);
-}
-
-window.addEventListener('load', () => {
-  window.setTimeout(dismissAppSplash, 900);
-}, { once: true });
-window.setTimeout(dismissAppSplash, 3500);
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {

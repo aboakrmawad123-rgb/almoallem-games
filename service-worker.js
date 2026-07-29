@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v17-title-proxy-fix';
+const CACHE_NAME = 'almoallem-v18-youtube-api';
 const APP_SHELL = [
   './',
   './index.html',
-  './style.css?v=17',
-  './script.js?v=17',
+  './style.css?v=18',
+  './script.js?v=18',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
@@ -19,8 +19,7 @@ const APP_SHELL = [
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
-  './icon-maskable-512.png',
-  './splash-screen.webp'
+  './icon-maskable-512.png'
 ];
 
 self.addEventListener('install', (event) => {
