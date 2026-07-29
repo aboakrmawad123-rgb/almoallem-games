@@ -1,9 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
-    {
-      "source": "/youtube-oembed",
-      "destination": "https://www.youtube.com/oembed"
-    }
-  ]
+  "cleanUrls": false
 }

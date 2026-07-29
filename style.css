@@ -1108,3 +1108,43 @@ img {
   overflow: hidden;
   line-height: 1.45;
 }
+
+
+/* شاشة بدء المعلّم الصغير */
+.app-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: grid;
+  place-items: center;
+  background: #e8f7ff;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .55s ease, visibility .55s ease;
+  overflow: hidden;
+}
+.app-splash img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.app-splash-loader {
+  position: absolute;
+  inset-inline-start: 50%;
+  bottom: max(34px, env(safe-area-inset-bottom));
+  width: 42px;
+  height: 42px;
+  margin-inline-start: -21px;
+  border: 5px solid rgba(255,255,255,.9);
+  border-top-color: #168bd1;
+  border-radius: 50%;
+  box-shadow: 0 5px 18px rgba(0,91,145,.16);
+  animation: app-splash-spin .8s linear infinite;
+}
+.app-splash-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+@keyframes app-splash-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .app-splash { transition: none; }
+  .app-splash-loader { animation-duration: 1.6s; }
+}

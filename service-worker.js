@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-games-v15-player-video-titles';
+const CACHE_NAME = 'almoallem-v16-brand-splash-titles';
 const APP_SHELL = [
   './',
   './index.html',
-  './style.css?v=15',
-  './script.js?v=15',
+  './style.css?v=16',
+  './script.js?v=16',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
@@ -18,7 +18,9 @@ const APP_SHELL = [
   './crocodile.webp',
   './icon-192.png',
   './icon-512.png',
-  './apple-touch-icon.png'
+  './apple-touch-icon.png',
+  './icon-maskable-512.png',
+  './splash-screen.webp'
 ];
 
 self.addEventListener('install', (event) => {
@@ -40,12 +42,6 @@ self.addEventListener('fetch', (event) => {
 
   const requestUrl = new URL(event.request.url);
   if (requestUrl.origin !== self.location.origin) return;
-
-  // أسماء فيديوهات يوتيوب يجب أن تبقى من الشبكة ولا تُخزَّن كملف ثابت.
-  if (requestUrl.pathname.startsWith('/youtube-title/') || requestUrl.pathname === '/youtube-oembed') {
-    event.respondWith(fetch(event.request, { cache: 'no-store' }));
-    return;
-  }
 
   if (event.request.mode === 'navigate') {
     event.respondWith(

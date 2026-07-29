@@ -145,10 +145,9 @@ const VIDEO_PAGE_SIZE = 12;
 const playlistVideoCache = new Map();
 const videoTitleCache = new Map();
 const videoTitleRequests = new Map();
-let metadataPlayerPromise = null;
-let metadataPlayer = null;
-let metadataTitleQueue = [];
-let metadataTitleBusy = false;
+let jsonpTitleQueue = [];
+let jsonpTitleActive = 0;
+const JSONP_TITLE_CONCURRENCY = 3;
 
 function openSocialMenu() {
   socialMenu.classList.remove('hidden');
@@ -169,8 +168,8 @@ function closeSocialMenu() {
 
 async function shareApp() {
   const shareData = {
-    title: 'ألعاب المعلّم الصغير',
-    text: 'جرّب ألعاب المعلّم الصغير التعليمية الممتعة للأطفال.',
+    title: 'المعلّم الصغير',
+    text: 'جرّب تطبيق المعلّم الصغير: ألعاب ومقاطع تعليمية ممتعة للأطفال.',
     url: 'https://almoallemmemorygame.vercel.app/'
   };
 
@@ -557,187 +556,91 @@ function storeVideoTitle(videoId, title) {
   try { window.localStorage.setItem(`youtube-title:${videoId}`, title); } catch {}
 }
 
-function recreateMetadataMount() {
-  const shell = document.querySelector('.youtube-metadata-shell');
-  if (!shell) throw new Error('تعذر تجهيز قارئ أسماء المقاطع');
-
-  try {
-    if (metadataPlayer && typeof metadataPlayer.destroy === 'function') metadataPlayer.destroy();
-  } catch {}
-
-  metadataPlayer = null;
-  metadataPlayerPromise = null;
-  shell.replaceChildren();
-  const mount = document.createElement('div');
-  mount.id = 'youtube-metadata-player';
-  shell.appendChild(mount);
-  return mount;
-}
-
-function ensureMetadataPlayer() {
-  if (metadataPlayer && typeof metadataPlayer.cueVideoById === 'function') {
-    return Promise.resolve(metadataPlayer);
-  }
-  if (metadataPlayerPromise) return metadataPlayerPromise;
-
-  const mount = document.querySelector('#youtube-metadata-player') || recreateMetadataMount();
-  if (!mount) return Promise.reject(new Error('تعذر تجهيز قارئ أسماء المقاطع'));
-
-  metadataPlayerPromise = ensureYouTubeApi().then(() => new Promise((resolve, reject) => {
-    let settled = false;
-    const finishResolve = (player) => {
-      if (settled) return;
-      settled = true;
-      resolve(player);
-    };
-    const finishReject = (error) => {
-      if (settled) return;
-      settled = true;
-      metadataPlayerPromise = null;
-      reject(error);
-    };
-
-    metadataPlayer = new window.YT.Player('youtube-metadata-player', {
-      width: '480',
-      height: '270',
-      host: 'https://www.youtube.com',
-      playerVars: {
-        autoplay: 0,
-        controls: 0,
-        disablekb: 1,
-        fs: 0,
-        playsinline: 1,
-        rel: 0,
-        hl: 'ar',
-        origin: window.location.origin
-      },
-      events: {
-        onReady: (event) => finishResolve(event.target),
-        onError: () => {}
-      }
-    });
-
-    window.setTimeout(() => finishReject(new Error('انتهت مهلة قارئ أسماء المقاطع')), 15000);
-  }));
-
-  metadataPlayerPromise.catch(() => {
-    try { recreateMetadataMount(); } catch {}
-  });
-  return metadataPlayerPromise;
-}
-
-function cueVideoAndReadTitle(player, videoId) {
+function requestTitleViaJsonp(videoId, endpoint) {
   return new Promise((resolve, reject) => {
-    const startedAt = Date.now();
+    const callbackName = `__almoallemTitle_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const script = document.createElement('script');
+    const watchUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
     let settled = false;
-    let timer = null;
 
+    const cleanup = () => {
+      try { delete window[callbackName]; } catch { window[callbackName] = undefined; }
+      script.remove();
+    };
     const finish = (error, title = '') => {
       if (settled) return;
       settled = true;
-      if (timer) window.clearInterval(timer);
+      window.clearTimeout(timeout);
+      cleanup();
       if (error) reject(error);
       else resolve(title);
     };
 
-    try {
-      player.cueVideoById({ videoId, startSeconds: 0 });
-    } catch (error) {
-      finish(error);
-      return;
-    }
-
-    timer = window.setInterval(() => {
-      try {
-        const data = player.getVideoData ? player.getVideoData() || {} : {};
-        const loadedVideoId = typeof data.video_id === 'string' ? data.video_id : '';
-        const title = typeof data.title === 'string' ? data.title.trim() : '';
-        if (loadedVideoId === videoId && title) {
-          finish(null, title);
-          return;
-        }
-      } catch {}
-
-      if (Date.now() - startedAt >= 12000) {
-        finish(new Error('تعذر قراءة اسم الفيديو من المشغّل'));
+    window[callbackName] = (data) => {
+      const title = data && typeof data.title === 'string' ? data.title.trim() : '';
+      if (!title) {
+        finish(new Error('اسم الفيديو غير متاح'));
+        return;
       }
-    }, 250);
+      finish(null, title);
+    };
+
+    script.async = true;
+    script.referrerPolicy = 'no-referrer';
+    script.onerror = () => finish(new Error('تعذر الاتصال بخدمة أسماء الفيديوهات'));
+    script.src = `${endpoint}?url=${encodeURIComponent(watchUrl)}&callback=${encodeURIComponent(callbackName)}`;
+    const timeout = window.setTimeout(() => finish(new Error('انتهت مهلة قراءة الاسم')), 14000);
+    document.head.appendChild(script);
   });
 }
 
-function readTitleThroughYouTubePlayer(videoId) {
-  return new Promise((resolve, reject) => {
-    metadataTitleQueue.push({ videoId, resolve, reject });
-    processMetadataTitleQueue();
-  });
-}
-
-async function processMetadataTitleQueue() {
-  if (metadataTitleBusy) return;
-  metadataTitleBusy = true;
-
-  while (metadataTitleQueue.length) {
-    const item = metadataTitleQueue.shift();
-    try {
-      const player = await ensureMetadataPlayer();
-      const title = await cueVideoAndReadTitle(player, item.videoId);
-      item.resolve(title);
-    } catch (error) {
-      item.reject(error);
-    }
-  }
-
-  metadataTitleBusy = false;
-}
-
-async function fetchVideoTitleFromNetwork(videoId) {
-  const watchUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
+async function fetchVideoTitleViaJsonp(videoId) {
   const endpoints = [
-    { url: `/youtube-oembed?url=${encodeURIComponent(watchUrl)}&format=json`, options: { cache: 'no-store', credentials: 'same-origin' } },
-    { url: `https://www.youtube.com/oembed?url=${encodeURIComponent(watchUrl)}&format=json`, options: { mode: 'cors', cache: 'no-store' } },
-    { url: `https://noembed.com/embed?url=${encodeURIComponent(watchUrl)}`, options: { mode: 'cors', cache: 'no-store' } }
+    'https://noembed.com/embed',
+    'https://noembed.arstechnica.com/embed'
   ];
-
   let lastError = null;
   for (const endpoint of endpoints) {
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(endpoint.url, { ...endpoint.options, signal: controller.signal });
-      if (!response.ok) throw new Error('تعذر قراءة اسم الفيديو');
-      const data = await response.json();
-      const title = typeof data.title === 'string' ? data.title.trim() : '';
-      if (!title) throw new Error('اسم الفيديو فارغ');
-      return title;
+      return await requestTitleViaJsonp(videoId, endpoint);
     } catch (error) {
       lastError = error;
-    } finally {
-      window.clearTimeout(timeout);
     }
   }
-
   throw lastError || new Error('تعذر قراءة اسم الفيديو');
+}
+
+function enqueueVideoTitle(videoId) {
+  return new Promise((resolve, reject) => {
+    jsonpTitleQueue.push({ videoId, resolve, reject });
+    processJsonpTitleQueue();
+  });
+}
+
+function processJsonpTitleQueue() {
+  while (jsonpTitleActive < JSONP_TITLE_CONCURRENCY && jsonpTitleQueue.length) {
+    const item = jsonpTitleQueue.shift();
+    jsonpTitleActive += 1;
+    fetchVideoTitleViaJsonp(item.videoId)
+      .then(item.resolve, item.reject)
+      .finally(() => {
+        jsonpTitleActive -= 1;
+        processJsonpTitleQueue();
+      });
+  }
 }
 
 async function fetchVideoTitle(videoId) {
   const cached = readStoredVideoTitle(videoId);
   if (cached) return cached;
-
   if (videoTitleRequests.has(videoId)) return videoTitleRequests.get(videoId);
 
-  const requestPromise = (async () => {
-    // نبدأ طريقتين معًا: بروكسي Vercel ومشغّل يوتيوب نفسه.
-    // أول طريقة تنجح تعتمد، والثانية تبقى احتياطًا صامتًا.
-    const title = await Promise.any([
-      fetchVideoTitleFromNetwork(videoId),
-      readTitleThroughYouTubePlayer(videoId)
-    ]);
-
+  const requestPromise = enqueueVideoTitle(videoId).then((title) => {
     const cleanTitle = typeof title === 'string' ? title.trim() : '';
     if (!cleanTitle) throw new Error('اسم الفيديو فارغ');
     storeVideoTitle(videoId, cleanTitle);
     return cleanTitle;
-  })();
+  });
 
   videoTitleRequests.set(videoId, requestPromise);
   try {
@@ -771,9 +674,15 @@ function hydrateVideoTitle(button, videoId, playlistKey, index, attempt = 0) {
   fetchVideoTitle(videoId)
     .then((title) => applyVideoTitle(button, videoId, playlistKey, index, title))
     .catch(() => {
-      if (!button.isConnected || button.dataset.videoId !== videoId || attempt >= 2) return;
-      const delays = [2500, 8000, 20000];
-      window.setTimeout(() => hydrateVideoTitle(button, videoId, playlistKey, index, attempt + 1), delays[attempt]);
+      if (!button.isConnected || button.dataset.videoId !== videoId) return;
+      if (attempt < 2) {
+        const delays = [3000, 9000];
+        window.setTimeout(() => hydrateVideoTitle(button, videoId, playlistKey, index, attempt + 1), delays[attempt]);
+        return;
+      }
+      const playlist = videoPlaylists[playlistKey];
+      const fallbackTitle = `${playlist.itemLabel} ${index + 1}`;
+      applyVideoTitle(button, videoId, playlistKey, index, fallbackTitle);
     });
 }
 
@@ -1020,6 +929,19 @@ window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
   installButton.classList.add('hidden');
 });
+
+
+function dismissAppSplash() {
+  const splash = document.querySelector('#app-splash');
+  if (!splash || splash.classList.contains('app-splash-hidden')) return;
+  splash.classList.add('app-splash-hidden');
+  window.setTimeout(() => splash.remove(), 650);
+}
+
+window.addEventListener('load', () => {
+  window.setTimeout(dismissAppSplash, 900);
+}, { once: true });
+window.setTimeout(dismissAppSplash, 3500);
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
