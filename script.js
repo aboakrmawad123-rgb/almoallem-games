@@ -578,7 +578,7 @@ function stopVideoPlayback() {
   videoItemsGrid.querySelectorAll('.video-item-card').forEach((button) => button.classList.remove('playing'));
 }
 
-function playSingleVideo(playlistKey, videoId, index, resolvedTitle = '') {
+function playSingleVideoNow(playlistKey, videoId, index, resolvedTitle = '') {
   const playlist = videoPlaylists[playlistKey];
   if (!playlist) return;
 
@@ -662,6 +662,122 @@ function showAnimalWin() {
   lettersPlayAgainButton.focus();
 }
 
+
+const APP_ROUTE_MARKER = 'almoallem-small-teacher-route';
+let currentRouteState = { appRoute: APP_ROUTE_MARKER, view: 'home', depth: 0 };
+let applyingHistoryState = false;
+
+function normalizeRouteState(state) {
+  const candidate = state && state.appRoute === APP_ROUTE_MARKER ? state : {};
+  const validViews = new Set([
+    'home',
+    'games-menu',
+    'watch-menu',
+    'memory-levels',
+    'memory-game',
+    'letters-levels',
+    'letters-game',
+    'watch-playlist',
+    'watch-video'
+  ]);
+  const view = validViews.has(candidate.view) ? candidate.view : 'home';
+  return {
+    appRoute: APP_ROUTE_MARKER,
+    view,
+    depth: Number.isInteger(candidate.depth) && candidate.depth >= 0 ? candidate.depth : 0,
+    playlistKey: typeof candidate.playlistKey === 'string' ? candidate.playlistKey : '',
+    videoId: typeof candidate.videoId === 'string' ? candidate.videoId : '',
+    videoIndex: Number.isInteger(candidate.videoIndex) ? candidate.videoIndex : 0,
+    videoTitle: typeof candidate.videoTitle === 'string' ? candidate.videoTitle : ''
+  };
+}
+
+function applyRouteState(rawState) {
+  const state = normalizeRouteState(rawState);
+  currentRouteState = state;
+  applyingHistoryState = true;
+
+  switch (state.view) {
+    case 'games-menu':
+      showGamesMenu();
+      break;
+    case 'watch-menu':
+      showWatchMenu();
+      break;
+    case 'memory-levels':
+      showLevels();
+      break;
+    case 'memory-game':
+      showGame();
+      break;
+    case 'letters-levels':
+      showLettersLevels();
+      break;
+    case 'letters-game':
+      showLettersGame();
+      break;
+    case 'watch-playlist':
+      showWatchMenu();
+      if (videoPlaylists[state.playlistKey]) openVideoBrowser(state.playlistKey);
+      break;
+    case 'watch-video':
+      showWatchMenu();
+      if (videoPlaylists[state.playlistKey]) {
+        openVideoBrowser(state.playlistKey);
+        if (state.videoId) {
+          playSingleVideoNow(
+            state.playlistKey,
+            state.videoId,
+            state.videoIndex,
+            state.videoTitle
+          );
+        }
+      }
+      break;
+    case 'home':
+    default:
+      showHome();
+      break;
+  }
+
+  applyingHistoryState = false;
+}
+
+function navigateToRoute(route, options = {}) {
+  const replace = Boolean(options.replace);
+  const nextDepth = replace ? currentRouteState.depth : currentRouteState.depth + 1;
+  const state = normalizeRouteState({
+    ...route,
+    appRoute: APP_ROUTE_MARKER,
+    depth: nextDepth
+  });
+  const method = replace ? 'replaceState' : 'pushState';
+  window.history[method](state, '');
+  applyRouteState(state);
+}
+
+function navigateBack(fallbackRoute) {
+  if (currentRouteState.depth > 0) {
+    window.history.back();
+    return;
+  }
+  navigateToRoute(fallbackRoute, { replace: true });
+}
+
+function playSingleVideo(playlistKey, videoId, index, resolvedTitle = '') {
+  navigateToRoute({
+    view: 'watch-video',
+    playlistKey,
+    videoId,
+    videoIndex: index,
+    videoTitle: resolvedTitle
+  });
+}
+
+window.addEventListener('popstate', (event) => {
+  applyRouteState(event.state);
+});
+
 moreMenuButton.addEventListener('click', openSocialMenu);
 closeSocialMenuButton.addEventListener('click', closeSocialMenu);
 menuBackdrop.addEventListener('click', closeSocialMenu);
@@ -678,32 +794,38 @@ document.addEventListener('keydown', (event) => {
   else if (!socialMenu.classList.contains('hidden')) closeSocialMenu();
 });
 
-openGamesSectionButton.addEventListener('click', showGamesMenu);
-openWatchSectionButton.addEventListener('click', showWatchMenu);
-gamesMenuHomeButton.addEventListener('click', showHome);
-watchMenuHomeButton.addEventListener('click', showHome);
+openGamesSectionButton.addEventListener('click', () => navigateToRoute({ view: 'games-menu' }));
+openWatchSectionButton.addEventListener('click', () => navigateToRoute({ view: 'watch-menu' }));
+gamesMenuHomeButton.addEventListener('click', () => navigateBack({ view: 'home' }));
+watchMenuHomeButton.addEventListener('click', () => navigateBack({ view: 'home' }));
 
-memoryGameCard.addEventListener('click', showLevels);
-lettersGameCard.addEventListener('click', showLettersLevels);
-levelHomeButton.addEventListener('click', showGamesMenu);
+memoryGameCard.addEventListener('click', () => navigateToRoute({ view: 'memory-levels' }));
+lettersGameCard.addEventListener('click', () => navigateToRoute({ view: 'letters-levels' }));
+levelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 levelButtons.forEach((button) => button.addEventListener('click', () => selectLevel(button.dataset.level)));
-startButton.addEventListener('click', showGame);
+startButton.addEventListener('click', () => navigateToRoute({ view: 'memory-game' }));
 resetButton.addEventListener('click', renderGame);
-backButton.addEventListener('click', showLevels);
-playAgainButton.addEventListener('click', showGame);
-homeButton.addEventListener('click', showGamesMenu);
+backButton.addEventListener('click', () => navigateBack({ view: 'memory-levels' }));
+playAgainButton.addEventListener('click', renderGame);
+homeButton.addEventListener('click', () => navigateToRoute({ view: 'games-menu' }));
 
-lettersLevelHomeButton.addEventListener('click', showGamesMenu);
-lettersStartButton.addEventListener('click', showLettersGame);
-lettersBackButton.addEventListener('click', showLettersLevels);
+lettersLevelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+lettersStartButton.addEventListener('click', () => navigateToRoute({ view: 'letters-game' }));
+lettersBackButton.addEventListener('click', () => navigateBack({ view: 'letters-levels' }));
 lettersResetButton.addEventListener('click', startAnimalGame);
-lettersPlayAgainButton.addEventListener('click', showLettersGame);
-lettersHomeButton.addEventListener('click', showGamesMenu);
+lettersPlayAgainButton.addEventListener('click', startAnimalGame);
+lettersHomeButton.addEventListener('click', () => navigateToRoute({ view: 'games-menu' }));
 
-playlistButtons.forEach((button) => button.addEventListener('click', () => openVideoBrowser(button.dataset.playlist)));
-videoBrowserBackButton.addEventListener('click', closeVideoBrowser);
+playlistButtons.forEach((button) => button.addEventListener('click', () => navigateToRoute({
+  view: 'watch-playlist',
+  playlistKey: button.dataset.playlist
+})));
+videoBrowserBackButton.addEventListener('click', () => navigateBack({ view: 'watch-menu' }));
 showMoreVideosButton.addEventListener('click', appendNextVideoBatch);
-closeVideoPlayerButton.addEventListener('click', stopVideoPlayback);
+closeVideoPlayerButton.addEventListener('click', () => navigateBack({
+  view: 'watch-playlist',
+  playlistKey: activePlaylistKey || currentRouteState.playlistKey
+}));
 window.addEventListener('offline', () => {
   if (!watchMenuScreen.classList.contains('hidden')) {
     videoConnectionNote.textContent = 'انقطع اتصال الإنترنت. قد يتوقف تشغيل المقاطع مؤقتًا.';
@@ -734,6 +856,11 @@ window.addEventListener('appinstalled', () => {
   installButton.classList.add('hidden');
 });
 
+
+
+const initialRouteState = normalizeRouteState(window.history.state);
+window.history.replaceState(initialRouteState, '');
+applyRouteState(initialRouteState);
 
 
 if ('serviceWorker' in navigator) {

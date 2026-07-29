@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v18-youtube-api';
+const CACHE_NAME = 'almoallem-v19-history-brand-ready';
 const APP_SHELL = [
   './',
   './index.html',
-  './style.css?v=18',
-  './script.js?v=18',
+  './style.css?v=19',
+  './script.js?v=19',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
