@@ -112,6 +112,8 @@ const moreMenuButton = document.querySelector('#more-menu-button');
 const socialMenu = document.querySelector('#social-menu');
 const menuBackdrop = document.querySelector('#menu-backdrop');
 const closeSocialMenuButton = document.querySelector('#close-social-menu');
+const socialLinksToggleButton = document.querySelector('#social-links-toggle');
+const socialLinksSubmenu = document.querySelector('#social-links-submenu');
 const shareAppButton = document.querySelector('#share-app-button');
 const shareAppStatus = document.querySelector('#share-app-status');
 const aboutAppButton = document.querySelector('#about-app-button');
@@ -253,7 +255,20 @@ let visibleVideoCount = 0;
 const VIDEO_PAGE_SIZE = 12;
 const playlistVideoCache = new Map();
 
+function setSocialLinksExpanded(expanded) {
+  if (!socialLinksToggleButton || !socialLinksSubmenu) return;
+  socialLinksToggleButton.setAttribute('aria-expanded', String(expanded));
+  socialLinksSubmenu.classList.toggle('hidden', !expanded);
+  socialLinksSubmenu.setAttribute('aria-hidden', String(!expanded));
+}
+
+function toggleSocialLinks() {
+  const expanded = socialLinksToggleButton.getAttribute('aria-expanded') === 'true';
+  setSocialLinksExpanded(!expanded);
+}
+
 function openSocialMenu() {
+  setSocialLinksExpanded(false);
   socialMenu.classList.remove('hidden');
   menuBackdrop.classList.remove('hidden');
   socialMenu.setAttribute('aria-hidden', 'false');
@@ -263,6 +278,7 @@ function openSocialMenu() {
 }
 
 function closeSocialMenu() {
+  setSocialLinksExpanded(false);
   socialMenu.classList.add('hidden');
   menuBackdrop.classList.add('hidden');
   socialMenu.setAttribute('aria-hidden', 'true');
@@ -892,7 +908,7 @@ function playSingleVideo(playlistKey, videoId, index, resolvedTitle = '') {
     videoId,
     videoIndex: index,
     videoTitle: resolvedTitle
-  });
+  }, { replace: currentRouteState.view === 'watch-video' });
 }
 
 window.addEventListener('popstate', (event) => {
@@ -901,6 +917,7 @@ window.addEventListener('popstate', (event) => {
 
 moreMenuButton.addEventListener('click', openSocialMenu);
 closeSocialMenuButton.addEventListener('click', closeSocialMenu);
+socialLinksToggleButton.addEventListener('click', toggleSocialLinks);
 menuBackdrop.addEventListener('click', closeSocialMenu);
 socialMenu.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeSocialMenu));
 shareAppButton.addEventListener('click', shareApp);
@@ -925,18 +942,18 @@ memoryGameCard.addEventListener('click', () => navigateToRoute({ view: 'memory-l
 lettersGameCard.addEventListener('click', () => navigateToRoute({ view: 'letters-levels' }));
 levelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 levelButtons.forEach((button) => button.addEventListener('click', () => selectLevel(button.dataset.level)));
-startButton.addEventListener('click', () => navigateToRoute({ view: 'memory-game' }));
+startButton.addEventListener('click', () => navigateToRoute({ view: 'memory-game' }, { replace: true }));
 resetButton.addEventListener('click', renderGame);
-backButton.addEventListener('click', () => navigateBack({ view: 'memory-levels' }));
+backButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 playAgainButton.addEventListener('click', renderGame);
-homeButton.addEventListener('click', () => navigateToRoute({ view: 'games-menu' }));
+homeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 
 lettersLevelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
-lettersStartButton.addEventListener('click', () => navigateToRoute({ view: 'letters-game' }));
-lettersBackButton.addEventListener('click', () => navigateBack({ view: 'letters-levels' }));
+lettersStartButton.addEventListener('click', () => navigateToRoute({ view: 'letters-game' }, { replace: true }));
+lettersBackButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 lettersResetButton.addEventListener('click', startAnimalGame);
 lettersPlayAgainButton.addEventListener('click', startAnimalGame);
-lettersHomeButton.addEventListener('click', () => navigateToRoute({ view: 'games-menu' }));
+lettersHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 
 playlistButtons.forEach((button) => button.addEventListener('click', () => navigateToRoute({
   view: 'watch-playlist',
@@ -986,6 +1003,13 @@ applyRouteState(initialRouteState);
 
 
 if ('serviceWorker' in navigator) {
+  let refreshingForNewWorker = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshingForNewWorker) return;
+    refreshingForNewWorker = true;
+    window.location.reload();
+  });
+
   window.addEventListener('load', async () => {
     try {
       const registration = await navigator.serviceWorker.register('service-worker.js');

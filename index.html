@@ -27,6 +27,29 @@
   <link rel="preload" as="image" href="duck.webp">
   <link rel="preload" as="image" href="crocodile.webp">
   <link rel="stylesheet" href="style.css?v=20">
+  <style>
+    .social-submenu {
+      display: grid;
+      gap: 8px;
+      margin: -2px 10px 8px;
+      padding: 9px;
+      border: 1px solid rgba(33, 150, 243, 0.16);
+      border-radius: 18px;
+      background: rgba(225, 246, 255, 0.55);
+    }
+    .social-submenu.hidden { display: none !important; }
+    .social-submenu .social-menu-link { margin: 0; }
+    .social-submenu-toggle .submenu-chevron {
+      transition: transform 180ms ease;
+      font-size: 1.15rem;
+    }
+    .social-submenu-toggle[aria-expanded="true"] .submenu-chevron { transform: rotate(90deg); }
+    .about-credit {
+      margin-top: 12px !important;
+      font-weight: 800;
+      color: #1679b8;
+    }
+  </style>
 </head>
 <body>
   <main class="app-shell">
@@ -45,7 +68,7 @@
     <section id="home-screen" class="panel home-panel" aria-label="الواجهة الرئيسية">
       <div class="welcome-row">
         <div>
-          <span class="welcome-badge">الإصدار الثامن عشر</span>
+          <span class="welcome-badge">الإصدار التاسع عشر</span>
           <h2>ماذا تريد أن تفعل اليوم؟</h2>
           <p>اختر قسم الألعاب أو قسم المشاهدة والتعلّم.</p>
         </div>
@@ -53,18 +76,6 @@
       </div>
 
       <div class="games-grid main-sections-grid" aria-label="أقسام التطبيق">
-        <button id="open-games-section" class="game-choice available section-choice" type="button">
-          <span class="game-preview mixed-games-preview" aria-hidden="true">
-            <img src="apple.webp" alt=""><img src="card-back.webp" alt=""><img src="lion.webp" alt="">
-          </span>
-          <span class="game-copy">
-            <span class="game-status">ألعاب تعليمية ممتعة</span>
-            <strong>الألعاب</strong>
-            <small>ادخل واختر اللعبة والمستوى المناسب</small>
-          </span>
-          <span class="game-arrow" aria-hidden="true">←</span>
-        </button>
-
         <button id="open-watch-section" class="game-choice available section-choice" type="button">
           <span class="game-preview learning-preview" aria-hidden="true">
             <span class="learning-tile quran-learning-tile"><span class="learning-letter">ق</span><span class="learning-play">▶</span></span>
@@ -74,6 +85,18 @@
             <span class="game-status">مقاطع تعليمية للأطفال</span>
             <strong>شاهد وتعلّم</strong>
             <small>اختر جزء عم أو يوميات عزّام ثم شاهد المقطع</small>
+          </span>
+          <span class="game-arrow" aria-hidden="true">←</span>
+        </button>
+
+        <button id="open-games-section" class="game-choice available section-choice" type="button">
+          <span class="game-preview mixed-games-preview" aria-hidden="true">
+            <img src="apple.webp" alt=""><img src="card-back.webp" alt=""><img src="lion.webp" alt="">
+          </span>
+          <span class="game-copy">
+            <span class="game-status">ألعاب تعليمية ممتعة</span>
+            <strong>الألعاب</strong>
+            <small>ادخل واختر اللعبة والمستوى المناسب</small>
           </span>
           <span class="game-arrow" aria-hidden="true">←</span>
         </button>
@@ -273,21 +296,29 @@
       <a class="social-menu-link whatsapp-link" href="https://wa.me/963959766360?text=%D9%85%D8%B1%D8%AD%D8%A8%D9%8B%D8%A7%D8%8C%20%D8%A3%D8%AA%D9%88%D8%A7%D8%B5%D9%84%20%D9%85%D8%B9%D9%83%D9%85%20%D9%85%D9%86%20%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%91%D9%85%20%D8%A7%D9%84%D8%B5%D8%BA%D9%8A%D8%B1." target="_blank" rel="noopener noreferrer">
         <span class="social-icon" aria-hidden="true">💬</span><span><strong>تواصل معنا عبر واتساب</strong><small>أرسل رسالة مباشرة</small></span><span class="external-arrow" aria-hidden="true">↗</span>
       </a>
-      <a class="social-menu-link channel-link" href="https://whatsapp.com/channel/0029Vae4AbxHLHQfoWscwP04" target="_blank" rel="noopener noreferrer">
-        <span class="social-icon" aria-hidden="true">📣</span><span><strong>قناة المعلّم الصغير على واتساب</strong><small>تابع آخر المحتوى</small></span><span class="external-arrow" aria-hidden="true">↗</span>
-      </a>
-      <a class="social-menu-link youtube-link" href="https://youtube.com/@Littleteacher2024" target="_blank" rel="noopener noreferrer">
-        <span class="social-icon" aria-hidden="true">▶</span><span><strong>يوتيوب</strong><small>@Littleteacher2024</small></span><span class="external-arrow" aria-hidden="true">↗</span>
-      </a>
-      <a class="social-menu-link facebook-link" href="https://www.facebook.com/Littleteacher2024" target="_blank" rel="noopener noreferrer">
-        <span class="social-icon social-letter" aria-hidden="true">f</span><span><strong>فيسبوك</strong><small>Littleteacher2024</small></span><span class="external-arrow" aria-hidden="true">↗</span>
-      </a>
-      <a class="social-menu-link instagram-link" href="https://www.instagram.com/littleteacher2024" target="_blank" rel="noopener noreferrer">
-        <span class="social-icon" aria-hidden="true">◎</span><span><strong>إنستغرام</strong><small>@littleteacher2024</small></span><span class="external-arrow" aria-hidden="true">↗</span>
-      </a>
-      <a class="social-menu-link tiktok-link" href="https://www.tiktok.com/@littleteacher2024" target="_blank" rel="noopener noreferrer">
-        <span class="social-icon" aria-hidden="true">♪</span><span><strong>تيك توك</strong><small>@littleteacher2024</small></span><span class="external-arrow" aria-hidden="true">↗</span>
-      </a>
+
+      <button id="social-links-toggle" class="social-menu-link menu-action-button social-submenu-toggle" type="button" aria-expanded="false" aria-controls="social-links-submenu">
+        <span class="social-icon" aria-hidden="true">🌐</span><span><strong>مواقع تواصل المعلّم الصغير</strong><small>واتساب ويوتيوب وبقية المنصات</small></span><span class="external-arrow submenu-chevron" aria-hidden="true">←</span>
+      </button>
+
+      <div id="social-links-submenu" class="social-submenu hidden" aria-hidden="true">
+        <a class="social-menu-link channel-link" href="https://whatsapp.com/channel/0029Vae4AbxHLHQfoWscwP04" target="_blank" rel="noopener noreferrer">
+          <span class="social-icon" aria-hidden="true">📣</span><span><strong>قناة واتساب</strong><small>تابع آخر المحتوى</small></span><span class="external-arrow" aria-hidden="true">↗</span>
+        </a>
+        <a class="social-menu-link youtube-link" href="https://youtube.com/@Littleteacher2024" target="_blank" rel="noopener noreferrer">
+          <span class="social-icon" aria-hidden="true">▶</span><span><strong>يوتيوب</strong><small>@Littleteacher2024</small></span><span class="external-arrow" aria-hidden="true">↗</span>
+        </a>
+        <a class="social-menu-link facebook-link" href="https://www.facebook.com/Littleteacher2024" target="_blank" rel="noopener noreferrer">
+          <span class="social-icon social-letter" aria-hidden="true">f</span><span><strong>فيسبوك</strong><small>Littleteacher2024</small></span><span class="external-arrow" aria-hidden="true">↗</span>
+        </a>
+        <a class="social-menu-link instagram-link" href="https://www.instagram.com/littleteacher2024" target="_blank" rel="noopener noreferrer">
+          <span class="social-icon" aria-hidden="true">◎</span><span><strong>إنستغرام</strong><small>@littleteacher2024</small></span><span class="external-arrow" aria-hidden="true">↗</span>
+        </a>
+        <a class="social-menu-link tiktok-link" href="https://www.tiktok.com/@littleteacher2024" target="_blank" rel="noopener noreferrer">
+          <span class="social-icon" aria-hidden="true">♪</span><span><strong>تيك توك</strong><small>@littleteacher2024</small></span><span class="external-arrow" aria-hidden="true">↗</span>
+        </a>
+      </div>
+
       <button id="share-app-button" class="social-menu-link menu-action-button share-link" type="button">
         <span class="social-icon" aria-hidden="true">↗</span><span><strong>مشاركة التطبيق</strong><small id="share-app-status">أرسل التطبيق إلى الأصدقاء</small></span><span class="external-arrow" aria-hidden="true">←</span>
       </button>
@@ -305,6 +336,7 @@
       <div class="about-app-logo" aria-hidden="true"><img src="card-back.webp" alt=""></div>
       <h2 id="about-app-title">المعلّم الصغير</h2>
       <p>تطبيق تعليمي ممتع للأطفال، يقدّم ألعابًا بسيطة ومسلية تساعد على تنمية الذاكرة والتركيز والتعلّم بطريقة محببة، مع إضافة ألعاب جديدة باستمرار.</p>
+      <p class="about-credit">برمجة فريق المعلّم الصغير</p>
       <button id="close-about-app" class="primary-button" type="button">حسنًا</button>
     </div>
   </div>
@@ -331,6 +363,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=22"></script>
+  <script src="script.js?v=23"></script>
 </body>
 </html>

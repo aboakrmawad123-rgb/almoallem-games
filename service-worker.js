@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v22-real-recorded-voices';
+const CACHE_NAME = 'almoallem-v23-navigation-social-menu';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=22',
+  './script.js?v=23',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
