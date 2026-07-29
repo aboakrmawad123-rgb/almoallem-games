@@ -12,10 +12,10 @@
   <meta name="apple-mobile-web-app-title" content="المعلّم الصغير">
   <meta name="format-detection" content="telephone=no">
   <title>المعلّم الصغير</title>
-  <link rel="manifest" href="manifest.webmanifest?v=2">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192-v2.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-v2.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="preload" as="image" href="card-back.webp">
   <link rel="preload" as="image" href="apple.webp">
   <link rel="preload" as="image" href="banana.webp">
@@ -26,7 +26,7 @@
   <link rel="preload" as="image" href="lion.webp">
   <link rel="preload" as="image" href="duck.webp">
   <link rel="preload" as="image" href="crocodile.webp">
-  <link rel="stylesheet" href="style.css?v=19">
+  <link rel="stylesheet" href="style.css?v=20">
 </head>
 <body>
   <main class="app-shell">
@@ -45,7 +45,7 @@
     <section id="home-screen" class="panel home-panel" aria-label="الواجهة الرئيسية">
       <div class="welcome-row">
         <div>
-          <span class="welcome-badge">الإصدار الخامس عشر</span>
+          <span class="welcome-badge">الإصدار السادس عشر</span>
           <h2>ماذا تريد أن تفعل اليوم؟</h2>
           <p>اختر قسم الألعاب أو قسم المشاهدة والتعلّم.</p>
         </div>
@@ -270,7 +270,7 @@
     </div>
 
     <nav class="social-menu-links" aria-label="روابط المعلّم الصغير">
-      <a class="social-menu-link whatsapp-link" href="https://wa.me/963959766360?text=%D9%85%D8%B1%D8%AD%D8%A8%D9%8B%D8%A7%D8%8C%20%D8%A3%D8%AA%D9%88%D8%A7%D8%B5%D9%84%20%D9%85%D8%B9%D9%83%D9%85%20%D9%85%D9%86%20%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%D8%A3%D9%84%D8%B9%D8%A7%D8%A8%20%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%91%D9%85%20%D8%A7%D9%84%D8%B5%D8%BA%D9%8A%D8%B1." target="_blank" rel="noopener noreferrer">
+      <a class="social-menu-link whatsapp-link" href="https://wa.me/963959766360?text=%D9%85%D8%B1%D8%AD%D8%A8%D9%8B%D8%A7%D8%8C%20%D8%A3%D8%AA%D9%88%D8%A7%D8%B5%D9%84%20%D9%85%D8%B9%D9%83%D9%85%20%D9%85%D9%86%20%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%91%D9%85%20%D8%A7%D9%84%D8%B5%D8%BA%D9%8A%D8%B1." target="_blank" rel="noopener noreferrer">
         <span class="social-icon" aria-hidden="true">💬</span><span><strong>تواصل معنا عبر واتساب</strong><small>أرسل رسالة مباشرة</small></span><span class="external-arrow" aria-hidden="true">↗</span>
       </a>
       <a class="social-menu-link channel-link" href="https://whatsapp.com/channel/0029Vae4AbxHLHQfoWscwP04" target="_blank" rel="noopener noreferrer">
@@ -290,6 +290,9 @@
       </a>
       <button id="share-app-button" class="social-menu-link menu-action-button share-link" type="button">
         <span class="social-icon" aria-hidden="true">↗</span><span><strong>مشاركة التطبيق</strong><small id="share-app-status">أرسل التطبيق إلى الأصدقاء</small></span><span class="external-arrow" aria-hidden="true">←</span>
+      </button>
+      <button id="sound-toggle-button" class="social-menu-link menu-action-button" type="button" aria-pressed="true">
+        <span id="sound-toggle-icon" class="social-icon" aria-hidden="true">🔊</span><span><strong>أصوات التشجيع</strong><small id="sound-toggle-status">مفعّلة</small></span><span class="external-arrow" aria-hidden="true">←</span>
       </button>
       <button id="about-app-button" class="social-menu-link menu-action-button about-link" type="button">
         <span class="social-icon social-letter" aria-hidden="true">i</span><span><strong>عن التطبيق</strong><small>تعرّف إلى تطبيق المعلّم الصغير</small></span><span class="external-arrow" aria-hidden="true">←</span>
@@ -328,6 +331,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=19"></script>
+  <script src="script.js?v=20"></script>
 </body>
 </html>

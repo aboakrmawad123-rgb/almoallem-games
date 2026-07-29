@@ -115,6 +115,9 @@ const closeSocialMenuButton = document.querySelector('#close-social-menu');
 const shareAppButton = document.querySelector('#share-app-button');
 const shareAppStatus = document.querySelector('#share-app-status');
 const aboutAppButton = document.querySelector('#about-app-button');
+const soundToggleButton = document.querySelector('#sound-toggle-button');
+const soundToggleStatus = document.querySelector('#sound-toggle-status');
+const soundToggleIcon = document.querySelector('#sound-toggle-icon');
 const aboutAppModal = document.querySelector('#about-app-modal');
 const closeAboutAppButton = document.querySelector('#close-about-app');
 
@@ -126,6 +129,107 @@ let lockBoard = false;
 let moves = 0;
 let matches = 0;
 let deferredInstallPrompt = null;
+
+const SOUND_STORAGE_KEY = 'almoallem-sound-enabled';
+let soundEnabled = true;
+let audioContext = null;
+let arabicVoice = null;
+let lastSpokenAt = 0;
+
+try {
+  const savedSoundSetting = window.localStorage.getItem(SOUND_STORAGE_KEY);
+  soundEnabled = savedSoundSetting !== 'false';
+} catch {
+  soundEnabled = true;
+}
+
+function updateSoundToggle() {
+  if (!soundToggleButton) return;
+  soundToggleButton.setAttribute('aria-pressed', String(soundEnabled));
+  soundToggleStatus.textContent = soundEnabled ? 'مفعّلة' : 'متوقفة';
+  soundToggleIcon.textContent = soundEnabled ? '🔊' : '🔇';
+}
+
+function ensureAudioContext() {
+  if (!soundEnabled) return null;
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
+  if (!audioContext) audioContext = new AudioContextClass();
+  if (audioContext.state === 'suspended') audioContext.resume().catch(() => {});
+  return audioContext;
+}
+
+function playFeedbackTone(kind = 'correct') {
+  if (!soundEnabled) return;
+  const context = ensureAudioContext();
+  if (!context) return;
+  const now = context.currentTime;
+  const notes = kind === 'wrong'
+    ? [{ frequency: 235, at: 0, duration: 0.13 }, { frequency: 185, at: 0.14, duration: 0.18 }]
+    : kind === 'win'
+      ? [
+          { frequency: 523, at: 0, duration: 0.13 },
+          { frequency: 659, at: 0.14, duration: 0.13 },
+          { frequency: 784, at: 0.28, duration: 0.24 }
+        ]
+      : [{ frequency: 659, at: 0, duration: 0.12 }, { frequency: 880, at: 0.13, duration: 0.18 }];
+
+  notes.forEach(({ frequency, at, duration }) => {
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(frequency, now + at);
+    gain.gain.setValueAtTime(0.0001, now + at);
+    gain.gain.exponentialRampToValueAtTime(0.16, now + at + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + at + duration);
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start(now + at);
+    oscillator.stop(now + at + duration + 0.03);
+  });
+}
+
+function refreshArabicVoice() {
+  if (!('speechSynthesis' in window)) return;
+  const voices = window.speechSynthesis.getVoices();
+  arabicVoice = voices.find((voice) => /^ar(-|$)/i.test(voice.lang)) || null;
+}
+
+function speakArabic(text, options = {}) {
+  if (!soundEnabled || !text || !('speechSynthesis' in window)) return;
+  const now = Date.now();
+  const minimumGap = options.minimumGap ?? 350;
+  if (now - lastSpokenAt < minimumGap) return;
+  lastSpokenAt = now;
+  refreshArabicVoice();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = arabicVoice ? arabicVoice.lang : 'ar-SA';
+  if (arabicVoice) utterance.voice = arabicVoice;
+  utterance.rate = options.rate || 0.92;
+  utterance.pitch = options.pitch || 1.08;
+  utterance.volume = 1;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+}
+
+function playEncouragement(kind, phrase) {
+  playFeedbackTone(kind);
+  window.setTimeout(() => speakArabic(phrase, { minimumGap: 250 }), kind === 'win' ? 180 : 90);
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  try { window.localStorage.setItem(SOUND_STORAGE_KEY, String(soundEnabled)); } catch {}
+  if (!soundEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+  updateSoundToggle();
+  if (soundEnabled) playEncouragement('correct', 'تم تشغيل أصوات التشجيع');
+}
+
+updateSoundToggle();
+if ('speechSynthesis' in window) {
+  refreshArabicVoice();
+  window.speechSynthesis.addEventListener?.('voiceschanged', refreshArabicVoice);
+}
 
 let animalQuestions = [];
 let animalQuestionIndex = 0;
@@ -269,6 +373,7 @@ function flipCard(card, label) {
 function checkMatch() {
   const isMatch = firstCard.dataset.fruit === secondCard.dataset.fruit;
   if (isMatch) {
+    playEncouragement('correct', 'أحسنت');
     firstCard.classList.add('matched');
     secondCard.classList.add('matched');
     firstCard.disabled = true;
@@ -280,6 +385,7 @@ function checkMatch() {
     return;
   }
   lockBoard = true;
+  playEncouragement('wrong', 'حاول مرة أخرى');
   window.setTimeout(() => {
     firstCard.classList.remove('flipped');
     secondCard.classList.remove('flipped');
@@ -335,6 +441,7 @@ function checkAnimalAnswer(button, isCorrect) {
     button.classList.add('wrong');
     lettersFeedback.textContent = 'حاول مرة أخرى';
     lettersFeedback.className = 'letters-feedback wrong-feedback';
+    playEncouragement('wrong', 'حاول مرة أخرى');
     window.setTimeout(() => button.classList.remove('wrong'), 500);
     return;
   }
@@ -346,6 +453,8 @@ function checkAnimalAnswer(button, isCorrect) {
   lettersScore.textContent = `⭐ ${animalCorrectCount}`;
   lettersFeedback.textContent = 'أحسنت! إجابة صحيحة';
   lettersFeedback.className = 'letters-feedback correct-feedback';
+  const praisePhrases = ['أحسنت', 'رائع', 'ممتاز يا بطل'];
+  playEncouragement('correct', praisePhrases[Math.floor(Math.random() * praisePhrases.length)]);
   window.setTimeout(() => {
     animalQuestionIndex += 1;
     renderAnimalQuestion();
@@ -654,11 +763,13 @@ function showLettersGame() {
 function showWin() {
   finalMoves.textContent = String(moves);
   winModal.classList.remove('hidden');
+  playEncouragement('win', 'رائع يا بطل، أنهيت المستوى');
   playAgainButton.focus();
 }
 
 function showAnimalWin() {
   lettersWinModal.classList.remove('hidden');
+  playEncouragement('win', 'رائع يا بطل، أكملت المستوى');
   lettersPlayAgainButton.focus();
 }
 
@@ -784,6 +895,7 @@ menuBackdrop.addEventListener('click', closeSocialMenu);
 socialMenu.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeSocialMenu));
 shareAppButton.addEventListener('click', shareApp);
 aboutAppButton.addEventListener('click', showAboutApp);
+soundToggleButton.addEventListener('click', toggleSound);
 closeAboutAppButton.addEventListener('click', closeAboutApp);
 aboutAppModal.addEventListener('click', (event) => {
   if (event.target === aboutAppModal) closeAboutApp();
