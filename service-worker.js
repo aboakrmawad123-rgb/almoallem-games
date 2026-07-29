@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v16-brand-splash-titles';
+const CACHE_NAME = 'almoallem-v17-title-proxy-fix';
 const APP_SHELL = [
   './',
   './index.html',
-  './style.css?v=16',
-  './script.js?v=16',
+  './style.css?v=17',
+  './script.js?v=17',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
@@ -42,6 +42,12 @@ self.addEventListener('fetch', (event) => {
 
   const requestUrl = new URL(event.request.url);
   if (requestUrl.origin !== self.location.origin) return;
+
+  // Do not cache title proxy responses; always ask Vercel for fresh metadata.
+  if (requestUrl.pathname.startsWith('/api/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
 
   if (event.request.mode === 'navigate') {
     event.respondWith(

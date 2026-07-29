@@ -145,9 +145,9 @@ const VIDEO_PAGE_SIZE = 12;
 const playlistVideoCache = new Map();
 const videoTitleCache = new Map();
 const videoTitleRequests = new Map();
-let jsonpTitleQueue = [];
-let jsonpTitleActive = 0;
-const JSONP_TITLE_CONCURRENCY = 3;
+let videoTitleQueue = [];
+let videoTitleActive = 0;
+const VIDEO_TITLE_CONCURRENCY = 6;
 
 function openSocialMenu() {
   socialMenu.classList.remove('hidden');
@@ -538,94 +538,92 @@ async function loadPlaylistVideos(playlistKey) {
   }
 }
 
+function isUsableVideoTitle(title) {
+  const cleanTitle = typeof title === 'string' ? title.trim() : '';
+  if (!cleanTitle || cleanTitle === 'جارٍ قراءة الاسم...') return false;
+  return !/^(?:المقطع|الحلقة)\s+\d+$/u.test(cleanTitle);
+}
+
 function readStoredVideoTitle(videoId) {
-  if (videoTitleCache.has(videoId)) return videoTitleCache.get(videoId);
+  if (videoTitleCache.has(videoId)) {
+    const cached = videoTitleCache.get(videoId);
+    if (isUsableVideoTitle(cached)) return cached;
+    videoTitleCache.delete(videoId);
+  }
   try {
-    const stored = window.localStorage.getItem(`youtube-title:${videoId}`);
-    if (stored) {
-      videoTitleCache.set(videoId, stored);
-      return stored;
+    const key = `youtube-title:${videoId}`;
+    const stored = window.localStorage.getItem(key);
+    if (isUsableVideoTitle(stored)) {
+      videoTitleCache.set(videoId, stored.trim());
+      return stored.trim();
     }
+    if (stored) window.localStorage.removeItem(key);
   } catch {}
   return '';
 }
 
 function storeVideoTitle(videoId, title) {
-  if (!title) return;
-  videoTitleCache.set(videoId, title);
-  try { window.localStorage.setItem(`youtube-title:${videoId}`, title); } catch {}
+  if (!isUsableVideoTitle(title)) return;
+  const cleanTitle = title.trim();
+  videoTitleCache.set(videoId, cleanTitle);
+  try { window.localStorage.setItem(`youtube-title:${videoId}`, cleanTitle); } catch {}
 }
 
-function requestTitleViaJsonp(videoId, endpoint) {
-  return new Promise((resolve, reject) => {
-    const callbackName = `__almoallemTitle_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-    const script = document.createElement('script');
-    const watchUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
-    let settled = false;
-
-    const cleanup = () => {
-      try { delete window[callbackName]; } catch { window[callbackName] = undefined; }
-      script.remove();
-    };
-    const finish = (error, title = '') => {
-      if (settled) return;
-      settled = true;
-      window.clearTimeout(timeout);
-      cleanup();
-      if (error) reject(error);
-      else resolve(title);
-    };
-
-    window[callbackName] = (data) => {
-      const title = data && typeof data.title === 'string' ? data.title.trim() : '';
-      if (!title) {
-        finish(new Error('اسم الفيديو غير متاح'));
-        return;
-      }
-      finish(null, title);
-    };
-
-    script.async = true;
-    script.referrerPolicy = 'no-referrer';
-    script.onerror = () => finish(new Error('تعذر الاتصال بخدمة أسماء الفيديوهات'));
-    script.src = `${endpoint}?url=${encodeURIComponent(watchUrl)}&callback=${encodeURIComponent(callbackName)}`;
-    const timeout = window.setTimeout(() => finish(new Error('انتهت مهلة قراءة الاسم')), 14000);
-    document.head.appendChild(script);
-  });
+async function fetchJsonWithTimeout(url, timeoutMs = 5000) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, {
+      cache: 'no-store',
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' },
+      signal: controller.signal
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } finally {
+    window.clearTimeout(timeout);
+  }
 }
 
-async function fetchVideoTitleViaJsonp(videoId) {
+async function fetchVideoTitleFromProxy(videoId) {
+  const safeId = encodeURIComponent(videoId);
   const endpoints = [
-    'https://noembed.com/embed',
-    'https://noembed.arstechnica.com/embed'
+    `/api/youtube-title/${safeId}`,
+    `/api/noembed-title/${safeId}`
   ];
   let lastError = null;
+
   for (const endpoint of endpoints) {
     try {
-      return await requestTitleViaJsonp(videoId, endpoint);
+      const data = await fetchJsonWithTimeout(endpoint);
+      const title = data && typeof data.title === 'string' ? data.title.trim() : '';
+      if (!isUsableVideoTitle(title)) throw new Error('اسم الفيديو غير متاح');
+      return title;
     } catch (error) {
       lastError = error;
     }
   }
+
   throw lastError || new Error('تعذر قراءة اسم الفيديو');
 }
 
 function enqueueVideoTitle(videoId) {
   return new Promise((resolve, reject) => {
-    jsonpTitleQueue.push({ videoId, resolve, reject });
-    processJsonpTitleQueue();
+    videoTitleQueue.push({ videoId, resolve, reject });
+    processVideoTitleQueue();
   });
 }
 
-function processJsonpTitleQueue() {
-  while (jsonpTitleActive < JSONP_TITLE_CONCURRENCY && jsonpTitleQueue.length) {
-    const item = jsonpTitleQueue.shift();
-    jsonpTitleActive += 1;
-    fetchVideoTitleViaJsonp(item.videoId)
+function processVideoTitleQueue() {
+  while (videoTitleActive < VIDEO_TITLE_CONCURRENCY && videoTitleQueue.length) {
+    const item = videoTitleQueue.shift();
+    videoTitleActive += 1;
+    fetchVideoTitleFromProxy(item.videoId)
       .then(item.resolve, item.reject)
       .finally(() => {
-        jsonpTitleActive -= 1;
-        processJsonpTitleQueue();
+        videoTitleActive -= 1;
+        processVideoTitleQueue();
       });
   }
 }
@@ -636,10 +634,9 @@ async function fetchVideoTitle(videoId) {
   if (videoTitleRequests.has(videoId)) return videoTitleRequests.get(videoId);
 
   const requestPromise = enqueueVideoTitle(videoId).then((title) => {
-    const cleanTitle = typeof title === 'string' ? title.trim() : '';
-    if (!cleanTitle) throw new Error('اسم الفيديو فارغ');
-    storeVideoTitle(videoId, cleanTitle);
-    return cleanTitle;
+    if (!isUsableVideoTitle(title)) throw new Error('اسم الفيديو فارغ');
+    storeVideoTitle(videoId, title);
+    return title.trim();
   });
 
   videoTitleRequests.set(videoId, requestPromise);
@@ -675,11 +672,6 @@ function hydrateVideoTitle(button, videoId, playlistKey, index, attempt = 0) {
     .then((title) => applyVideoTitle(button, videoId, playlistKey, index, title))
     .catch(() => {
       if (!button.isConnected || button.dataset.videoId !== videoId) return;
-      if (attempt < 2) {
-        const delays = [3000, 9000];
-        window.setTimeout(() => hydrateVideoTitle(button, videoId, playlistKey, index, attempt + 1), delays[attempt]);
-        return;
-      }
       const playlist = videoPlaylists[playlistKey];
       const fallbackTitle = `${playlist.itemLabel} ${index + 1}`;
       applyVideoTitle(button, videoId, playlistKey, index, fallbackTitle);
@@ -707,6 +699,16 @@ function createVideoItem(videoId, index, playlistKey) {
   `;
   button.addEventListener('click', () => playSingleVideo(playlistKey, videoId, index, button.dataset.videoTitle));
   hydrateVideoTitle(button, videoId, playlistKey, index);
+
+  // Never leave the loading label hanging forever if the connection is blocked.
+  window.setTimeout(() => {
+    if (!button.isConnected || button.dataset.videoTitle) return;
+    const titleElement = button.querySelector('strong');
+    if (titleElement && titleElement.textContent.includes('جارٍ قراءة الاسم')) {
+      applyVideoTitle(button, videoId, playlistKey, index, `${playlist.itemLabel} ${index + 1}`);
+    }
+  }, 22000);
+
   return button;
 }
 
