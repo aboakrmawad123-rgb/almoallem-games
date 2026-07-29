@@ -139,8 +139,7 @@ const SPOKEN_AUDIO_PATHS = {
   'ممتاز يا بطل': './audio/mumtaz.wav',
   'حاول مرة أخرى': './audio/hawel.wav',
   'رائع يا بطل، أنهيت المستوى': './audio/win.wav',
-  'رائع يا بطل، أكملت المستوى': './audio/win.wav',
-  'تم تشغيل أصوات التشجيع': './audio/enabled.wav'
+  'رائع يا بطل، أكملت المستوى': './audio/win.wav'
 };
 const spokenAudioCache = new Map();
 let activeSpokenAudio = null;
@@ -236,7 +235,7 @@ function toggleSound() {
   try { window.localStorage.setItem(SOUND_STORAGE_KEY, String(soundEnabled)); } catch {}
   if (!soundEnabled) stopSpokenAudio();
   updateSoundToggle();
-  if (soundEnabled) playEncouragement('correct', 'تم تشغيل أصوات التشجيع');
+  if (soundEnabled) playFeedbackTone('correct');
 }
 
 updateSoundToggle();

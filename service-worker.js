@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v21-spoken-encouragement';
+const CACHE_NAME = 'almoallem-v22-real-recorded-voices';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=21',
+  './script.js?v=22',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
@@ -24,8 +24,7 @@ const APP_SHELL = [
   './audio/raaie.wav',
   './audio/mumtaz.wav',
   './audio/hawel.wav',
-  './audio/win.wav',
-  './audio/enabled.wav'
+  './audio/win.wav'
 ];
 
 self.addEventListener('install', (event) => {
