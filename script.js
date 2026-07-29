@@ -133,8 +133,17 @@ let deferredInstallPrompt = null;
 const SOUND_STORAGE_KEY = 'almoallem-sound-enabled';
 let soundEnabled = true;
 let audioContext = null;
-let arabicVoice = null;
-let lastSpokenAt = 0;
+const SPOKEN_AUDIO_PATHS = {
+  'أحسنت': './audio/ahsant.wav',
+  'رائع': './audio/raaie.wav',
+  'ممتاز يا بطل': './audio/mumtaz.wav',
+  'حاول مرة أخرى': './audio/hawel.wav',
+  'رائع يا بطل، أنهيت المستوى': './audio/win.wav',
+  'رائع يا بطل، أكملت المستوى': './audio/win.wav',
+  'تم تشغيل أصوات التشجيع': './audio/enabled.wav'
+};
+const spokenAudioCache = new Map();
+let activeSpokenAudio = null;
 
 try {
   const savedSoundSetting = window.localStorage.getItem(SOUND_STORAGE_KEY);
@@ -189,47 +198,49 @@ function playFeedbackTone(kind = 'correct') {
   });
 }
 
-function refreshArabicVoice() {
-  if (!('speechSynthesis' in window)) return;
-  const voices = window.speechSynthesis.getVoices();
-  arabicVoice = voices.find((voice) => /^ar(-|$)/i.test(voice.lang)) || null;
+function getSpokenAudio(path) {
+  if (!spokenAudioCache.has(path)) {
+    const audio = new Audio(path);
+    audio.preload = 'auto';
+    audio.playsInline = true;
+    spokenAudioCache.set(path, audio);
+  }
+  return spokenAudioCache.get(path);
 }
 
-function speakArabic(text, options = {}) {
-  if (!soundEnabled || !text || !('speechSynthesis' in window)) return;
-  const now = Date.now();
-  const minimumGap = options.minimumGap ?? 350;
-  if (now - lastSpokenAt < minimumGap) return;
-  lastSpokenAt = now;
-  refreshArabicVoice();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = arabicVoice ? arabicVoice.lang : 'ar-SA';
-  if (arabicVoice) utterance.voice = arabicVoice;
-  utterance.rate = options.rate || 0.92;
-  utterance.pitch = options.pitch || 1.08;
-  utterance.volume = 1;
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
+function stopSpokenAudio() {
+  if (!activeSpokenAudio) return;
+  activeSpokenAudio.pause();
+  activeSpokenAudio.currentTime = 0;
+  activeSpokenAudio = null;
 }
 
 function playEncouragement(kind, phrase) {
-  playFeedbackTone(kind);
-  window.setTimeout(() => speakArabic(phrase, { minimumGap: 250 }), kind === 'win' ? 180 : 90);
+  if (!soundEnabled) return;
+  const path = SPOKEN_AUDIO_PATHS[phrase];
+  if (!path) {
+    playFeedbackTone(kind);
+    return;
+  }
+
+  stopSpokenAudio();
+  const audio = getSpokenAudio(path);
+  activeSpokenAudio = audio;
+  audio.currentTime = 0;
+  audio.volume = 1;
+  audio.play().catch(() => playFeedbackTone(kind));
 }
 
 function toggleSound() {
   soundEnabled = !soundEnabled;
   try { window.localStorage.setItem(SOUND_STORAGE_KEY, String(soundEnabled)); } catch {}
-  if (!soundEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+  if (!soundEnabled) stopSpokenAudio();
   updateSoundToggle();
   if (soundEnabled) playEncouragement('correct', 'تم تشغيل أصوات التشجيع');
 }
 
 updateSoundToggle();
-if ('speechSynthesis' in window) {
-  refreshArabicVoice();
-  window.speechSynthesis.addEventListener?.('voiceschanged', refreshArabicVoice);
-}
+Object.values(SPOKEN_AUDIO_PATHS).forEach((path) => getSpokenAudio(path));
 
 let animalQuestions = [];
 let animalQuestionIndex = 0;

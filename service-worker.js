@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v20-audio-encouragement';
+const CACHE_NAME = 'almoallem-v21-spoken-encouragement';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=20',
+  './script.js?v=21',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
@@ -19,7 +19,13 @@ const APP_SHELL = [
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
-  './icon-maskable-512.png'
+  './icon-maskable-512.png',
+  './audio/ahsant.wav',
+  './audio/raaie.wav',
+  './audio/mumtaz.wav',
+  './audio/hawel.wav',
+  './audio/win.wav',
+  './audio/enabled.wav'
 ];
 
 self.addEventListener('install', (event) => {
