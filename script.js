@@ -739,7 +739,22 @@ function startQuranGame() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function restartMemoryGame() {
+  stopSpokenAudio();
+  headerSubtitle.textContent = 'طابِق الفواكه المتشابهة';
+  showOnly(gameScreen);
+  renderGame();
+}
+
+function restartAnimalGame() {
+  stopSpokenAudio();
+  headerSubtitle.textContent = 'اختر الحيوان الذي يبدأ بالحرف';
+  showOnly(lettersGameScreen);
+  startAnimalGame();
+}
+
 function restartQuranGame() {
+  stopSpokenAudio();
   headerSubtitle.textContent = 'اقرأ الآية واختر السورة';
   showOnly(quranGameScreen);
   startQuranGame();
@@ -1278,23 +1293,29 @@ quranGameCard.addEventListener('click', () => navigateToRoute({ view: 'quran-lev
 levelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 levelButtons.forEach((button) => button.addEventListener('click', () => selectLevel(button.dataset.level)));
 startButton.addEventListener('click', () => navigateToRoute({ view: 'memory-game' }, { replace: true }));
-resetButton.addEventListener('click', renderGame);
+resetButton.addEventListener('click', restartMemoryGame);
 backButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
-playAgainButton.addEventListener('click', renderGame);
+playAgainButton.addEventListener('click', (event) => {
+  event.preventDefault();
+  restartMemoryGame();
+});
 homeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 
 lettersLevelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 lettersLevelButtons.forEach((button) => button.addEventListener('click', () => selectAnimalLevel(button.dataset.animalLevel)));
 lettersStartButton.addEventListener('click', () => navigateToRoute({ view: 'letters-game' }, { replace: true }));
 lettersBackButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
-lettersResetButton.addEventListener('click', startAnimalGame);
-lettersPlayAgainButton.addEventListener('click', startAnimalGame);
+lettersResetButton.addEventListener('click', restartAnimalGame);
+lettersPlayAgainButton.addEventListener('click', (event) => {
+  event.preventDefault();
+  restartAnimalGame();
+});
 lettersHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 
 quranLevelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 quranStartButton.addEventListener('click', () => navigateToRoute({ view: 'quran-game' }, { replace: true }));
 quranBackButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
-quranResetButton.addEventListener('click', startQuranGame);
+quranResetButton.addEventListener('click', restartQuranGame);
 quranPlayAgainButton.addEventListener('click', (event) => {
   event.preventDefault();
   restartQuranGame();

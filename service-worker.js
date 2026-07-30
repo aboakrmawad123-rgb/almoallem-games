@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v26-quran-audio-replay-fix';
+const CACHE_NAME = 'almoallem-v27-all-games-replay-fix';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=26',
+  './script.js?v=27',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
