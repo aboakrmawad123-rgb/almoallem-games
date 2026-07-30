@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v28-direct-level-start';
+const CACHE_NAME = 'almoallem-v29-quran-level-two';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=28',
+  './script.js?v=29',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',

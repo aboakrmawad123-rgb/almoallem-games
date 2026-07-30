@@ -157,6 +157,123 @@ const quranLevelOneQuestions = [
   }
 ];
 
+
+
+// المستوى الثاني: سور التين والعلق والقدر والبينة والزلزلة والعاديات والقارعة والتكاثر والعصر والهمزة.
+const quranLevelTwoQuestions = [
+  {
+    id: '95-4', verseKey: '95:4', surah: 'التين',
+    verse: 'لَقَدْ خَلَقْنَا ٱلْإِنسَـٰنَ فِىٓ أَحْسَنِ تَقْوِيمٍۢ',
+    options: ['العلق', 'التين', 'القدر']
+  },
+  {
+    id: '96-5', verseKey: '96:5', surah: 'العلق',
+    verse: 'عَلَّمَ ٱلْإِنسَـٰنَ مَا لَمْ يَعْلَمْ',
+    options: ['البينة', 'العلق', 'التين']
+  },
+  {
+    id: '97-3', verseKey: '97:3', surah: 'القدر',
+    verse: 'لَيْلَةُ ٱلْقَدْرِ خَيْرٌۭ مِّنْ أَلْفِ شَهْرٍۢ',
+    options: ['الزلزلة', 'القدر', 'البينة']
+  },
+  {
+    id: '98-3', verseKey: '98:3', surah: 'البينة',
+    verse: 'فِيهَا كُتُبٌۭ قَيِّمَةٌۭ',
+    options: ['العاديات', 'البينة', 'القدر']
+  },
+  {
+    id: '99-7', verseKey: '99:7', surah: 'الزلزلة',
+    verse: 'فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًۭا يَرَهُۥ',
+    options: ['القارعة', 'الزلزلة', 'العاديات']
+  },
+  {
+    id: '100-6', verseKey: '100:6', surah: 'العاديات',
+    verse: 'إِنَّ ٱلْإِنسَـٰنَ لِرَبِّهِۦ لَكَنُودٌۭ',
+    options: ['العصر', 'العاديات', 'التكاثر']
+  },
+  {
+    id: '101-6', verseKey: '101:6', surah: 'القارعة',
+    verse: 'فَأَمَّا مَن ثَقُلَتْ مَوَٰزِينُهُۥ',
+    options: ['الهمزة', 'القارعة', 'الزلزلة']
+  },
+  {
+    id: '102-8', verseKey: '102:8', surah: 'التكاثر',
+    verse: 'ثُمَّ لَتُسْـَٔلُنَّ يَوْمَئِذٍ عَنِ ٱلنَّعِيمِ',
+    options: ['العصر', 'التكاثر', 'الهمزة']
+  },
+  {
+    id: '103-2', verseKey: '103:2', surah: 'العصر',
+    verse: 'إِنَّ ٱلْإِنسَـٰنَ لَفِى خُسْرٍ',
+    options: ['التكاثر', 'العصر', 'التين']
+  },
+  {
+    id: '104-1', verseKey: '104:1', surah: 'الهمزة',
+    verse: 'وَيْلٌۭ لِّكُلِّ هُمَزَةٍۢ لُّمَزَةٍ',
+    options: ['القارعة', 'الهمزة', 'العاديات']
+  },
+  {
+    id: '95-5', verseKey: '95:5', surah: 'التين',
+    verse: 'ثُمَّ رَدَدْنَـٰهُ أَسْفَلَ سَـٰفِلِينَ',
+    options: ['العلق', 'العصر', 'التين']
+  },
+  {
+    id: '96-8', verseKey: '96:8', surah: 'العلق',
+    verse: 'إِنَّ إِلَىٰ رَبِّكَ ٱلرُّجْعَىٰٓ',
+    options: ['القدر', 'العلق', 'البينة']
+  },
+  {
+    id: '97-5', verseKey: '97:5', surah: 'القدر',
+    verse: 'سَلَـٰمٌ هِىَ حَتَّىٰ مَطْلَعِ ٱلْفَجْرِ',
+    options: ['التين', 'القدر', 'الزلزلة']
+  },
+  {
+    id: '98-7', verseKey: '98:7', surah: 'البينة',
+    verse: 'إِنَّ ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّـٰلِحَـٰتِ أُو۟لَـٰٓئِكَ هُمْ خَيْرُ ٱلْبَرِيَّةِ',
+    options: ['العاديات', 'البينة', 'الهمزة']
+  },
+  {
+    id: '99-6', verseKey: '99:6', surah: 'الزلزلة',
+    verse: 'يَوْمَئِذٍۢ يَصْدُرُ ٱلنَّاسُ أَشْتَاتًۭا لِّيُرَوْا۟ أَعْمَـٰلَهُمْ',
+    options: ['القارعة', 'الزلزلة', 'التكاثر']
+  },
+  {
+    id: '100-9', verseKey: '100:9', surah: 'العاديات',
+    verse: 'أَفَلَا يَعْلَمُ إِذَا بُعْثِرَ مَا فِى ٱلْقُبُورِ',
+    options: ['العصر', 'العاديات', 'القارعة']
+  },
+  {
+    id: '101-8', verseKey: '101:8', surah: 'القارعة',
+    verse: 'وَأَمَّا مَنْ خَفَّتْ مَوَٰزِينُهُۥ',
+    options: ['الزلزلة', 'الهمزة', 'القارعة']
+  },
+  {
+    id: '102-5', verseKey: '102:5', surah: 'التكاثر',
+    verse: 'كَلَّا لَوْ تَعْلَمُونَ عِلْمَ ٱلْيَقِينِ',
+    options: ['التين', 'التكاثر', 'القدر']
+  },
+  {
+    id: '103-3', verseKey: '103:3', surah: 'العصر',
+    verse: 'إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّـٰلِحَـٰتِ وَتَوَاصَوْا۟ بِٱلْحَقِّ وَتَوَاصَوْا۟ بِٱلصَّبْرِ',
+    options: ['البينة', 'العلق', 'العصر']
+  },
+  {
+    id: '104-3', verseKey: '104:3', surah: 'الهمزة',
+    verse: 'يَحْسَبُ أَنَّ مَالَهُۥٓ أَخْلَدَهُۥ',
+    options: ['التكاثر', 'الهمزة', 'العاديات']
+  }
+];
+
+const quranLevels = {
+  one: {
+    label: 'المستوى الأول',
+    questions: quranLevelOneQuestions
+  },
+  two: {
+    label: 'المستوى الثاني',
+    questions: quranLevelTwoQuestions
+  }
+};
+
 const videoPlaylists = {
   'juz-amma': {
     title: 'جزء عم',
@@ -232,6 +349,7 @@ const quranLevelButtons = [...document.querySelectorAll('.quran-level-card[data-
 const quranStartButton = document.querySelector('#quran-start-button');
 const quranBackButton = document.querySelector('#quran-back-button');
 const quranResetButton = document.querySelector('#quran-reset-button');
+const quranGameLevelLabel = document.querySelector('#quran-game-level-label');
 const quranQuestionCount = document.querySelector('#quran-question-count');
 const quranScore = document.querySelector('#quran-score');
 const quranVerseText = document.querySelector('#quran-verse-text');
@@ -402,12 +520,19 @@ let animalCorrectCount = 0;
 let animalLocked = false;
 
 const QURAN_ROUND_SIZE = 10;
-const QURAN_QUEUE_STORAGE_KEY = 'almoallem-quran-level-one-queue-v1';
+const QURAN_QUEUE_STORAGE_PREFIX = 'almoallem-quran-level-queue-v2';
+let selectedQuranLevel = 'one';
+let activeQuranQuestions = quranLevels.one.questions;
 let quranRoundQuestions = [];
 let quranQuestionIndex = 0;
 let quranCorrectCount = 0;
 let quranLocked = false;
-let quranQueueMemoryState = { remainingIds: [], lastRoundIds: [] };
+const quranQueueMemoryStates = {
+  one: { remainingIds: [], lastRoundIds: [] },
+  two: { remainingIds: [], lastRoundIds: [] }
+};
+
+selectQuranLevel('one');
 
 let requestedPlaylistKey = null;
 let activePlaylistKey = null;
@@ -674,36 +799,57 @@ function checkAnimalAnswer(button, isCorrect) {
 }
 
 
-function loadQuranQueueState() {
+function getQuranQueueStorageKey(levelKey = selectedQuranLevel) {
+  return `${QURAN_QUEUE_STORAGE_PREFIX}-${levelKey}`;
+}
+
+function loadQuranQueueState(levelKey = selectedQuranLevel) {
+  const fallback = quranQueueMemoryStates[levelKey] || { remainingIds: [], lastRoundIds: [] };
   try {
-    const raw = window.localStorage.getItem(QURAN_QUEUE_STORAGE_KEY);
-    if (!raw) return quranQueueMemoryState;
+    const raw = window.localStorage.getItem(getQuranQueueStorageKey(levelKey));
+    if (!raw) return fallback;
     const parsed = JSON.parse(raw);
-    quranQueueMemoryState = {
+    quranQueueMemoryStates[levelKey] = {
       remainingIds: Array.isArray(parsed.remainingIds) ? parsed.remainingIds : [],
       lastRoundIds: Array.isArray(parsed.lastRoundIds) ? parsed.lastRoundIds : []
     };
   } catch {
     // Keep the in-memory queue when storage is unavailable.
   }
-  return quranQueueMemoryState;
+  return quranQueueMemoryStates[levelKey];
 }
 
-function saveQuranQueueState(state) {
-  quranQueueMemoryState = {
+function saveQuranQueueState(levelKey, state) {
+  quranQueueMemoryStates[levelKey] = {
     remainingIds: [...state.remainingIds],
     lastRoundIds: [...state.lastRoundIds]
   };
-  try { window.localStorage.setItem(QURAN_QUEUE_STORAGE_KEY, JSON.stringify(quranQueueMemoryState)); } catch {}
+  try {
+    window.localStorage.setItem(getQuranQueueStorageKey(levelKey), JSON.stringify(quranQueueMemoryStates[levelKey]));
+  } catch {}
+}
+
+function selectQuranLevel(levelKey) {
+  if (!quranLevels[levelKey]) return;
+  selectedQuranLevel = levelKey;
+  activeQuranQuestions = quranLevels[levelKey].questions;
+  quranGameLevelLabel.textContent = quranLevels[levelKey].label;
+  quranStartButton.textContent = `ابدأ ${quranLevels[levelKey].label}`;
+  quranLevelButtons.forEach((button) => {
+    const selected = button.dataset.quranLevel === levelKey;
+    button.classList.toggle('selected', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  });
 }
 
 function getNextQuranRound() {
-  const questionById = new Map(quranLevelOneQuestions.map((question) => [question.id, question]));
-  const state = loadQuranQueueState();
+  const levelKey = selectedQuranLevel;
+  const questionById = new Map(activeQuranQuestions.map((question) => [question.id, question]));
+  const state = loadQuranQueueState(levelKey);
   let remainingIds = state.remainingIds.filter((id) => questionById.has(id));
 
   if (remainingIds.length < QURAN_ROUND_SIZE) {
-    remainingIds = shuffle(quranLevelOneQuestions.map((question) => question.id));
+    remainingIds = shuffle(activeQuranQuestions.map((question) => question.id));
     const previousSet = new Set(state.lastRoundIds);
     const firstSet = new Set(remainingIds.slice(0, QURAN_ROUND_SIZE));
     const repeatsEntireRound = previousSet.size === QURAN_ROUND_SIZE && [...firstSet].every((id) => previousSet.has(id));
@@ -711,7 +857,7 @@ function getNextQuranRound() {
   }
 
   const roundIds = remainingIds.slice(0, QURAN_ROUND_SIZE);
-  saveQuranQueueState({
+  saveQuranQueueState(levelKey, {
     remainingIds: remainingIds.slice(QURAN_ROUND_SIZE),
     lastRoundIds: roundIds
   });
@@ -729,6 +875,7 @@ function createQuranOption(optionName, correctSurah) {
 
 function startQuranGame() {
   stopSpokenAudio();
+  quranGameLevelLabel.textContent = quranLevels[selectedQuranLevel].label;
   quranWinModal.classList.add('hidden');
   if (quranGameScreen.classList.contains('hidden')) showOnly(quranGameScreen);
   quranRoundQuestions = getNextQuranRound();
@@ -1321,6 +1468,7 @@ lettersHomeButton.addEventListener('click', () => navigateBack({ view: 'games-me
 
 quranLevelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 quranLevelButtons.forEach((button) => button.addEventListener('click', () => {
+  selectQuranLevel(button.dataset.quranLevel);
   navigateToRoute({ view: 'quran-game' }, { replace: true });
 }));
 quranStartButton.addEventListener('click', () => navigateToRoute({ view: 'quran-game' }, { replace: true }));

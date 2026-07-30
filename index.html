@@ -281,7 +281,7 @@
             <span class="quran-preview-book">📖</span>
           </span>
           <span class="game-copy">
-            <span class="game-status">المستوى الأول متاح</span>
+            <span class="game-status">المستويان الأول والثاني متاحان</span>
             <strong>آيات من جزء عم</strong>
             <small>اقرأ الآية واختر اسم السورة الصحيح</small>
           </span>
@@ -436,8 +436,8 @@
         <button class="level-card quran-level-card selected" type="button" data-quran-level="one" aria-pressed="true">
           <span class="level-icon">🌟</span><strong>المستوى الأول</strong><small>قصار السور · 20 سؤالًا متنوعًا</small>
         </button>
-        <button class="level-card locked" type="button" disabled>
-          <span class="level-icon">📘</span><strong>المستوى الثاني</strong><small>قريبًا</small>
+        <button class="level-card quran-level-card" type="button" data-quran-level="two" aria-pressed="false">
+          <span class="level-icon">📘</span><strong>المستوى الثاني</strong><small>من التين إلى الهمزة · 20 سؤالًا متنوعًا</small>
         </button>
         <button class="level-card locked" type="button" disabled>
           <span class="level-icon">🏆</span><strong>المستوى الثالث</strong><small>قريبًا</small>
@@ -450,7 +450,7 @@
     <section id="quran-game-screen" class="panel quran-game-panel hidden" aria-label="لعبة آيات من جزء عم">
       <div class="game-title-row">
         <button id="quran-back-button" class="mini-back-button" type="button" aria-label="العودة إلى الألعاب">←</button>
-        <div><p class="screen-kicker">المستوى الأول</p><h2>آيات من جزء عم</h2></div>
+        <div><p id="quran-game-level-label" class="screen-kicker">المستوى الأول</p><h2>آيات من جزء عم</h2></div>
       </div>
 
       <div class="quran-progress-row">
@@ -566,6 +566,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=28"></script>
+  <script src="script.js?v=29"></script>
 </body>
 </html>
