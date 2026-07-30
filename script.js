@@ -290,8 +290,8 @@ const SPOKEN_AUDIO_PATHS = {
   'حاول مرة أخرى': './audio/hawel.wav',
   'رائع يا بطل، أنهيت المستوى': './audio/win.wav',
   'رائع يا بطل، أكملت المستوى': './audio/win.wav',
-  'ما شاء الله': './mashallah.mp3',
-  'ما شاء الله، زادك الله حبًّا وحفظًا للقرآن': './quran-level-complete.mp3'
+  'ما شاء الله': './audio/mashallah.wav',
+  'ما شاء الله، زادك الله حبًّا وحفظًا للقرآن': './audio/quran-level-complete.wav'
 };
 const spokenAudioCache = new Map();
 let activeSpokenAudio = null;
@@ -727,13 +727,22 @@ function createQuranOption(optionName, correctSurah) {
 }
 
 function startQuranGame() {
+  stopSpokenAudio();
   quranWinModal.classList.add('hidden');
+  if (quranGameScreen.classList.contains('hidden')) showOnly(quranGameScreen);
   quranRoundQuestions = getNextQuranRound();
   quranQuestionIndex = 0;
   quranCorrectCount = 0;
   quranLocked = false;
   quranScore.textContent = '⭐ 0';
   renderQuranQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restartQuranGame() {
+  headerSubtitle.textContent = 'اقرأ الآية واختر السورة';
+  showOnly(quranGameScreen);
+  startQuranGame();
 }
 
 function renderQuranQuestion() {
@@ -1286,7 +1295,10 @@ quranLevelHomeButton.addEventListener('click', () => navigateBack({ view: 'games
 quranStartButton.addEventListener('click', () => navigateToRoute({ view: 'quran-game' }, { replace: true }));
 quranBackButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 quranResetButton.addEventListener('click', startQuranGame);
-quranPlayAgainButton.addEventListener('click', startQuranGame);
+quranPlayAgainButton.addEventListener('click', (event) => {
+  event.preventDefault();
+  restartQuranGame();
+});
 quranHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 
 playlistButtons.forEach((button) => button.addEventListener('click', () => navigateToRoute({

@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v25-quran-level-one';
+const CACHE_NAME = 'almoallem-v26-quran-audio-replay-fix';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=25',
+  './script.js?v=26',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
@@ -35,8 +35,8 @@ const APP_SHELL = [
   './audio/mumtaz.wav',
   './audio/hawel.wav',
   './audio/win.wav',
-  './mashallah.mp3',
-  './quran-level-complete.mp3'
+  './audio/mashallah.wav',
+  './audio/quran-level-complete.wav'
 ];
 
 self.addEventListener('install', (event) => {
