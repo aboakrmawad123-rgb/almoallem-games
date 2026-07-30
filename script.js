@@ -228,6 +228,7 @@ const lettersHomeButton = document.querySelector('#letters-home-button');
 
 
 const quranLevelHomeButton = document.querySelector('#quran-level-home-button');
+const quranLevelButtons = [...document.querySelectorAll('.quran-level-card[data-quran-level]')];
 const quranStartButton = document.querySelector('#quran-start-button');
 const quranBackButton = document.querySelector('#quran-back-button');
 const quranResetButton = document.querySelector('#quran-reset-button');
@@ -1291,7 +1292,10 @@ memoryGameCard.addEventListener('click', () => navigateToRoute({ view: 'memory-l
 lettersGameCard.addEventListener('click', () => navigateToRoute({ view: 'letters-levels' }));
 quranGameCard.addEventListener('click', () => navigateToRoute({ view: 'quran-levels' }));
 levelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
-levelButtons.forEach((button) => button.addEventListener('click', () => selectLevel(button.dataset.level)));
+levelButtons.forEach((button) => button.addEventListener('click', () => {
+  selectLevel(button.dataset.level);
+  navigateToRoute({ view: 'memory-game' }, { replace: true });
+}));
 startButton.addEventListener('click', () => navigateToRoute({ view: 'memory-game' }, { replace: true }));
 resetButton.addEventListener('click', restartMemoryGame);
 backButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
@@ -1302,7 +1306,10 @@ playAgainButton.addEventListener('click', (event) => {
 homeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 
 lettersLevelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
-lettersLevelButtons.forEach((button) => button.addEventListener('click', () => selectAnimalLevel(button.dataset.animalLevel)));
+lettersLevelButtons.forEach((button) => button.addEventListener('click', () => {
+  selectAnimalLevel(button.dataset.animalLevel);
+  navigateToRoute({ view: 'letters-game' }, { replace: true });
+}));
 lettersStartButton.addEventListener('click', () => navigateToRoute({ view: 'letters-game' }, { replace: true }));
 lettersBackButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 lettersResetButton.addEventListener('click', restartAnimalGame);
@@ -1313,6 +1320,9 @@ lettersPlayAgainButton.addEventListener('click', (event) => {
 lettersHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 
 quranLevelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+quranLevelButtons.forEach((button) => button.addEventListener('click', () => {
+  navigateToRoute({ view: 'quran-game' }, { replace: true });
+}));
 quranStartButton.addEventListener('click', () => navigateToRoute({ view: 'quran-game' }, { replace: true }));
 quranBackButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 quranResetButton.addEventListener('click', restartQuranGame);

@@ -356,7 +356,7 @@
       <div class="hero-cards" aria-hidden="true">
         <img src="apple.webp" alt=""><img src="card-back.webp" alt=""><img src="strawberry.webp" alt="">
       </div>
-      <p>اقلب بطاقتين في كل مرة، وحاول العثور على الفواكه المتشابهة.</p>
+      <p>اضغط على المستوى المناسب للدخول مباشرة، ثم طابِق الفواكه المتشابهة.</p>
       <div class="level-picker" aria-label="اختيار المستوى">
         <button id="easy-level-button" class="level-card selected" type="button" data-level="easy" aria-pressed="true">
           <span class="level-icon">⭐</span><strong>المستوى السهل</strong><small>6 بطاقات · 3 أزواج</small>
@@ -365,12 +365,12 @@
           <span class="level-icon">🏆</span><strong>المستوى الأكبر</strong><small>12 بطاقة · 6 أزواج</small>
         </button>
       </div>
-      <button id="start-button" class="primary-button" type="button">ابدأ المستوى السهل</button>
+      <button id="start-button" class="primary-button" type="button" hidden>ابدأ المستوى السهل</button>
     </section>
 
     <section id="game-screen" class="panel game-panel hidden" aria-label="لوحة لعب ذاكرة الفواكه">
       <div class="game-title-row">
-        <button id="back-button" class="mini-back-button" type="button" aria-label="العودة إلى اختيار المستوى">←</button>
+        <button id="back-button" class="mini-back-button" type="button" aria-label="العودة إلى الألعاب">←</button>
         <div><p id="game-level-label" class="screen-kicker">المستوى السهل</p><h2>ذاكرة الفواكه</h2></div>
       </div>
       <div class="game-toolbar">
@@ -389,7 +389,7 @@
       <div class="hero-cards animal-hero-cards" aria-hidden="true">
         <img src="lion.webp" alt=""><img src="duck.webp" alt=""><img src="crocodile.webp" alt="">
       </div>
-      <p>شاهد الحرف، ثم اختر الحيوان الذي يبدأ اسمه بهذا الحرف.</p>
+      <p>اضغط على المستوى المناسب للدخول مباشرة، ثم اختر الحيوان الذي يبدأ اسمه بالحرف.</p>
       <div class="level-picker letters-level-picker" aria-label="اختيار مستوى الحروف">
         <button class="level-card letters-level-card selected" type="button" data-animal-level="one" aria-pressed="true">
           <span class="level-icon">🐣</span><strong>المستوى الأول</strong><small>3 حروف · 3 حيوانات</small>
@@ -401,12 +401,12 @@
           <span class="level-icon">🦁</span><strong>المستوى الثالث</strong><small>قريبًا</small>
         </button>
       </div>
-      <button id="letters-start-button" class="primary-button" type="button">ابدأ المستوى الأول</button>
+      <button id="letters-start-button" class="primary-button" type="button" hidden>ابدأ المستوى الأول</button>
     </section>
 
     <section id="letters-game-screen" class="panel letters-game-panel hidden" aria-label="لعبة الحرف والحيوان">
       <div class="game-title-row">
-        <button id="letters-back-button" class="mini-back-button" type="button" aria-label="العودة إلى اختيار المستوى">←</button>
+        <button id="letters-back-button" class="mini-back-button" type="button" aria-label="العودة إلى الألعاب">←</button>
         <div><p id="letters-game-level-label" class="screen-kicker">المستوى الأول</p><h2>الحرف والحيوان</h2></div>
       </div>
 
@@ -431,9 +431,9 @@
         <div><p class="screen-kicker">آيات من جزء عم</p><h2 id="quran-level-title">اختر المستوى</h2></div>
       </div>
       <div class="quran-level-hero" aria-hidden="true">📖</div>
-      <p>اقرأ الآية الكريمة، ثم اختر السورة التي وردت فيها.</p>
+      <p>اضغط على المستوى للدخول مباشرة، ثم اقرأ الآية واختر السورة التي وردت فيها.</p>
       <div class="level-picker" aria-label="اختيار مستوى آيات جزء عم">
-        <button class="level-card selected" type="button" aria-pressed="true">
+        <button class="level-card quran-level-card selected" type="button" data-quran-level="one" aria-pressed="true">
           <span class="level-icon">🌟</span><strong>المستوى الأول</strong><small>قصار السور · 20 سؤالًا متنوعًا</small>
         </button>
         <button class="level-card locked" type="button" disabled>
@@ -444,7 +444,7 @@
         </button>
       </div>
       <p class="quran-round-note">يظهر في كل جولة 10 أسئلة، وتتبدّل الأسئلة عند إعادة المستوى.</p>
-      <button id="quran-start-button" class="primary-button" type="button">ابدأ المستوى الأول</button>
+      <button id="quran-start-button" class="primary-button" type="button" hidden>ابدأ المستوى الأول</button>
     </section>
 
     <section id="quran-game-screen" class="panel quran-game-panel hidden" aria-label="لعبة آيات من جزء عم">
@@ -566,6 +566,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=27"></script>
+  <script src="script.js?v=28"></script>
 </body>
 </html>
