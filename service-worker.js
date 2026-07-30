@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v24-letters-level-two';
+const CACHE_NAME = 'almoallem-v25-quran-level-one';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=24',
+  './script.js?v=25',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
@@ -34,7 +34,9 @@ const APP_SHELL = [
   './audio/raaie.wav',
   './audio/mumtaz.wav',
   './audio/hawel.wav',
-  './audio/win.wav'
+  './audio/win.wav',
+  './mashallah.mp3',
+  './quran-level-complete.mp3'
 ];
 
 self.addEventListener('install', (event) => {

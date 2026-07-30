@@ -52,6 +52,111 @@ const animalLevels = {
   }
 };
 
+
+// نصوص الآيات بالرسم العثماني، مع حفظ مفتاح السورة والآية للتدقيق.
+const quranLevelOneQuestions = [
+  {
+    id: '105-1', verseKey: '105:1', surah: 'الفيل',
+    verse: 'أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَـٰبِ ٱلْفِيلِ',
+    options: ['قريش', 'الفيل', 'الماعون']
+  },
+  {
+    id: '106-2', verseKey: '106:2', surah: 'قريش',
+    verse: 'إِۦلَـٰفِهِمْ رِحْلَةَ ٱلشِّتَآءِ وَٱلصَّيْفِ',
+    options: ['النصر', 'الفيل', 'قريش']
+  },
+  {
+    id: '107-3', verseKey: '107:3', surah: 'الماعون',
+    verse: 'وَلَا يَحُضُّ عَلَىٰ طَعَامِ ٱلْمِسْكِينِ',
+    options: ['الماعون', 'المسد', 'الكافرون']
+  },
+  {
+    id: '108-1', verseKey: '108:1', surah: 'الكوثر',
+    verse: 'إِنَّآ أَعْطَيْنَـٰكَ ٱلْكَوْثَرَ',
+    options: ['الإخلاص', 'الكوثر', 'النصر']
+  },
+  {
+    id: '109-2', verseKey: '109:2', surah: 'الكافرون',
+    verse: 'لَآ أَعْبُدُ مَا تَعْبُدُونَ',
+    options: ['الناس', 'الإخلاص', 'الكافرون']
+  },
+  {
+    id: '110-2', verseKey: '110:2', surah: 'النصر',
+    verse: 'وَرَأَيْتَ ٱلنَّاسَ يَدْخُلُونَ فِى دِينِ ٱللَّهِ أَفْوَاجًۭا',
+    options: ['الفيل', 'النصر', 'قريش']
+  },
+  {
+    id: '111-3', verseKey: '111:3', surah: 'المسد',
+    verse: 'سَيَصْلَىٰ نَارًۭا ذَاتَ لَهَبٍۢ',
+    options: ['الفلق', 'الكوثر', 'المسد']
+  },
+  {
+    id: '112-2', verseKey: '112:2', surah: 'الإخلاص',
+    verse: 'ٱللَّهُ ٱلصَّمَدُ',
+    options: ['الناس', 'الإخلاص', 'الفلق']
+  },
+  {
+    id: '113-3', verseKey: '113:3', surah: 'الفلق',
+    verse: 'وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ',
+    options: ['المسد', 'الفلق', 'الناس']
+  },
+  {
+    id: '114-4', verseKey: '114:4', surah: 'الناس',
+    verse: 'مِن شَرِّ ٱلْوَسْوَاسِ ٱلْخَنَّاسِ',
+    options: ['الكافرون', 'الفلق', 'الناس']
+  },
+  {
+    id: '105-2', verseKey: '105:2', surah: 'الفيل',
+    verse: 'أَلَمْ يَجْعَلْ كَيْدَهُمْ فِى تَضْلِيلٍۢ',
+    options: ['قريش', 'الفيل', 'النصر']
+  },
+  {
+    id: '106-3', verseKey: '106:3', surah: 'قريش',
+    verse: 'فَلْيَعْبُدُوا۟ رَبَّ هَـٰذَا ٱلْبَيْتِ',
+    options: ['الكافرون', 'الفيل', 'قريش']
+  },
+  {
+    id: '107-5', verseKey: '107:5', surah: 'الماعون',
+    verse: 'ٱلَّذِينَ هُمْ عَن صَلَاتِهِمْ سَاهُونَ',
+    options: ['المسد', 'الماعون', 'الكوثر']
+  },
+  {
+    id: '108-2', verseKey: '108:2', surah: 'الكوثر',
+    verse: 'فَصَلِّ لِرَبِّكَ وَٱنْحَرْ',
+    options: ['الإخلاص', 'الكوثر', 'النصر']
+  },
+  {
+    id: '109-6', verseKey: '109:6', surah: 'الكافرون',
+    verse: 'لَكُمْ دِينُكُمْ وَلِىَ دِينِ',
+    options: ['الناس', 'قريش', 'الكافرون']
+  },
+  {
+    id: '110-3', verseKey: '110:3', surah: 'النصر',
+    verse: 'فَسَبِّحْ بِحَمْدِ رَبِّكَ وَٱسْتَغْفِرْهُ ۚ إِنَّهُۥ كَانَ تَوَّابًۢا',
+    options: ['الفيل', 'النصر', 'الماعون']
+  },
+  {
+    id: '111-5', verseKey: '111:5', surah: 'المسد',
+    verse: 'فِى جِيدِهَا حَبْلٌۭ مِّن مَّسَدٍۭ',
+    options: ['الفلق', 'الكافرون', 'المسد']
+  },
+  {
+    id: '112-3', verseKey: '112:3', surah: 'الإخلاص',
+    verse: 'لَمْ يَلِدْ وَلَمْ يُولَدْ',
+    options: ['الناس', 'الإخلاص', 'الفلق']
+  },
+  {
+    id: '113-5', verseKey: '113:5', surah: 'الفلق',
+    verse: 'وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ',
+    options: ['المسد', 'الفلق', 'الناس']
+  },
+  {
+    id: '114-6', verseKey: '114:6', surah: 'الناس',
+    verse: 'مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ',
+    options: ['الإخلاص', 'الفلق', 'الناس']
+  }
+];
+
 const videoPlaylists = {
   'juz-amma': {
     title: 'جزء عم',
@@ -74,7 +179,9 @@ const levelScreen = document.querySelector('#level-screen');
 const gameScreen = document.querySelector('#game-screen');
 const lettersLevelScreen = document.querySelector('#letters-level-screen');
 const lettersGameScreen = document.querySelector('#letters-game-screen');
-const allScreens = [homeScreen, gamesMenuScreen, watchMenuScreen, levelScreen, gameScreen, lettersLevelScreen, lettersGameScreen];
+const quranLevelScreen = document.querySelector('#quran-level-screen');
+const quranGameScreen = document.querySelector('#quran-game-screen');
+const allScreens = [homeScreen, gamesMenuScreen, watchMenuScreen, levelScreen, gameScreen, lettersLevelScreen, lettersGameScreen, quranLevelScreen, quranGameScreen];
 
 const openGamesSectionButton = document.querySelector('#open-games-section');
 const openWatchSectionButton = document.querySelector('#open-watch-section');
@@ -84,6 +191,7 @@ const watchMenuHomeButton = document.querySelector('#watch-menu-home-button');
 const board = document.querySelector('#game-board');
 const memoryGameCard = document.querySelector('#memory-game-card');
 const lettersGameCard = document.querySelector('#letters-game-card');
+const quranGameCard = document.querySelector('#quran-game-card');
 const levelHomeButton = document.querySelector('#level-home-button');
 const levelButtons = [...document.querySelectorAll('.level-card[data-level]')];
 const startButton = document.querySelector('#start-button');
@@ -117,6 +225,20 @@ const lettersWinText = document.querySelector('#letters-win-text');
 const lettersCelebrationAnimals = document.querySelector('#letters-celebration-animals');
 const lettersPlayAgainButton = document.querySelector('#letters-play-again-button');
 const lettersHomeButton = document.querySelector('#letters-home-button');
+
+
+const quranLevelHomeButton = document.querySelector('#quran-level-home-button');
+const quranStartButton = document.querySelector('#quran-start-button');
+const quranBackButton = document.querySelector('#quran-back-button');
+const quranResetButton = document.querySelector('#quran-reset-button');
+const quranQuestionCount = document.querySelector('#quran-question-count');
+const quranScore = document.querySelector('#quran-score');
+const quranVerseText = document.querySelector('#quran-verse-text');
+const quranOptions = document.querySelector('#quran-options');
+const quranFeedback = document.querySelector('#quran-feedback');
+const quranWinModal = document.querySelector('#quran-win-modal');
+const quranPlayAgainButton = document.querySelector('#quran-play-again-button');
+const quranHomeButton = document.querySelector('#quran-home-button');
 
 const playlistPicker = document.querySelector('#playlist-picker');
 const playlistButtons = [...document.querySelectorAll('.playlist-card[data-playlist]')];
@@ -167,7 +289,9 @@ const SPOKEN_AUDIO_PATHS = {
   'ممتاز يا بطل': './audio/mumtaz.wav',
   'حاول مرة أخرى': './audio/hawel.wav',
   'رائع يا بطل، أنهيت المستوى': './audio/win.wav',
-  'رائع يا بطل، أكملت المستوى': './audio/win.wav'
+  'رائع يا بطل، أكملت المستوى': './audio/win.wav',
+  'ما شاء الله': './mashallah.mp3',
+  'ما شاء الله، زادك الله حبًّا وحفظًا للقرآن': './quran-level-complete.mp3'
 };
 const spokenAudioCache = new Map();
 let activeSpokenAudio = null;
@@ -275,6 +399,14 @@ let animalQuestions = [];
 let animalQuestionIndex = 0;
 let animalCorrectCount = 0;
 let animalLocked = false;
+
+const QURAN_ROUND_SIZE = 10;
+const QURAN_QUEUE_STORAGE_KEY = 'almoallem-quran-level-one-queue-v1';
+let quranRoundQuestions = [];
+let quranQuestionIndex = 0;
+let quranCorrectCount = 0;
+let quranLocked = false;
+let quranQueueMemoryState = { remainingIds: [], lastRoundIds: [] };
 
 let requestedPlaylistKey = null;
 let activePlaylistKey = null;
@@ -540,6 +672,113 @@ function checkAnimalAnswer(button, isCorrect) {
   }, 850);
 }
 
+
+function loadQuranQueueState() {
+  try {
+    const raw = window.localStorage.getItem(QURAN_QUEUE_STORAGE_KEY);
+    if (!raw) return quranQueueMemoryState;
+    const parsed = JSON.parse(raw);
+    quranQueueMemoryState = {
+      remainingIds: Array.isArray(parsed.remainingIds) ? parsed.remainingIds : [],
+      lastRoundIds: Array.isArray(parsed.lastRoundIds) ? parsed.lastRoundIds : []
+    };
+  } catch {
+    // Keep the in-memory queue when storage is unavailable.
+  }
+  return quranQueueMemoryState;
+}
+
+function saveQuranQueueState(state) {
+  quranQueueMemoryState = {
+    remainingIds: [...state.remainingIds],
+    lastRoundIds: [...state.lastRoundIds]
+  };
+  try { window.localStorage.setItem(QURAN_QUEUE_STORAGE_KEY, JSON.stringify(quranQueueMemoryState)); } catch {}
+}
+
+function getNextQuranRound() {
+  const questionById = new Map(quranLevelOneQuestions.map((question) => [question.id, question]));
+  const state = loadQuranQueueState();
+  let remainingIds = state.remainingIds.filter((id) => questionById.has(id));
+
+  if (remainingIds.length < QURAN_ROUND_SIZE) {
+    remainingIds = shuffle(quranLevelOneQuestions.map((question) => question.id));
+    const previousSet = new Set(state.lastRoundIds);
+    const firstSet = new Set(remainingIds.slice(0, QURAN_ROUND_SIZE));
+    const repeatsEntireRound = previousSet.size === QURAN_ROUND_SIZE && [...firstSet].every((id) => previousSet.has(id));
+    if (repeatsEntireRound) remainingIds = [...remainingIds.slice(5), ...remainingIds.slice(0, 5)];
+  }
+
+  const roundIds = remainingIds.slice(0, QURAN_ROUND_SIZE);
+  saveQuranQueueState({
+    remainingIds: remainingIds.slice(QURAN_ROUND_SIZE),
+    lastRoundIds: roundIds
+  });
+  return roundIds.map((id) => questionById.get(id)).filter(Boolean);
+}
+
+function createQuranOption(optionName, correctSurah) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'quran-option';
+  button.textContent = `سورة ${optionName}`;
+  button.addEventListener('click', () => checkQuranAnswer(button, optionName === correctSurah));
+  return button;
+}
+
+function startQuranGame() {
+  quranWinModal.classList.add('hidden');
+  quranRoundQuestions = getNextQuranRound();
+  quranQuestionIndex = 0;
+  quranCorrectCount = 0;
+  quranLocked = false;
+  quranScore.textContent = '⭐ 0';
+  renderQuranQuestion();
+}
+
+function renderQuranQuestion() {
+  const question = quranRoundQuestions[quranQuestionIndex];
+  if (!question) {
+    showQuranWin();
+    return;
+  }
+
+  quranLocked = false;
+  quranQuestionCount.textContent = `السؤال ${quranQuestionIndex + 1} من ${quranRoundQuestions.length}`;
+  quranVerseText.textContent = `﴿ ${question.verse} ﴾`;
+  quranFeedback.textContent = 'اختر إجابة واحدة';
+  quranFeedback.className = 'quran-feedback';
+  quranOptions.replaceChildren(...shuffle(question.options).map((option) => createQuranOption(option, question.surah)));
+}
+
+function checkQuranAnswer(button, isCorrect) {
+  if (quranLocked) return;
+
+  if (!isCorrect) {
+    button.classList.add('wrong');
+    quranFeedback.textContent = 'حاول مرة أخرى';
+    quranFeedback.className = 'quran-feedback wrong-feedback';
+    playEncouragement('wrong', 'حاول مرة أخرى');
+    window.setTimeout(() => button.classList.remove('wrong'), 520);
+    return;
+  }
+
+  quranLocked = true;
+  button.classList.add('correct');
+  [...quranOptions.children].forEach((option) => { option.disabled = true; });
+  quranCorrectCount += 1;
+  quranScore.textContent = `⭐ ${quranCorrectCount}`;
+  const praise = Math.random() < 0.5 ? 'ممتاز يا بطل' : 'ما شاء الله';
+  quranFeedback.textContent = `${praise}! إجابة صحيحة`;
+  quranFeedback.className = 'quran-feedback correct-feedback';
+  playEncouragement('correct', praise);
+
+  window.setTimeout(() => {
+    quranQuestionIndex += 1;
+    renderQuranQuestion();
+  }, 1000);
+}
+
 function getStoredPlaylist(playlistKey) {
   try {
     const raw = window.localStorage.getItem(`youtube-playlist:${playlistKey}`);
@@ -798,6 +1037,7 @@ function showOnly(screen) {
   screen.classList.remove('hidden');
   winModal.classList.add('hidden');
   lettersWinModal.classList.add('hidden');
+  quranWinModal.classList.add('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -839,11 +1079,28 @@ function showLettersGame() {
   startAnimalGame();
 }
 
+function showQuranLevels() {
+  headerSubtitle.textContent = 'اختبر معرفتك بسور جزء عم';
+  showOnly(quranLevelScreen);
+}
+
+function showQuranGame() {
+  headerSubtitle.textContent = 'اقرأ الآية واختر السورة';
+  showOnly(quranGameScreen);
+  startQuranGame();
+}
+
 function showWin() {
   finalMoves.textContent = String(moves);
   winModal.classList.remove('hidden');
   playEncouragement('win', 'رائع يا بطل، أنهيت المستوى');
   playAgainButton.focus();
+}
+
+function showQuranWin() {
+  quranWinModal.classList.remove('hidden');
+  playEncouragement('win', 'ما شاء الله، زادك الله حبًّا وحفظًا للقرآن');
+  quranPlayAgainButton.focus();
 }
 
 function showAnimalWin() {
@@ -874,6 +1131,8 @@ function normalizeRouteState(state) {
     'memory-game',
     'letters-levels',
     'letters-game',
+    'quran-levels',
+    'quran-game',
     'watch-playlist',
     'watch-video'
   ]);
@@ -912,6 +1171,12 @@ function applyRouteState(rawState) {
       break;
     case 'letters-game':
       showLettersGame();
+      break;
+    case 'quran-levels':
+      showQuranLevels();
+      break;
+    case 'quran-game':
+      showQuranGame();
       break;
     case 'watch-playlist':
       showWatchMenu();
@@ -1000,6 +1265,7 @@ watchMenuHomeButton.addEventListener('click', () => navigateBack({ view: 'home' 
 
 memoryGameCard.addEventListener('click', () => navigateToRoute({ view: 'memory-levels' }));
 lettersGameCard.addEventListener('click', () => navigateToRoute({ view: 'letters-levels' }));
+quranGameCard.addEventListener('click', () => navigateToRoute({ view: 'quran-levels' }));
 levelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 levelButtons.forEach((button) => button.addEventListener('click', () => selectLevel(button.dataset.level)));
 startButton.addEventListener('click', () => navigateToRoute({ view: 'memory-game' }, { replace: true }));
@@ -1015,6 +1281,13 @@ lettersBackButton.addEventListener('click', () => navigateBack({ view: 'games-me
 lettersResetButton.addEventListener('click', startAnimalGame);
 lettersPlayAgainButton.addEventListener('click', startAnimalGame);
 lettersHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+
+quranLevelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+quranStartButton.addEventListener('click', () => navigateToRoute({ view: 'quran-game' }, { replace: true }));
+quranBackButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+quranResetButton.addEventListener('click', startQuranGame);
+quranPlayAgainButton.addEventListener('click', startQuranGame);
+quranHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 
 playlistButtons.forEach((button) => button.addEventListener('click', () => navigateToRoute({
   view: 'watch-playlist',
