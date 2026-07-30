@@ -49,6 +49,15 @@
       font-weight: 800;
       color: #1679b8;
     }
+
+    .animal-options.level-two-options {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    @media (max-width: 620px) {
+      .animal-options.level-two-options {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
   </style>
 </head>
 <body>
@@ -133,7 +142,7 @@
             <img src="lion.webp" alt=""><img src="duck.webp" alt=""><img src="crocodile.webp" alt="">
           </span>
           <span class="game-copy">
-            <span class="game-status">المستوى الأول متاح</span>
+            <span class="game-status">المستويان الأول والثاني متاحان</span>
             <strong>الحرف والحيوان</strong>
             <small>اختر الحيوان الذي يبدأ بالحرف المطلوب</small>
           </span>
@@ -243,11 +252,11 @@
       </div>
       <p>شاهد الحرف، ثم اختر الحيوان الذي يبدأ اسمه بهذا الحرف.</p>
       <div class="level-picker letters-level-picker" aria-label="اختيار مستوى الحروف">
-        <button class="level-card selected" type="button" aria-pressed="true">
+        <button class="level-card letters-level-card selected" type="button" data-animal-level="one" aria-pressed="true">
           <span class="level-icon">🐣</span><strong>المستوى الأول</strong><small>3 حروف · 3 حيوانات</small>
         </button>
-        <button class="level-card locked" type="button" disabled>
-          <span class="level-icon">🐾</span><strong>المستوى الثاني</strong><small>قريبًا</small>
+        <button class="level-card letters-level-card" type="button" data-animal-level="two" aria-pressed="false">
+          <span class="level-icon">🐾</span><strong>المستوى الثاني</strong><small>10 أسئلة · 10 حيوانات</small>
         </button>
         <button class="level-card locked" type="button" disabled>
           <span class="level-icon">🦁</span><strong>المستوى الثالث</strong><small>قريبًا</small>
@@ -259,7 +268,7 @@
     <section id="letters-game-screen" class="panel letters-game-panel hidden" aria-label="لعبة الحرف والحيوان">
       <div class="game-title-row">
         <button id="letters-back-button" class="mini-back-button" type="button" aria-label="العودة إلى اختيار المستوى">←</button>
-        <div><p class="screen-kicker">المستوى الأول</p><h2>الحرف والحيوان</h2></div>
+        <div><p id="letters-game-level-label" class="screen-kicker">المستوى الأول</p><h2>الحرف والحيوان</h2></div>
       </div>
 
       <div class="letters-progress-row">
@@ -356,13 +365,13 @@
     <div class="modal-card">
       <div class="stars" aria-hidden="true">⭐ ⭐ ⭐</div>
       <h2 id="letters-win-title">رائع يا بطل!</h2>
-      <p>تعرّفت إلى الحيوانات الثلاثة واختَرت الإجابات الصحيحة.</p>
-      <div class="celebration-fruits" aria-hidden="true">🦁 🦆 🐊</div>
+      <p id="letters-win-text">تعرّفت إلى الحيوانات الثلاثة واختَرت الإجابات الصحيحة.</p>
+      <div id="letters-celebration-animals" class="celebration-fruits" aria-hidden="true">🦁 🦆 🐊</div>
       <button id="letters-play-again-button" class="primary-button" type="button">العب مرة أخرى</button>
       <button id="letters-home-button" class="text-button" type="button">العودة إلى جميع الألعاب</button>
     </div>
   </div>
 
-  <script src="script.js?v=23"></script>
+  <script src="script.js?v=24"></script>
 </body>
 </html>

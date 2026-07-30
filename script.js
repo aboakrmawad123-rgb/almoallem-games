@@ -24,11 +24,33 @@ const levels = {
   }
 };
 
-const animalLevelOne = [
-  { id: 'lion', letter: 'أ', label: 'أسد', image: 'lion.webp' },
-  { id: 'duck', letter: 'ب', label: 'بطة', image: 'duck.webp' },
-  { id: 'crocodile', letter: 'ت', label: 'تمساح', image: 'crocodile.webp' }
-];
+const animalLevels = {
+  one: {
+    label: 'المستوى الأول',
+    startLabel: 'ابدأ المستوى الأول',
+    cards: [
+      { id: 'lion', letter: 'أ', label: 'أسد', image: 'lion.webp' },
+      { id: 'duck', letter: 'ب', label: 'بطة', image: 'duck.webp' },
+      { id: 'crocodile', letter: 'ت', label: 'تمساح', image: 'crocodile.webp' }
+    ]
+  },
+  two: {
+    label: 'المستوى الثاني',
+    startLabel: 'ابدأ المستوى الثاني',
+    cards: [
+      { id: 'monkey', letter: 'ق', label: 'قرد', image: 'monkey.webp' },
+      { id: 'chicken', letter: 'د', label: 'دجاجة', image: 'chicken.webp' },
+      { id: 'turtle', letter: 'س', label: 'سلحفاة', image: 'turtle.webp' },
+      { id: 'giraffe', letter: 'ز', label: 'زرافة', image: 'giraffe.webp' },
+      { id: 'rabbit', letter: 'أ', label: 'أرنب', image: 'rabbit.webp' },
+      { id: 'camel', letter: 'ج', label: 'جمل', image: 'camel.webp' },
+      { id: 'bear', letter: 'د', label: 'دب', image: 'bear.webp' },
+      { id: 'cow', letter: 'ب', label: 'بقرة', image: 'cow.webp' },
+      { id: 'elephant', letter: 'ف', label: 'فيل', image: 'elephant.webp' },
+      { id: 'sheep', letter: 'خ', label: 'خروف', image: 'sheep.webp' }
+    ]
+  }
+};
 
 const videoPlaylists = {
   'juz-amma': {
@@ -80,15 +102,19 @@ const installButton = document.querySelector('#install-button');
 const headerSubtitle = document.querySelector('#header-subtitle');
 
 const lettersLevelHomeButton = document.querySelector('#letters-level-home-button');
+const lettersLevelButtons = [...document.querySelectorAll('.letters-level-card[data-animal-level]')];
 const lettersStartButton = document.querySelector('#letters-start-button');
 const lettersBackButton = document.querySelector('#letters-back-button');
 const lettersResetButton = document.querySelector('#letters-reset-button');
+const lettersGameLevelLabel = document.querySelector('#letters-game-level-label');
 const lettersQuestionCount = document.querySelector('#letters-question-count');
 const lettersScore = document.querySelector('#letters-score');
 const targetLetter = document.querySelector('#target-letter');
 const animalOptions = document.querySelector('#animal-options');
 const lettersFeedback = document.querySelector('#letters-feedback');
 const lettersWinModal = document.querySelector('#letters-win-modal');
+const lettersWinText = document.querySelector('#letters-win-text');
+const lettersCelebrationAnimals = document.querySelector('#letters-celebration-animals');
 const lettersPlayAgainButton = document.querySelector('#letters-play-again-button');
 const lettersHomeButton = document.querySelector('#letters-home-button');
 
@@ -243,6 +269,8 @@ function toggleSound() {
 updateSoundToggle();
 Object.values(SPOKEN_AUDIO_PATHS).forEach((path) => getSpokenAudio(path));
 
+let selectedAnimalLevel = 'one';
+let activeAnimalCards = animalLevels.one.cards;
 let animalQuestions = [];
 let animalQuestionIndex = 0;
 let animalCorrectCount = 0;
@@ -437,12 +465,37 @@ function createAnimalOption(animal, correctId) {
   return button;
 }
 
+function selectAnimalLevel(levelName) {
+  if (!animalLevels[levelName]) return;
+  selectedAnimalLevel = levelName;
+  activeAnimalCards = animalLevels[selectedAnimalLevel].cards;
+  lettersLevelButtons.forEach((button) => {
+    const isSelected = button.dataset.animalLevel === selectedAnimalLevel;
+    button.classList.toggle('selected', isSelected);
+    button.setAttribute('aria-pressed', String(isSelected));
+  });
+  lettersStartButton.textContent = animalLevels[selectedAnimalLevel].startLabel;
+}
+
+function buildAnimalOptions(question) {
+  if (selectedAnimalLevel === 'one') return shuffle(activeAnimalCards);
+
+  const distractors = shuffle(activeAnimalCards.filter((animal) => (
+    animal.id !== question.id && animal.letter !== question.letter
+  ))).slice(0, 3);
+
+  return shuffle([question, ...distractors]);
+}
+
 function startAnimalGame() {
-  animalQuestions = shuffle(animalLevelOne);
+  activeAnimalCards = animalLevels[selectedAnimalLevel].cards;
+  animalQuestions = shuffle(activeAnimalCards);
   animalQuestionIndex = 0;
   animalCorrectCount = 0;
   animalLocked = false;
   lettersScore.textContent = '⭐ 0';
+  lettersGameLevelLabel.textContent = animalLevels[selectedAnimalLevel].label;
+  animalOptions.classList.toggle('level-two-options', selectedAnimalLevel === 'two');
   renderAnimalQuestion();
 }
 
@@ -457,7 +510,7 @@ function renderAnimalQuestion() {
   targetLetter.textContent = question.letter;
   lettersFeedback.textContent = 'اختر بطاقة واحدة';
   lettersFeedback.className = 'letters-feedback';
-  const options = shuffle(animalLevelOne).map((animal) => createAnimalOption(animal, question.id));
+  const options = buildAnimalOptions(question).map((animal) => createAnimalOption(animal, question.id));
   animalOptions.replaceChildren(...options);
 }
 
@@ -794,6 +847,13 @@ function showWin() {
 }
 
 function showAnimalWin() {
+  const total = activeAnimalCards.length;
+  lettersWinText.textContent = total === 3
+    ? 'تعرّفت إلى الحيوانات الثلاثة واختَرت الإجابات الصحيحة.'
+    : `تعرّفت إلى ${total} حيوانات واختَرت الإجابات الصحيحة.`;
+  lettersCelebrationAnimals.textContent = selectedAnimalLevel === 'one'
+    ? '🦁 🦆 🐊'
+    : '🐒 🐔 🐢 🦒 🐇 🐫 🐻 🐄 🐘 🐑';
   lettersWinModal.classList.remove('hidden');
   playEncouragement('win', 'رائع يا بطل، أكملت المستوى');
   lettersPlayAgainButton.focus();
@@ -949,6 +1009,7 @@ playAgainButton.addEventListener('click', renderGame);
 homeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 
 lettersLevelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+lettersLevelButtons.forEach((button) => button.addEventListener('click', () => selectAnimalLevel(button.dataset.animalLevel)));
 lettersStartButton.addEventListener('click', () => navigateToRoute({ view: 'letters-game' }, { replace: true }));
 lettersBackButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 lettersResetButton.addEventListener('click', startAnimalGame);

@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v23-navigation-social-menu';
+const CACHE_NAME = 'almoallem-v24-letters-level-two';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=23',
+  './script.js?v=24',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
@@ -16,6 +16,16 @@ const APP_SHELL = [
   './lion.webp',
   './duck.webp',
   './crocodile.webp',
+  './monkey.webp',
+  './chicken.webp',
+  './turtle.webp',
+  './giraffe.webp',
+  './rabbit.webp',
+  './camel.webp',
+  './bear.webp',
+  './cow.webp',
+  './elephant.webp',
+  './sheep.webp',
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
