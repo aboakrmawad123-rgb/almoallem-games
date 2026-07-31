@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v30-azzam-jigsaw';
+const CACHE_NAME = 'almoallem-v31-puzzle-scroll-fix';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=30',
+  './script.js?v=31',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
