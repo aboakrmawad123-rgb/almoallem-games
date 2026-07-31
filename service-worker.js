@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v29-quran-level-two';
+const CACHE_NAME = 'almoallem-v30-azzam-jigsaw';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=29',
+  './script.js?v=30',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
@@ -26,6 +26,12 @@ const APP_SHELL = [
   './cow.webp',
   './elephant.webp',
   './sheep.webp',
+  './puzzle-cat.webp',
+  './puzzle-plant.webp',
+  './puzzle-toys.webp',
+  './puzzle-trash.webp',
+  './puzzle-elder.webp',
+  './puzzle-books.webp',
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',

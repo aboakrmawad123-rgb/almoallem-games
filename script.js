@@ -274,6 +274,31 @@ const quranLevels = {
   }
 };
 
+
+const puzzleImages = {
+  cat: { id: 'cat', label: 'إطعام القطة', image: 'puzzle-cat.webp' },
+  plant: { id: 'plant', label: 'سقاية النبتة', image: 'puzzle-plant.webp' },
+  toys: { id: 'toys', label: 'ترتيب الألعاب', image: 'puzzle-toys.webp' },
+  trash: { id: 'trash', label: 'المحافظة على النظافة', image: 'puzzle-trash.webp' },
+  elder: { id: 'elder', label: 'مساعدة الرجل الكبير', image: 'puzzle-elder.webp' },
+  books: { id: 'books', label: 'مساعدة الطفل', image: 'puzzle-books.webp' }
+};
+
+const puzzleLevels = {
+  one: {
+    label: 'المستوى الأول',
+    rows: 2,
+    cols: 2,
+    images: [puzzleImages.cat, puzzleImages.plant]
+  },
+  two: {
+    label: 'المستوى الثاني',
+    rows: 3,
+    cols: 3,
+    images: [puzzleImages.toys, puzzleImages.trash, puzzleImages.elder, puzzleImages.books]
+  }
+};
+
 const videoPlaylists = {
   'juz-amma': {
     title: 'جزء عم',
@@ -298,7 +323,9 @@ const lettersLevelScreen = document.querySelector('#letters-level-screen');
 const lettersGameScreen = document.querySelector('#letters-game-screen');
 const quranLevelScreen = document.querySelector('#quran-level-screen');
 const quranGameScreen = document.querySelector('#quran-game-screen');
-const allScreens = [homeScreen, gamesMenuScreen, watchMenuScreen, levelScreen, gameScreen, lettersLevelScreen, lettersGameScreen, quranLevelScreen, quranGameScreen];
+const puzzleLevelScreen = document.querySelector('#puzzle-level-screen');
+const puzzleGameScreen = document.querySelector('#puzzle-game-screen');
+const allScreens = [homeScreen, gamesMenuScreen, watchMenuScreen, levelScreen, gameScreen, lettersLevelScreen, lettersGameScreen, quranLevelScreen, quranGameScreen, puzzleLevelScreen, puzzleGameScreen];
 
 const openGamesSectionButton = document.querySelector('#open-games-section');
 const openWatchSectionButton = document.querySelector('#open-watch-section');
@@ -309,6 +336,7 @@ const board = document.querySelector('#game-board');
 const memoryGameCard = document.querySelector('#memory-game-card');
 const lettersGameCard = document.querySelector('#letters-game-card');
 const quranGameCard = document.querySelector('#quran-game-card');
+const puzzleGameCard = document.querySelector('#puzzle-game-card');
 const levelHomeButton = document.querySelector('#level-home-button');
 const levelButtons = [...document.querySelectorAll('.level-card[data-level]')];
 const startButton = document.querySelector('#start-button');
@@ -358,6 +386,27 @@ const quranFeedback = document.querySelector('#quran-feedback');
 const quranWinModal = document.querySelector('#quran-win-modal');
 const quranPlayAgainButton = document.querySelector('#quran-play-again-button');
 const quranHomeButton = document.querySelector('#quran-home-button');
+
+const puzzleLevelHomeButton = document.querySelector('#puzzle-level-home-button');
+const puzzleLevelButtons = [...document.querySelectorAll('.puzzle-level-card[data-puzzle-level]')];
+const puzzleImagePicker = document.querySelector('#puzzle-image-picker');
+const puzzleImageButtons = [...document.querySelectorAll('.puzzle-choice-button[data-puzzle-image]')];
+const puzzleBackButton = document.querySelector('#puzzle-back-button');
+const puzzleGameLevelLabel = document.querySelector('#puzzle-game-level-label');
+const puzzlePieceCount = document.querySelector('#puzzle-piece-count');
+const puzzleImageLabel = document.querySelector('#puzzle-image-label');
+const puzzlePreviewOverlay = document.querySelector('#puzzle-preview-overlay');
+const puzzlePreviewImage = document.querySelector('#puzzle-preview-image');
+const puzzleWorkspace = document.querySelector('#puzzle-workspace');
+const puzzleBoard = document.querySelector('#puzzle-board');
+const puzzleTray = document.querySelector('#puzzle-tray');
+const puzzleFeedback = document.querySelector('#puzzle-feedback');
+const puzzleResetButton = document.querySelector('#puzzle-reset-button');
+const puzzleWinModal = document.querySelector('#puzzle-win-modal');
+const puzzlePlayAgainButton = document.querySelector('#puzzle-play-again-button');
+const puzzleLevelsButton = document.querySelector('#puzzle-levels-button');
+const puzzleHomeButton = document.querySelector('#puzzle-home-button');
+
 
 const playlistPicker = document.querySelector('#playlist-picker');
 const playlistButtons = [...document.querySelectorAll('.playlist-card[data-playlist]')];
@@ -534,12 +583,416 @@ const quranQueueMemoryStates = {
 
 selectQuranLevel('one');
 
+
+
+const PUZZLE_LEVEL_ONE_STORAGE_KEY = 'almoallem-puzzle-level-one-next-v1';
+let selectedPuzzleLevel = 'one';
+let activePuzzleImage = puzzleLevels.one.images[0];
+let puzzlePieces = [];
+let puzzlePlacedCount = 0;
+let puzzlePreviewTimer = null;
+let puzzleResizeTimer = null;
+let puzzleLayoutToken = 0;
+
 let requestedPlaylistKey = null;
 let activePlaylistKey = null;
 let activeVideoItems = [];
 let visibleVideoCount = 0;
 const VIDEO_PAGE_SIZE = 12;
 const playlistVideoCache = new Map();
+
+
+function selectPuzzleLevel(levelName) {
+  if (!puzzleLevels[levelName]) return;
+  selectedPuzzleLevel = levelName;
+  puzzleLevelButtons.forEach((button) => {
+    const isSelected = button.dataset.puzzleLevel === selectedPuzzleLevel;
+    button.classList.toggle('selected', isSelected);
+    button.setAttribute('aria-pressed', String(isSelected));
+  });
+  puzzleImagePicker.classList.toggle('hidden', selectedPuzzleLevel !== 'two');
+  if (selectedPuzzleLevel === 'two') {
+    window.setTimeout(() => puzzleImagePicker.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
+  }
+}
+
+function getNextLevelOnePuzzleImage() {
+  const images = puzzleLevels.one.images;
+  let nextIndex = 0;
+  try {
+    const stored = Number.parseInt(window.localStorage.getItem(PUZZLE_LEVEL_ONE_STORAGE_KEY) || '0', 10);
+    if (Number.isInteger(stored) && stored >= 0) nextIndex = stored % images.length;
+    window.localStorage.setItem(PUZZLE_LEVEL_ONE_STORAGE_KEY, String((nextIndex + 1) % images.length));
+  } catch {
+    nextIndex = activePuzzleImage && activePuzzleImage.id === images[0].id ? 1 : 0;
+  }
+  return images[nextIndex];
+}
+
+function findPuzzleImage(levelName, imageId) {
+  const level = puzzleLevels[levelName];
+  if (!level) return null;
+  return level.images.find((item) => item.id === imageId) || null;
+}
+
+function setActivePuzzle(levelName, imageId = '') {
+  selectedPuzzleLevel = puzzleLevels[levelName] ? levelName : 'one';
+  activePuzzleImage = findPuzzleImage(selectedPuzzleLevel, imageId) || puzzleLevels[selectedPuzzleLevel].images[0];
+  selectPuzzleLevel(selectedPuzzleLevel);
+}
+
+function stopPuzzleTimers() {
+  if (puzzlePreviewTimer) window.clearTimeout(puzzlePreviewTimer);
+  if (puzzleResizeTimer) window.clearTimeout(puzzleResizeTimer);
+  puzzlePreviewTimer = null;
+  puzzleResizeTimer = null;
+}
+
+function clearPuzzlePieces() {
+  puzzlePieces.forEach((piece) => {
+    if (piece.element && piece.pointerDownHandler) {
+      piece.element.removeEventListener('pointerdown', piece.pointerDownHandler);
+    }
+    if (piece.element) piece.element.remove();
+  });
+  puzzlePieces = [];
+  puzzleBoard.replaceChildren();
+}
+
+function getPuzzleEdgeMaps(rows, cols) {
+  const horizontal = Array.from({ length: Math.max(0, rows - 1) }, (_, row) => (
+    Array.from({ length: cols }, (_, col) => ((row + col) % 2 === 0 ? 1 : -1))
+  ));
+  const vertical = Array.from({ length: rows }, (_, row) => (
+    Array.from({ length: Math.max(0, cols - 1) }, (_, col) => ((row + col) % 2 === 0 ? -1 : 1))
+  ));
+  return { horizontal, vertical };
+}
+
+function getPieceEdges(row, col, rows, cols, maps) {
+  return {
+    top: row === 0 ? 0 : -maps.horizontal[row - 1][col],
+    right: col === cols - 1 ? 0 : maps.vertical[row][col],
+    bottom: row === rows - 1 ? 0 : maps.horizontal[row][col],
+    left: col === 0 ? 0 : -maps.vertical[row][col - 1]
+  };
+}
+
+function formatPuzzleNumber(value) {
+  return Number(value.toFixed(2));
+}
+
+function addPuzzleEdge(parts, startX, startY, endX, endY, normalX, normalY, sign, depth) {
+  const dx = endX - startX;
+  const dy = endY - startY;
+  const point = (ratio, offset = 0) => [
+    formatPuzzleNumber(startX + (dx * ratio) + (normalX * offset)),
+    formatPuzzleNumber(startY + (dy * ratio) + (normalY * offset))
+  ];
+  if (!sign) {
+    parts.push(`L ${formatPuzzleNumber(endX)} ${formatPuzzleNumber(endY)}`);
+    return;
+  }
+  const offset = sign * depth;
+  const p35 = point(0.35);
+  const p40 = point(0.40);
+  const p40a = point(0.40, offset * 0.34);
+  const p50 = point(0.50, offset);
+  const p60a = point(0.60, offset * 0.34);
+  const p60 = point(0.60);
+  const p65 = point(0.65);
+  const end = point(1);
+  parts.push(`L ${p35[0]} ${p35[1]}`);
+  parts.push(`C ${p40[0]} ${p40[1]} ${p40a[0]} ${p40a[1]} ${p40a[0]} ${p40a[1]}`);
+  parts.push(`C ${p40a[0]} ${p40a[1]} ${point(0.43, offset)[0]} ${point(0.43, offset)[1]} ${p50[0]} ${p50[1]}`);
+  parts.push(`C ${point(0.57, offset)[0]} ${point(0.57, offset)[1]} ${p60a[0]} ${p60a[1]} ${p60a[0]} ${p60a[1]}`);
+  parts.push(`C ${p60a[0]} ${p60a[1]} ${p60[0]} ${p60[1]} ${p65[0]} ${p65[1]}`);
+  parts.push(`L ${end[0]} ${end[1]}`);
+}
+
+function buildPuzzlePieceGeometry(cellSize, edges) {
+  const depth = cellSize * 0.19;
+  const leftExtension = edges.left > 0 ? depth : 0;
+  const rightExtension = edges.right > 0 ? depth : 0;
+  const topExtension = edges.top > 0 ? depth : 0;
+  const bottomExtension = edges.bottom > 0 ? depth : 0;
+  const x0 = leftExtension;
+  const y0 = topExtension;
+  const x1 = x0 + cellSize;
+  const y1 = y0 + cellSize;
+  const parts = [`M ${formatPuzzleNumber(x0)} ${formatPuzzleNumber(y0)}`];
+  addPuzzleEdge(parts, x0, y0, x1, y0, 0, -1, edges.top, depth);
+  addPuzzleEdge(parts, x1, y0, x1, y1, 1, 0, edges.right, depth);
+  addPuzzleEdge(parts, x1, y1, x0, y1, 0, 1, edges.bottom, depth);
+  addPuzzleEdge(parts, x0, y1, x0, y0, -1, 0, edges.left, depth);
+  parts.push('Z');
+  return {
+    path: parts.join(' '),
+    width: cellSize + leftExtension + rightExtension,
+    height: cellSize + topExtension + bottomExtension,
+    leftExtension,
+    topExtension
+  };
+}
+
+function createPuzzleTarget(piece, boardLeft, boardTop) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.classList.add('puzzle-target-piece');
+  svg.setAttribute('width', String(piece.geometry.width));
+  svg.setAttribute('height', String(piece.geometry.height));
+  svg.setAttribute('viewBox', `0 0 ${piece.geometry.width} ${piece.geometry.height}`);
+  svg.style.left = `${piece.col * piece.cellSize - piece.geometry.leftExtension}px`;
+  svg.style.top = `${piece.row * piece.cellSize - piece.geometry.topExtension}px`;
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', piece.geometry.path);
+  path.setAttribute('fill', 'rgba(255,255,255,0.36)');
+  path.setAttribute('stroke', 'rgba(31,113,153,0.42)');
+  path.setAttribute('stroke-width', '2');
+  path.setAttribute('stroke-dasharray', '7 5');
+  svg.appendChild(path);
+  puzzleBoard.appendChild(svg);
+  piece.targetLeft = boardLeft + (piece.col * piece.cellSize) - piece.geometry.leftExtension;
+  piece.targetTop = boardTop + (piece.row * piece.cellSize) - piece.geometry.topExtension;
+}
+
+function createPuzzlePieceElement(piece, boardSize) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.classList.add('puzzle-piece');
+  svg.setAttribute('width', String(piece.geometry.width));
+  svg.setAttribute('height', String(piece.geometry.height));
+  svg.setAttribute('viewBox', `0 0 ${piece.geometry.width} ${piece.geometry.height}`);
+  svg.setAttribute('role', 'button');
+  svg.setAttribute('aria-label', `قطعة البزل ${piece.index + 1}`);
+  svg.tabIndex = 0;
+
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  const clipPath = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+  const clipId = `puzzle-clip-${puzzleLayoutToken}-${piece.index}`;
+  clipPath.setAttribute('id', clipId);
+  const clipShape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  clipShape.setAttribute('d', piece.geometry.path);
+  clipPath.appendChild(clipShape);
+  defs.appendChild(clipPath);
+  svg.appendChild(defs);
+
+  const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+  image.setAttribute('href', activePuzzleImage.image);
+  image.setAttribute('x', String(piece.geometry.leftExtension - (piece.col * piece.cellSize)));
+  image.setAttribute('y', String(piece.geometry.topExtension - (piece.row * piece.cellSize)));
+  image.setAttribute('width', String(boardSize));
+  image.setAttribute('height', String(boardSize));
+  image.setAttribute('preserveAspectRatio', 'none');
+  image.setAttribute('clip-path', `url(#${clipId})`);
+  svg.appendChild(image);
+
+  const outline = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  outline.setAttribute('d', piece.geometry.path);
+  outline.setAttribute('fill', 'none');
+  outline.setAttribute('stroke', 'rgba(255,255,255,0.92)');
+  outline.setAttribute('stroke-width', '3');
+  outline.setAttribute('stroke-linejoin', 'round');
+  svg.appendChild(outline);
+
+  piece.element = svg;
+  piece.pointerDownHandler = (event) => beginPuzzleDrag(event, piece);
+  svg.addEventListener('pointerdown', piece.pointerDownHandler);
+  svg.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      snapPuzzlePiece(piece);
+    }
+  });
+  puzzleWorkspace.appendChild(svg);
+}
+
+function beginPuzzleDrag(event, piece) {
+  if (piece.placed || !piece.element) return;
+  event.preventDefault();
+  const workspaceRect = puzzleWorkspace.getBoundingClientRect();
+  const currentLeft = Number.parseFloat(piece.element.style.left) || 0;
+  const currentTop = Number.parseFloat(piece.element.style.top) || 0;
+  const offsetX = event.clientX - workspaceRect.left - currentLeft;
+  const offsetY = event.clientY - workspaceRect.top - currentTop;
+  const pointerId = event.pointerId;
+  piece.element.setPointerCapture(pointerId);
+  piece.element.classList.add('dragging');
+
+  const move = (moveEvent) => {
+    if (moveEvent.pointerId !== pointerId) return;
+    moveEvent.preventDefault();
+    const rect = puzzleWorkspace.getBoundingClientRect();
+    piece.element.style.left = `${moveEvent.clientX - rect.left - offsetX}px`;
+    piece.element.style.top = `${moveEvent.clientY - rect.top - offsetY}px`;
+  };
+
+  const end = (endEvent) => {
+    if (endEvent.pointerId !== pointerId) return;
+    piece.element.classList.remove('dragging');
+    piece.element.removeEventListener('pointermove', move);
+    piece.element.removeEventListener('pointerup', end);
+    piece.element.removeEventListener('pointercancel', end);
+    const left = Number.parseFloat(piece.element.style.left) || 0;
+    const top = Number.parseFloat(piece.element.style.top) || 0;
+    const distance = Math.hypot(left - piece.targetLeft, top - piece.targetTop);
+    if (distance <= piece.cellSize * 0.42) snapPuzzlePiece(piece);
+    else returnPuzzlePieceHome(piece);
+  };
+
+  piece.element.addEventListener('pointermove', move);
+  piece.element.addEventListener('pointerup', end);
+  piece.element.addEventListener('pointercancel', end);
+}
+
+function returnPuzzlePieceHome(piece) {
+  if (!piece.element || piece.placed) return;
+  piece.element.style.left = `${piece.homeLeft}px`;
+  piece.element.style.top = `${piece.homeTop}px`;
+  puzzleFeedback.textContent = 'حاول مرة أخرى، قرّب القطعة من مكانها الصحيح';
+  puzzleFeedback.className = 'puzzle-feedback wrong-feedback';
+  playEncouragement('wrong', 'حاول مرة أخرى');
+  window.setTimeout(() => {
+    if (puzzlePlacedCount < puzzlePieces.length) {
+      puzzleFeedback.textContent = 'ركّب الصورة قطعة قطعة';
+      puzzleFeedback.className = 'puzzle-feedback';
+    }
+  }, 1100);
+}
+
+function snapPuzzlePiece(piece) {
+  if (piece.placed || !piece.element) return;
+  piece.placed = true;
+  piece.element.classList.remove('dragging');
+  piece.element.classList.add('placed');
+  piece.element.style.left = `${piece.targetLeft}px`;
+  piece.element.style.top = `${piece.targetTop}px`;
+  piece.element.setAttribute('aria-label', `القطعة ${piece.index + 1} في مكانها الصحيح`);
+  puzzlePlacedCount += 1;
+  puzzlePieceCount.textContent = `${puzzlePlacedCount} من ${puzzlePieces.length} قطع`;
+  puzzleFeedback.textContent = puzzlePlacedCount === puzzlePieces.length ? 'اكتملت الصورة!' : 'أحسنت! القطعة في مكانها الصحيح';
+  puzzleFeedback.className = 'puzzle-feedback correct-feedback';
+  playEncouragement('correct', 'أحسنت');
+  if (puzzlePlacedCount === puzzlePieces.length) {
+    puzzleBoard.classList.add('completed');
+    window.setTimeout(showPuzzleWin, 650);
+  }
+}
+
+function layoutPuzzle() {
+  if (puzzleGameScreen.classList.contains('hidden') || puzzleWorkspace.classList.contains('hidden')) return;
+  puzzleLayoutToken += 1;
+  const level = puzzleLevels[selectedPuzzleLevel];
+  const workspaceWidth = Math.max(260, puzzleGameScreen.clientWidth - 8);
+  const heightCap = Math.max(245, Math.min(340, window.innerHeight * 0.41));
+  const widthCap = selectedPuzzleLevel === 'two' ? 330 : 360;
+  const boardSize = Math.floor(Math.min(workspaceWidth - 18, widthCap, heightCap));
+  const cellSize = boardSize / level.cols;
+  const maps = getPuzzleEdgeMaps(level.rows, level.cols);
+  const boardLeft = (workspaceWidth - boardSize) / 2;
+  const boardTop = 0;
+  const trayTop = boardSize + 28;
+  const trayHeight = boardSize + (cellSize * 0.34);
+  const trayLeft = (workspaceWidth - boardSize) / 2;
+
+  puzzleWorkspace.style.width = `${workspaceWidth}px`;
+  puzzleWorkspace.style.height = `${trayTop + trayHeight}px`;
+  puzzleBoard.style.width = `${boardSize}px`;
+  puzzleBoard.style.height = `${boardSize}px`;
+  puzzleBoard.style.backgroundImage = `linear-gradient(rgba(255,255,255,0.82), rgba(255,255,255,0.82)), url('${activePuzzleImage.image}')`;
+  puzzleBoard.classList.remove('completed');
+  puzzleTray.style.top = `${trayTop}px`;
+  puzzleTray.style.width = `${boardSize}px`;
+  puzzleTray.style.height = `${trayHeight}px`;
+
+  clearPuzzlePieces();
+  puzzlePlacedCount = 0;
+  puzzlePieceCount.textContent = `0 من ${level.rows * level.cols} قطع`;
+
+  const pieces = [];
+  let index = 0;
+  for (let row = 0; row < level.rows; row += 1) {
+    for (let col = 0; col < level.cols; col += 1) {
+      const edges = getPieceEdges(row, col, level.rows, level.cols, maps);
+      pieces.push({
+        index,
+        row,
+        col,
+        cellSize,
+        geometry: buildPuzzlePieceGeometry(cellSize, edges),
+        placed: false,
+        element: null,
+        homeLeft: 0,
+        homeTop: 0,
+        targetLeft: 0,
+        targetTop: 0
+      });
+      index += 1;
+    }
+  }
+
+  const shuffledSlots = shuffle(pieces.map((_, slotIndex) => slotIndex));
+  pieces.forEach((piece, pieceIndex) => {
+    createPuzzleTarget(piece, boardLeft, boardTop);
+    const slotIndex = shuffledSlots[pieceIndex];
+    const slotRow = Math.floor(slotIndex / level.cols);
+    const slotCol = slotIndex % level.cols;
+    piece.homeLeft = trayLeft + (slotCol * cellSize) - piece.geometry.leftExtension;
+    piece.homeTop = trayTop + (slotRow * cellSize) - piece.geometry.topExtension + (cellSize * 0.12);
+    createPuzzlePieceElement(piece, boardSize);
+    piece.element.style.left = `${piece.homeLeft}px`;
+    piece.element.style.top = `${piece.homeTop}px`;
+  });
+  puzzlePieces = pieces;
+}
+
+function startPuzzleGame() {
+  stopPuzzleTimers();
+  clearPuzzlePieces();
+  const level = puzzleLevels[selectedPuzzleLevel];
+  puzzleGameLevelLabel.textContent = level.label;
+  puzzleImageLabel.textContent = activePuzzleImage.label;
+  puzzlePreviewImage.src = activePuzzleImage.image;
+  puzzlePreviewImage.alt = activePuzzleImage.label;
+  puzzlePieceCount.textContent = `0 من ${level.rows * level.cols} قطع`;
+  puzzleFeedback.textContent = 'شاهد الصورة أولًا ثم ابدأ التركيب';
+  puzzleFeedback.className = 'puzzle-feedback';
+  puzzleWinModal.classList.add('hidden');
+  puzzlePreviewOverlay.classList.remove('hidden');
+  puzzleWorkspace.classList.add('hidden');
+  puzzlePreviewTimer = window.setTimeout(() => {
+    puzzlePreviewOverlay.classList.add('hidden');
+    puzzleWorkspace.classList.remove('hidden');
+    puzzleFeedback.textContent = 'ركّب الصورة قطعة قطعة';
+    window.requestAnimationFrame(layoutPuzzle);
+  }, 1900);
+}
+
+function resetPuzzleGame() {
+  puzzleWinModal.classList.add('hidden');
+  startPuzzleGame();
+}
+
+function restartPuzzleGame() {
+  puzzleWinModal.classList.add('hidden');
+  if (selectedPuzzleLevel === 'one') {
+    activePuzzleImage = getNextLevelOnePuzzleImage();
+    const replacement = normalizeRouteState({
+      ...currentRouteState,
+      view: 'puzzle-game',
+      puzzleLevel: 'one',
+      puzzleImageId: activePuzzleImage.id,
+      depth: currentRouteState.depth
+    });
+    window.history.replaceState(replacement, '');
+    currentRouteState = replacement;
+  }
+  startPuzzleGame();
+}
+
+function showPuzzleWin() {
+  puzzleWinModal.classList.remove('hidden');
+  playEncouragement('win', 'رائع يا بطل، أكملت المستوى');
+  puzzlePlayAgainButton.focus();
+}
 
 function setSocialLinksExpanded(expanded) {
   if (!socialLinksToggleButton || !socialLinksSubmenu) return;
@@ -877,6 +1330,7 @@ function startQuranGame() {
   stopSpokenAudio();
   quranGameLevelLabel.textContent = quranLevels[selectedQuranLevel].label;
   quranWinModal.classList.add('hidden');
+  puzzleWinModal.classList.add('hidden');
   if (quranGameScreen.classList.contains('hidden')) showOnly(quranGameScreen);
   quranRoundQuestions = getNextQuranRound();
   quranQuestionIndex = 0;
@@ -1210,6 +1664,7 @@ function showOnly(screen) {
   winModal.classList.add('hidden');
   lettersWinModal.classList.add('hidden');
   quranWinModal.classList.add('hidden');
+  puzzleWinModal.classList.add('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1262,6 +1717,19 @@ function showQuranGame() {
   startQuranGame();
 }
 
+
+function showPuzzleLevels() {
+  headerSubtitle.textContent = 'اختر مستوى بزل عزّام';
+  showOnly(puzzleLevelScreen);
+  selectPuzzleLevel(selectedPuzzleLevel);
+}
+
+function showPuzzleGame() {
+  headerSubtitle.textContent = 'اسحب قطع البزل إلى مكانها';
+  showOnly(puzzleGameScreen);
+  startPuzzleGame();
+}
+
 function showWin() {
   finalMoves.textContent = String(moves);
   winModal.classList.remove('hidden');
@@ -1305,6 +1773,8 @@ function normalizeRouteState(state) {
     'letters-game',
     'quran-levels',
     'quran-game',
+    'puzzle-levels',
+    'puzzle-game',
     'watch-playlist',
     'watch-video'
   ]);
@@ -1316,7 +1786,9 @@ function normalizeRouteState(state) {
     playlistKey: typeof candidate.playlistKey === 'string' ? candidate.playlistKey : '',
     videoId: typeof candidate.videoId === 'string' ? candidate.videoId : '',
     videoIndex: Number.isInteger(candidate.videoIndex) ? candidate.videoIndex : 0,
-    videoTitle: typeof candidate.videoTitle === 'string' ? candidate.videoTitle : ''
+    videoTitle: typeof candidate.videoTitle === 'string' ? candidate.videoTitle : '',
+    puzzleLevel: puzzleLevels[candidate.puzzleLevel] ? candidate.puzzleLevel : 'one',
+    puzzleImageId: typeof candidate.puzzleImageId === 'string' ? candidate.puzzleImageId : ''
   };
 }
 
@@ -1349,6 +1821,13 @@ function applyRouteState(rawState) {
       break;
     case 'quran-game':
       showQuranGame();
+      break;
+    case 'puzzle-levels':
+      showPuzzleLevels();
+      break;
+    case 'puzzle-game':
+      setActivePuzzle(state.puzzleLevel, state.puzzleImageId);
+      showPuzzleGame();
       break;
     case 'watch-playlist':
       showWatchMenu();
@@ -1438,6 +1917,7 @@ watchMenuHomeButton.addEventListener('click', () => navigateBack({ view: 'home' 
 memoryGameCard.addEventListener('click', () => navigateToRoute({ view: 'memory-levels' }));
 lettersGameCard.addEventListener('click', () => navigateToRoute({ view: 'letters-levels' }));
 quranGameCard.addEventListener('click', () => navigateToRoute({ view: 'quran-levels' }));
+puzzleGameCard.addEventListener('click', () => navigateToRoute({ view: 'puzzle-levels' }));
 levelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 levelButtons.forEach((button) => button.addEventListener('click', () => {
   selectLevel(button.dataset.level);
@@ -1479,6 +1959,45 @@ quranPlayAgainButton.addEventListener('click', (event) => {
   restartQuranGame();
 });
 quranHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+
+puzzleLevelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+puzzleLevelButtons.forEach((button) => button.addEventListener('click', () => {
+  const levelName = button.dataset.puzzleLevel;
+  selectPuzzleLevel(levelName);
+  if (levelName === 'one') {
+    activePuzzleImage = getNextLevelOnePuzzleImage();
+    navigateToRoute({
+      view: 'puzzle-game',
+      puzzleLevel: 'one',
+      puzzleImageId: activePuzzleImage.id
+    }, { replace: true });
+  }
+}));
+puzzleImageButtons.forEach((button) => button.addEventListener('click', () => {
+  const image = findPuzzleImage('two', button.dataset.puzzleImage);
+  if (!image) return;
+  activePuzzleImage = image;
+  selectedPuzzleLevel = 'two';
+  navigateToRoute({
+    view: 'puzzle-game',
+    puzzleLevel: 'two',
+    puzzleImageId: image.id
+  }, { replace: true });
+}));
+puzzleBackButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+puzzleResetButton.addEventListener('click', resetPuzzleGame);
+puzzlePlayAgainButton.addEventListener('click', (event) => {
+  event.preventDefault();
+  restartPuzzleGame();
+});
+puzzleLevelsButton.addEventListener('click', () => navigateToRoute({ view: 'puzzle-levels' }, { replace: true }));
+puzzleHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+window.addEventListener('resize', () => {
+  if (puzzleGameScreen.classList.contains('hidden') || puzzleWorkspace.classList.contains('hidden')) return;
+  if (puzzleResizeTimer) window.clearTimeout(puzzleResizeTimer);
+  puzzleResizeTimer = window.setTimeout(layoutPuzzle, 180);
+});
+
 
 playlistButtons.forEach((button) => button.addEventListener('click', () => navigateToRoute({
   view: 'watch-playlist',

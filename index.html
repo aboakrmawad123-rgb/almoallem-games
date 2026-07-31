@@ -185,6 +185,201 @@
       .quran-option { min-height: 72px; }
     }
 
+
+    .puzzle-preview-card {
+      position: relative;
+      min-height: 118px;
+      overflow: hidden;
+      border-radius: 22px;
+      background: #e8f5fb;
+    }
+    .puzzle-preview-card img {
+      width: 100%;
+      height: 118px;
+      object-fit: cover;
+      display: block;
+    }
+    .puzzle-preview-card::after {
+      content: "🧩";
+      position: absolute;
+      inset: auto 10px 10px auto;
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.92);
+      font-size: 1.55rem;
+      box-shadow: 0 5px 14px rgba(20, 92, 127, 0.2);
+    }
+    .puzzle-level-hero {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .puzzle-level-hero img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 20px;
+      border: 3px solid #fff;
+      box-shadow: 0 7px 18px rgba(26, 109, 150, 0.16);
+    }
+    .puzzle-image-picker {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 2px dashed rgba(33, 150, 243, 0.22);
+    }
+    .puzzle-image-picker.hidden { display: none !important; }
+    .puzzle-image-picker h3 {
+      margin: 0 0 5px;
+      color: #245d7c;
+      text-align: center;
+    }
+    .puzzle-image-picker > p {
+      margin: 0 0 12px;
+      text-align: center;
+      color: #5c7481;
+    }
+    .puzzle-choice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .puzzle-choice-button {
+      overflow: hidden;
+      padding: 0;
+      border: 3px solid rgba(33, 150, 243, 0.2);
+      border-radius: 20px;
+      background: #fff;
+      color: #174f70;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 7px 16px rgba(31, 109, 149, 0.1);
+    }
+    .puzzle-choice-button:active { transform: scale(0.985); }
+    .puzzle-choice-button img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+    .puzzle-choice-button span {
+      display: block;
+      padding: 9px 8px 11px;
+    }
+    .puzzle-game-panel { overflow: visible; }
+    .puzzle-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 10px 0 12px;
+      font-weight: 800;
+      color: #176c9f;
+    }
+    .puzzle-instruction {
+      margin: 0 0 10px;
+      text-align: center;
+      font-weight: 800;
+      color: #42677a;
+    }
+    .puzzle-preview-overlay {
+      display: grid;
+      place-items: center;
+      gap: 10px;
+      margin: 0 auto 12px;
+      padding: 12px;
+      border: 2px dashed rgba(33, 150, 243, 0.3);
+      border-radius: 24px;
+      background: rgba(229, 248, 255, 0.72);
+      text-align: center;
+    }
+    .puzzle-preview-overlay.hidden { display: none !important; }
+    .puzzle-preview-overlay img {
+      display: block;
+      width: min(100%, 360px);
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 18px;
+      box-shadow: 0 8px 20px rgba(22, 101, 140, 0.18);
+    }
+    .puzzle-preview-overlay strong { color: #1d709d; }
+    .puzzle-workspace {
+      position: relative;
+      width: 100%;
+      margin: 0 auto;
+      touch-action: none;
+      user-select: none;
+    }
+    .puzzle-workspace.hidden { display: none !important; }
+    .puzzle-board {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      overflow: visible;
+      transform: translateX(-50%);
+      border: 4px solid #fff;
+      border-radius: 20px;
+      background-color: #eef8fc;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+      box-shadow: 0 10px 24px rgba(24, 104, 145, 0.16), 0 0 0 2px rgba(33, 150, 243, 0.25);
+    }
+    .puzzle-board.completed {
+      box-shadow: 0 10px 28px rgba(27, 139, 85, 0.24), 0 0 0 4px rgba(54, 178, 104, 0.35);
+    }
+    .puzzle-target-piece {
+      position: absolute;
+      overflow: visible;
+      pointer-events: none;
+    }
+    .puzzle-tray {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 2px dashed rgba(33, 150, 243, 0.24);
+      border-radius: 22px;
+      background: rgba(232, 248, 255, 0.58);
+    }
+    .puzzle-piece {
+      position: absolute;
+      z-index: 5;
+      overflow: visible;
+      cursor: grab;
+      touch-action: none;
+      filter: drop-shadow(0 5px 5px rgba(21, 72, 98, 0.22));
+      transition: left 210ms ease, top 210ms ease, filter 160ms ease, opacity 160ms ease;
+    }
+    .puzzle-piece.dragging {
+      z-index: 20;
+      cursor: grabbing;
+      filter: drop-shadow(0 10px 8px rgba(15, 68, 97, 0.3));
+      transition: none;
+    }
+    .puzzle-piece.placed {
+      z-index: 8;
+      cursor: default;
+      filter: none;
+    }
+    .puzzle-feedback {
+      min-height: 30px;
+      margin: 12px 0 4px;
+      text-align: center;
+      font-weight: 900;
+      color: #37657d;
+    }
+    .puzzle-feedback.correct-feedback { color: #188244; }
+    .puzzle-feedback.wrong-feedback { color: #bd3636; }
+    .puzzle-reset-button { margin-top: 8px; }
+    @media (min-width: 680px) {
+      .puzzle-choice-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .puzzle-level-hero { max-width: 500px; margin-inline: auto; }
+    }
+
   </style>
 </head>
 <body>
@@ -204,7 +399,7 @@
     <section id="home-screen" class="panel home-panel" aria-label="الواجهة الرئيسية">
       <div class="welcome-row">
         <div>
-          <span class="welcome-badge">الإصدار العشرون</span>
+          <span class="welcome-badge">الإصدار الثلاثون</span>
           <h2>ماذا تريد أن تفعل اليوم؟</h2>
           <p>اختر قسم الألعاب أو قسم المشاهدة والتعلّم.</p>
         </div>
@@ -284,6 +479,18 @@
             <span class="game-status">المستويان الأول والثاني متاحان</span>
             <strong>آيات من جزء عم</strong>
             <small>اقرأ الآية واختر اسم السورة الصحيح</small>
+          </span>
+          <span class="game-arrow" aria-hidden="true">←</span>
+        </button>
+
+        <button id="puzzle-game-card" class="game-choice available" type="button">
+          <span class="game-preview puzzle-preview-card" aria-hidden="true">
+            <img src="puzzle-cat.webp" alt="">
+          </span>
+          <span class="game-copy">
+            <span class="game-status">مستويان متاحان</span>
+            <strong>بزل عزّام</strong>
+            <small>اسحب قطع البزل الحقيقية وضعها في مكانها الصحيح</small>
           </span>
           <span class="game-arrow" aria-hidden="true">←</span>
         </button>
@@ -469,6 +676,74 @@
     </section>
 
 
+    <section id="puzzle-level-screen" class="panel start-panel hidden" aria-labelledby="puzzle-level-title">
+      <div class="screen-heading">
+        <button id="puzzle-level-home-button" class="mini-back-button" type="button" aria-label="العودة إلى الألعاب">←</button>
+        <div><p class="screen-kicker">بزل عزّام</p><h2 id="puzzle-level-title">اختر المستوى</h2></div>
+      </div>
+      <div class="puzzle-level-hero" aria-hidden="true">
+        <img src="puzzle-cat.webp" alt=""><img src="puzzle-books.webp" alt="">
+      </div>
+      <p>اضغط على المستوى. قطع اللعبة بشكل بزل حقيقي وليست مربعات.</p>
+      <div class="level-picker" aria-label="اختيار مستوى البزل">
+        <button class="level-card puzzle-level-card selected" type="button" data-puzzle-level="one" aria-pressed="true">
+          <span class="level-icon">🧩</span><strong>المستوى الأول</strong><small>صورتان بالتناوب · 4 قطع سهلة</small>
+        </button>
+        <button class="level-card puzzle-level-card" type="button" data-puzzle-level="two" aria-pressed="false">
+          <span class="level-icon">🏆</span><strong>المستوى الثاني</strong><small>اختر من 4 صور · 9 قطع</small>
+        </button>
+        <button class="level-card locked" type="button" disabled>
+          <span class="level-icon">⭐</span><strong>المستوى الثالث</strong><small>قريبًا</small>
+        </button>
+      </div>
+
+      <div id="puzzle-image-picker" class="puzzle-image-picker hidden" aria-labelledby="puzzle-image-picker-title">
+        <h3 id="puzzle-image-picker-title">اختر الصورة التي تريد تركيبها</h3>
+        <p>كل صورة تتكوّن من 9 قطع بزل.</p>
+        <div class="puzzle-choice-grid">
+          <button class="puzzle-choice-button" type="button" data-puzzle-image="toys">
+            <img src="puzzle-toys.webp" alt="عزّام يرتب ألعابه"><span>ترتيب الألعاب</span>
+          </button>
+          <button class="puzzle-choice-button" type="button" data-puzzle-image="trash">
+            <img src="puzzle-trash.webp" alt="عزّام يضع القمامة في السلة"><span>النظافة</span>
+          </button>
+          <button class="puzzle-choice-button" type="button" data-puzzle-image="elder">
+            <img src="puzzle-elder.webp" alt="عزّام يساعد رجلًا كبيرًا"><span>مساعدة الكبير</span>
+          </button>
+          <button class="puzzle-choice-button" type="button" data-puzzle-image="books">
+            <img src="puzzle-books.webp" alt="عزّام يساعد طفلًا بجمع الكتب"><span>مساعدة الصغير</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="puzzle-game-screen" class="panel puzzle-game-panel hidden" aria-label="لعبة بزل عزّام">
+      <div class="game-title-row">
+        <button id="puzzle-back-button" class="mini-back-button" type="button" aria-label="العودة إلى مستويات البزل">←</button>
+        <div><p id="puzzle-game-level-label" class="screen-kicker">المستوى الأول</p><h2>بزل عزّام</h2></div>
+      </div>
+
+      <div class="puzzle-status-row">
+        <span id="puzzle-piece-count">0 من 4 قطع</span>
+        <span id="puzzle-image-label">إطعام القطة</span>
+      </div>
+      <p class="puzzle-instruction">اسحب كل قطعة إلى مكانها الصحيح، وعندما تقترب ستثبت تلقائيًا.</p>
+
+      <div id="puzzle-preview-overlay" class="puzzle-preview-overlay hidden" aria-live="polite">
+        <strong>تذكّر الصورة جيدًا...</strong>
+        <img id="puzzle-preview-image" src="puzzle-cat.webp" alt="الصورة الكاملة قبل بدء البزل">
+      </div>
+
+      <div id="puzzle-workspace" class="puzzle-workspace hidden" aria-label="منطقة تركيب البزل">
+        <div id="puzzle-board" class="puzzle-board" aria-label="مكان تركيب الصورة"></div>
+        <div id="puzzle-tray" class="puzzle-tray" aria-label="قطع البزل غير المرتبة"></div>
+      </div>
+
+      <p id="puzzle-feedback" class="puzzle-feedback" aria-live="assertive">ركّب الصورة قطعة قطعة</p>
+      <button id="puzzle-reset-button" class="secondary-button puzzle-reset-button" type="button">إعادة ترتيب القطع</button>
+    </section>
+
+
 
 
 
@@ -566,6 +841,19 @@
     </div>
   </div>
 
-  <script src="script.js?v=29"></script>
+
+  <div id="puzzle-win-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="puzzle-win-title">
+    <div class="modal-card">
+      <div class="stars" aria-hidden="true">⭐ 🧩 ⭐</div>
+      <h2 id="puzzle-win-title">رائع يا بطل!</h2>
+      <p>اكتملت صورة عزّام بنجاح.</p>
+      <div class="celebration-fruits" aria-hidden="true">👏 🌟 👏</div>
+      <button id="puzzle-play-again-button" class="primary-button" type="button">العب مرة أخرى</button>
+      <button id="puzzle-levels-button" class="text-button" type="button">اختيار مستوى أو صورة أخرى</button>
+      <button id="puzzle-home-button" class="text-button" type="button">العودة إلى جميع الألعاب</button>
+    </div>
+  </div>
+
+  <script src="script.js?v=30"></script>
 </body>
 </html>
