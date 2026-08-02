@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v31-puzzle-scroll-fix';
+const CACHE_NAME = 'almoallem-v32-letter-hunt';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=31',
+  './script.js?v=32',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
@@ -42,7 +42,8 @@ const APP_SHELL = [
   './audio/hawel.wav',
   './audio/win.wav',
   './audio/mashallah.wav',
-  './audio/quran-level-complete.wav'
+  './audio/quran-level-complete.wav',
+  './audio/letter-hunt-lose.wav'
 ];
 
 self.addEventListener('install', (event) => {

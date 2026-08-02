@@ -299,6 +299,37 @@ const puzzleLevels = {
   }
 };
 
+
+
+const letterHuntLevels = {
+  one: {
+    label: 'المستوى الأول',
+    goal: 10,
+    spawnInterval: 940,
+    speedMin: 72,
+    speedMax: 100,
+    targetChance: 0.43,
+    targetPool: ['أ', 'ب', 'د', 'س', 'م', 'ن', 'و', 'ك'],
+    letterPool: ['أ', 'ب', 'د', 'س', 'م', 'ن', 'و', 'ك', 'ر', 'ل']
+  },
+  two: {
+    label: 'المستوى الثاني',
+    goal: 15,
+    spawnInterval: 730,
+    speedMin: 105,
+    speedMax: 148,
+    targetChance: 0.38,
+    targetPool: ['ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'س', 'ش', 'د', 'ذ'],
+    letterPool: ['ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'س', 'ش', 'د', 'ذ'],
+    similarGroups: [
+      ['ب', 'ت', 'ث'],
+      ['ج', 'ح', 'خ'],
+      ['س', 'ش'],
+      ['د', 'ذ']
+    ]
+  }
+};
+
 const videoPlaylists = {
   'juz-amma': {
     title: 'جزء عم',
@@ -325,7 +356,9 @@ const quranLevelScreen = document.querySelector('#quran-level-screen');
 const quranGameScreen = document.querySelector('#quran-game-screen');
 const puzzleLevelScreen = document.querySelector('#puzzle-level-screen');
 const puzzleGameScreen = document.querySelector('#puzzle-game-screen');
-const allScreens = [homeScreen, gamesMenuScreen, watchMenuScreen, levelScreen, gameScreen, lettersLevelScreen, lettersGameScreen, quranLevelScreen, quranGameScreen, puzzleLevelScreen, puzzleGameScreen];
+const letterHuntLevelScreen = document.querySelector('#letter-hunt-level-screen');
+const letterHuntGameScreen = document.querySelector('#letter-hunt-game-screen');
+const allScreens = [homeScreen, gamesMenuScreen, watchMenuScreen, levelScreen, gameScreen, lettersLevelScreen, lettersGameScreen, quranLevelScreen, quranGameScreen, puzzleLevelScreen, puzzleGameScreen, letterHuntLevelScreen, letterHuntGameScreen];
 
 const openGamesSectionButton = document.querySelector('#open-games-section');
 const openWatchSectionButton = document.querySelector('#open-watch-section');
@@ -337,6 +370,7 @@ const memoryGameCard = document.querySelector('#memory-game-card');
 const lettersGameCard = document.querySelector('#letters-game-card');
 const quranGameCard = document.querySelector('#quran-game-card');
 const puzzleGameCard = document.querySelector('#puzzle-game-card');
+const letterHuntGameCard = document.querySelector('#letter-hunt-game-card');
 const levelHomeButton = document.querySelector('#level-home-button');
 const levelButtons = [...document.querySelectorAll('.level-card[data-level]')];
 const startButton = document.querySelector('#start-button');
@@ -408,6 +442,29 @@ const puzzleLevelsButton = document.querySelector('#puzzle-levels-button');
 const puzzleHomeButton = document.querySelector('#puzzle-home-button');
 
 
+
+
+const letterHuntLevelHomeButton = document.querySelector('#letter-hunt-level-home-button');
+const letterHuntLevelButtons = [...document.querySelectorAll('.letter-hunt-level-card[data-letter-hunt-level]')];
+const letterHuntBackButton = document.querySelector('#letter-hunt-back-button');
+const letterHuntGameLevelLabel = document.querySelector('#letter-hunt-game-level-label');
+const letterHuntScore = document.querySelector('#letter-hunt-score');
+const letterHuntLives = document.querySelector('#letter-hunt-lives');
+const letterHuntTarget = document.querySelector('#letter-hunt-target');
+const letterHuntField = document.querySelector('#letter-hunt-field');
+const letterHuntLettersLayer = document.querySelector('#letter-hunt-letters-layer');
+const letterHuntBasket = document.querySelector('#letter-hunt-basket');
+const letterHuntFeedback = document.querySelector('#letter-hunt-feedback');
+const letterHuntResetButton = document.querySelector('#letter-hunt-reset-button');
+const letterHuntWinModal = document.querySelector('#letter-hunt-win-modal');
+const letterHuntWinText = document.querySelector('#letter-hunt-win-text');
+const letterHuntPlayAgainButton = document.querySelector('#letter-hunt-play-again-button');
+const letterHuntHomeButton = document.querySelector('#letter-hunt-home-button');
+const letterHuntLoseModal = document.querySelector('#letter-hunt-lose-modal');
+const letterHuntLoseText = document.querySelector('#letter-hunt-lose-text');
+const letterHuntTryAgainButton = document.querySelector('#letter-hunt-try-again-button');
+const letterHuntLoseHomeButton = document.querySelector('#letter-hunt-lose-home-button');
+
 const playlistPicker = document.querySelector('#playlist-picker');
 const playlistButtons = [...document.querySelectorAll('.playlist-card[data-playlist]')];
 const videoBrowserSection = document.querySelector('#video-browser-section');
@@ -459,7 +516,8 @@ const SPOKEN_AUDIO_PATHS = {
   'رائع يا بطل، أنهيت المستوى': './audio/win.wav',
   'رائع يا بطل، أكملت المستوى': './audio/win.wav',
   'ما شاء الله': './audio/mashallah.wav',
-  'ما شاء الله، زادك الله حبًّا وحفظًا للقرآن': './audio/quran-level-complete.wav'
+  'ما شاء الله، زادك الله حبًّا وحفظًا للقرآن': './audio/quran-level-complete.wav',
+  'انتهت المحاولات، حاول مرة أخرى': './audio/letter-hunt-lose.wav'
 };
 const spokenAudioCache = new Map();
 let activeSpokenAudio = null;
@@ -593,6 +651,307 @@ let puzzlePlacedCount = 0;
 let puzzlePreviewTimer = null;
 let puzzleResizeTimer = null;
 let puzzleLayoutToken = 0;
+
+
+
+let selectedLetterHuntLevel = 'one';
+let letterHuntRunning = false;
+let letterHuntAnimationFrame = null;
+let letterHuntLastFrame = 0;
+let letterHuntNextSpawnAt = 0;
+let letterHuntFallingLetters = [];
+let letterHuntScoreValue = 0;
+let letterHuntLivesValue = 3;
+let letterHuntTargetValue = '';
+let letterHuntLastTarget = '';
+let letterHuntBasketX = 0;
+let letterHuntSpawnsSinceTarget = 0;
+let letterHuntFeedbackTimer = null;
+let letterHuntResizeTimer = null;
+
+function selectLetterHuntLevel(levelName) {
+  if (!letterHuntLevels[levelName]) return;
+  selectedLetterHuntLevel = levelName;
+  letterHuntLevelButtons.forEach((button) => {
+    const selected = button.dataset.letterHuntLevel === selectedLetterHuntLevel;
+    button.classList.toggle('selected', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  });
+}
+
+function chooseLetterHuntTarget() {
+  const pool = letterHuntLevels[selectedLetterHuntLevel].targetPool;
+  const choices = pool.filter((letter) => letter !== letterHuntLastTarget);
+  const source = choices.length ? choices : pool;
+  letterHuntTargetValue = source[Math.floor(Math.random() * source.length)];
+  letterHuntLastTarget = letterHuntTargetValue;
+  letterHuntSpawnsSinceTarget = 0;
+  letterHuntTarget.textContent = letterHuntTargetValue;
+}
+
+function updateLetterHuntHud() {
+  const level = letterHuntLevels[selectedLetterHuntLevel];
+  letterHuntGameLevelLabel.textContent = level.label;
+  letterHuntScore.textContent = `⭐ ${letterHuntScoreValue} / ${level.goal}`;
+  letterHuntLives.textContent = `${'❤️ '.repeat(letterHuntLivesValue)}${'🤍 '.repeat(Math.max(0, 3 - letterHuntLivesValue))}`.trim();
+  letterHuntLives.setAttribute('aria-label', `${letterHuntLivesValue} محاولات متبقية`);
+}
+
+function clearLetterHuntFeedbackTimer() {
+  if (letterHuntFeedbackTimer) window.clearTimeout(letterHuntFeedbackTimer);
+  letterHuntFeedbackTimer = null;
+}
+
+function setLetterHuntFeedback(message, type = '') {
+  clearLetterHuntFeedbackTimer();
+  letterHuntFeedback.textContent = message;
+  letterHuntFeedback.className = `letter-hunt-feedback${type ? ` ${type}-feedback` : ''}`;
+  if (letterHuntRunning && type) {
+    letterHuntFeedbackTimer = window.setTimeout(() => {
+      if (!letterHuntRunning) return;
+      letterHuntFeedback.textContent = `اصطد حرف ${letterHuntTargetValue}`;
+      letterHuntFeedback.className = 'letter-hunt-feedback';
+    }, 900);
+  }
+}
+
+function clearLetterHuntLetters() {
+  letterHuntFallingLetters.forEach((item) => item.element.remove());
+  letterHuntFallingLetters = [];
+  letterHuntLettersLayer.replaceChildren();
+}
+
+function stopLetterHuntGame(options = {}) {
+  letterHuntRunning = false;
+  if (letterHuntAnimationFrame) cancelAnimationFrame(letterHuntAnimationFrame);
+  letterHuntAnimationFrame = null;
+  letterHuntLastFrame = 0;
+  if (letterHuntResizeTimer) window.clearTimeout(letterHuntResizeTimer);
+  letterHuntResizeTimer = null;
+  clearLetterHuntFeedbackTimer();
+  if (options.clear !== false) clearLetterHuntLetters();
+}
+
+function positionLetterHuntBasket(nextX) {
+  const fieldWidth = letterHuntField.clientWidth;
+  const basketWidth = letterHuntBasket.offsetWidth || 104;
+  const maxX = Math.max(0, fieldWidth - basketWidth);
+  letterHuntBasketX = Math.max(0, Math.min(maxX, nextX));
+  letterHuntBasket.style.transform = `translate3d(${letterHuntBasketX}px, 0, 0)`;
+  const percent = maxX > 0 ? Math.round((letterHuntBasketX / maxX) * 100) : 50;
+  letterHuntBasket.setAttribute('aria-valuenow', String(percent));
+}
+
+function centerLetterHuntBasket() {
+  const maxX = Math.max(0, letterHuntField.clientWidth - (letterHuntBasket.offsetWidth || 104));
+  positionLetterHuntBasket(maxX / 2);
+}
+
+function getLetterHuntDistractors() {
+  const level = letterHuntLevels[selectedLetterHuntLevel];
+  if (level.similarGroups) {
+    const group = level.similarGroups.find((items) => items.includes(letterHuntTargetValue));
+    if (group && Math.random() < 0.78) {
+      const similar = group.filter((letter) => letter !== letterHuntTargetValue);
+      if (similar.length) return similar;
+    }
+  }
+  return level.letterPool.filter((letter) => letter !== letterHuntTargetValue);
+}
+
+function spawnLetterHuntLetter(timestamp) {
+  if (!letterHuntRunning) return;
+  const level = letterHuntLevels[selectedLetterHuntLevel];
+  const forceTarget = letterHuntSpawnsSinceTarget >= 4;
+  const isTarget = forceTarget || Math.random() < level.targetChance;
+  const distractors = getLetterHuntDistractors();
+  const letter = isTarget
+    ? letterHuntTargetValue
+    : distractors[Math.floor(Math.random() * distractors.length)];
+  const size = selectedLetterHuntLevel === 'one'
+    ? 58 + Math.floor(Math.random() * 8)
+    : 52 + Math.floor(Math.random() * 9);
+  const maxX = Math.max(0, letterHuntField.clientWidth - size - 8);
+  const element = document.createElement('span');
+  element.className = `falling-letter tone-${1 + Math.floor(Math.random() * 4)}`;
+  element.textContent = letter;
+  element.style.width = `${size}px`;
+  element.style.height = `${size}px`;
+  letterHuntLettersLayer.appendChild(element);
+  const item = {
+    element,
+    letter,
+    isTarget,
+    size,
+    x: 4 + Math.random() * maxX,
+    y: -size - 8,
+    speed: level.speedMin + Math.random() * (level.speedMax - level.speedMin)
+  };
+  element.style.transform = `translate3d(${item.x}px, ${item.y}px, 0)`;
+  letterHuntFallingLetters.push(item);
+  letterHuntSpawnsSinceTarget = isTarget ? 0 : letterHuntSpawnsSinceTarget + 1;
+  const jitter = (Math.random() * 160) - 80;
+  letterHuntNextSpawnAt = timestamp + level.spawnInterval + jitter;
+}
+
+function animateLetterHuntBasket(className) {
+  letterHuntBasket.classList.remove('basket-pop', 'basket-shake');
+  void letterHuntBasket.offsetWidth;
+  letterHuntBasket.classList.add(className);
+  window.setTimeout(() => letterHuntBasket.classList.remove(className), 420);
+}
+
+function removeLetterHuntItem(index) {
+  const [item] = letterHuntFallingLetters.splice(index, 1);
+  if (item) item.element.remove();
+  return item;
+}
+
+function finishLetterHuntGame(won) {
+  stopLetterHuntGame();
+  if (won) {
+    const level = letterHuntLevels[selectedLetterHuntLevel];
+    letterHuntWinText.textContent = `جمعت ${level.goal} حروف صحيحة وأنهيت ${level.label} بنجاح.`;
+    letterHuntWinModal.classList.remove('hidden');
+    playEncouragement('win', 'رائع يا بطل، أنهيت المستوى');
+    letterHuntPlayAgainButton.focus();
+    return;
+  }
+  letterHuntLoseText.textContent = `جمعت ${letterHuntScoreValue} حروف صحيحة. لا بأس، جرّب من جديد وانتبه إلى الحرف المطلوب.`;
+  letterHuntLoseModal.classList.remove('hidden');
+  playEncouragement('wrong', 'انتهت المحاولات، حاول مرة أخرى');
+  letterHuntTryAgainButton.focus();
+}
+
+function handleLetterHuntCatch(index) {
+  const item = removeLetterHuntItem(index);
+  if (!item || !letterHuntRunning) return;
+
+  if (item.letter === letterHuntTargetValue) {
+    letterHuntScoreValue += 1;
+    updateLetterHuntHud();
+    animateLetterHuntBasket('basket-pop');
+    const praises = ['أحسنت', 'رائع', 'ممتاز يا بطل'];
+    playEncouragement('correct', praises[Math.floor(Math.random() * praises.length)]);
+    setLetterHuntFeedback('أحسنت! التقطت الحرف الصحيح', 'correct');
+    clearLetterHuntLetters();
+    if (letterHuntScoreValue >= letterHuntLevels[selectedLetterHuntLevel].goal) {
+      letterHuntRunning = false;
+      if (letterHuntAnimationFrame) cancelAnimationFrame(letterHuntAnimationFrame);
+      letterHuntAnimationFrame = null;
+      window.setTimeout(() => finishLetterHuntGame(true), 260);
+      return;
+    }
+    chooseLetterHuntTarget();
+    updateLetterHuntHud();
+    letterHuntNextSpawnAt = performance.now() + 620;
+    return;
+  }
+
+  letterHuntLivesValue -= 1;
+  updateLetterHuntHud();
+  animateLetterHuntBasket('basket-shake');
+  if (letterHuntLivesValue <= 0) {
+    letterHuntRunning = false;
+    if (letterHuntAnimationFrame) cancelAnimationFrame(letterHuntAnimationFrame);
+    letterHuntAnimationFrame = null;
+    setLetterHuntFeedback('انتهت المحاولات', 'wrong');
+    window.setTimeout(() => finishLetterHuntGame(false), 220);
+    return;
+  }
+  playEncouragement('wrong', 'حاول مرة أخرى');
+  setLetterHuntFeedback(`هذا حرف ${item.letter}، المطلوب حرف ${letterHuntTargetValue}`, 'wrong');
+}
+
+function letterHuntLoop(timestamp) {
+  if (!letterHuntRunning) return;
+  if (!letterHuntLastFrame) letterHuntLastFrame = timestamp;
+  const delta = Math.min(0.045, (timestamp - letterHuntLastFrame) / 1000);
+  letterHuntLastFrame = timestamp;
+
+  if (timestamp >= letterHuntNextSpawnAt) spawnLetterHuntLetter(timestamp);
+
+  const fieldHeight = letterHuntField.clientHeight;
+  const basketTop = letterHuntBasket.offsetTop;
+  const basketWidth = letterHuntBasket.offsetWidth || 104;
+  const basketHeight = letterHuntBasket.offsetHeight || 72;
+
+  for (let index = letterHuntFallingLetters.length - 1; index >= 0; index -= 1) {
+    const item = letterHuntFallingLetters[index];
+    item.y += item.speed * delta;
+    item.element.style.transform = `translate3d(${item.x}px, ${item.y}px, 0)`;
+
+    const itemBottom = item.y + item.size;
+    const horizontalHit = item.x + (item.size * 0.78) >= letterHuntBasketX
+      && item.x + (item.size * 0.22) <= letterHuntBasketX + basketWidth;
+    const verticalHit = itemBottom >= basketTop + 12 && item.y <= basketTop + basketHeight - 8;
+    if (horizontalHit && verticalHit) {
+      const caughtTarget = item.letter === letterHuntTargetValue;
+      handleLetterHuntCatch(index);
+      if (!letterHuntRunning) return;
+      if (caughtTarget) {
+        letterHuntAnimationFrame = requestAnimationFrame(letterHuntLoop);
+        return;
+      }
+      continue;
+    }
+    if (item.y > fieldHeight + 12) removeLetterHuntItem(index);
+  }
+
+  letterHuntAnimationFrame = requestAnimationFrame(letterHuntLoop);
+}
+
+function startLetterHuntGame() {
+  stopSpokenAudio();
+  stopLetterHuntGame();
+  letterHuntWinModal.classList.add('hidden');
+  letterHuntLoseModal.classList.add('hidden');
+  letterHuntScoreValue = 0;
+  letterHuntLivesValue = 3;
+  letterHuntSpawnsSinceTarget = 0;
+  chooseLetterHuntTarget();
+  updateLetterHuntHud();
+  setLetterHuntFeedback(`اصطد حرف ${letterHuntTargetValue}`);
+  letterHuntRunning = true;
+  letterHuntLastFrame = 0;
+  letterHuntNextSpawnAt = performance.now() + 450;
+  ensureAudioContext();
+  requestAnimationFrame(() => {
+    centerLetterHuntBasket();
+    if (letterHuntRunning) letterHuntAnimationFrame = requestAnimationFrame(letterHuntLoop);
+  });
+}
+
+function restartLetterHuntGame() {
+  startLetterHuntGame();
+}
+
+function beginLetterHuntBasketDrag(event) {
+  if (!letterHuntRunning) return;
+  event.preventDefault();
+  ensureAudioContext();
+  const fieldRect = letterHuntField.getBoundingClientRect();
+  const pointerId = event.pointerId;
+  const offsetX = event.clientX - fieldRect.left - letterHuntBasketX;
+  letterHuntBasket.setPointerCapture(pointerId);
+
+  const move = (moveEvent) => {
+    if (moveEvent.pointerId !== pointerId) return;
+    moveEvent.preventDefault();
+    const rect = letterHuntField.getBoundingClientRect();
+    positionLetterHuntBasket(moveEvent.clientX - rect.left - offsetX);
+  };
+  const end = (endEvent) => {
+    if (endEvent.pointerId !== pointerId) return;
+    letterHuntBasket.removeEventListener('pointermove', move);
+    letterHuntBasket.removeEventListener('pointerup', end);
+    letterHuntBasket.removeEventListener('pointercancel', end);
+  };
+  letterHuntBasket.addEventListener('pointermove', move);
+  letterHuntBasket.addEventListener('pointerup', end);
+  letterHuntBasket.addEventListener('pointercancel', end);
+}
+
 
 let requestedPlaylistKey = null;
 let activePlaylistKey = null;
@@ -1659,12 +2018,15 @@ function playSingleVideoNow(playlistKey, videoId, index, resolvedTitle = '') {
 
 function showOnly(screen) {
   if (screen !== watchMenuScreen) closeVideoBrowser();
+  if (screen !== letterHuntGameScreen) stopLetterHuntGame();
   allScreens.forEach((item) => item.classList.add('hidden'));
   screen.classList.remove('hidden');
   winModal.classList.add('hidden');
   lettersWinModal.classList.add('hidden');
   quranWinModal.classList.add('hidden');
   puzzleWinModal.classList.add('hidden');
+  letterHuntWinModal.classList.add('hidden');
+  letterHuntLoseModal.classList.add('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1730,6 +2092,20 @@ function showPuzzleGame() {
   startPuzzleGame();
 }
 
+
+
+function showLetterHuntLevels() {
+  headerSubtitle.textContent = 'اختر مستوى صيد الحرف';
+  showOnly(letterHuntLevelScreen);
+  selectLetterHuntLevel(selectedLetterHuntLevel);
+}
+
+function showLetterHuntGame() {
+  headerSubtitle.textContent = 'حرّك السلة والتقط الحرف المطلوب';
+  showOnly(letterHuntGameScreen);
+  startLetterHuntGame();
+}
+
 function showWin() {
   finalMoves.textContent = String(moves);
   winModal.classList.remove('hidden');
@@ -1775,6 +2151,8 @@ function normalizeRouteState(state) {
     'quran-game',
     'puzzle-levels',
     'puzzle-game',
+    'letter-hunt-levels',
+    'letter-hunt-game',
     'watch-playlist',
     'watch-video'
   ]);
@@ -1788,7 +2166,8 @@ function normalizeRouteState(state) {
     videoIndex: Number.isInteger(candidate.videoIndex) ? candidate.videoIndex : 0,
     videoTitle: typeof candidate.videoTitle === 'string' ? candidate.videoTitle : '',
     puzzleLevel: puzzleLevels[candidate.puzzleLevel] ? candidate.puzzleLevel : 'one',
-    puzzleImageId: typeof candidate.puzzleImageId === 'string' ? candidate.puzzleImageId : ''
+    puzzleImageId: typeof candidate.puzzleImageId === 'string' ? candidate.puzzleImageId : '',
+    letterHuntLevel: letterHuntLevels[candidate.letterHuntLevel] ? candidate.letterHuntLevel : 'one'
   };
 }
 
@@ -1828,6 +2207,13 @@ function applyRouteState(rawState) {
     case 'puzzle-game':
       setActivePuzzle(state.puzzleLevel, state.puzzleImageId);
       showPuzzleGame();
+      break;
+    case 'letter-hunt-levels':
+      showLetterHuntLevels();
+      break;
+    case 'letter-hunt-game':
+      selectLetterHuntLevel(state.letterHuntLevel);
+      showLetterHuntGame();
       break;
     case 'watch-playlist':
       showWatchMenu();
@@ -1918,6 +2304,7 @@ memoryGameCard.addEventListener('click', () => navigateToRoute({ view: 'memory-l
 lettersGameCard.addEventListener('click', () => navigateToRoute({ view: 'letters-levels' }));
 quranGameCard.addEventListener('click', () => navigateToRoute({ view: 'quran-levels' }));
 puzzleGameCard.addEventListener('click', () => navigateToRoute({ view: 'puzzle-levels' }));
+letterHuntGameCard.addEventListener('click', () => navigateToRoute({ view: 'letter-hunt-levels' }));
 levelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 levelButtons.forEach((button) => button.addEventListener('click', () => {
   selectLevel(button.dataset.level);
@@ -1996,6 +2383,44 @@ window.addEventListener('resize', () => {
   if (puzzleGameScreen.classList.contains('hidden') || puzzleWorkspace.classList.contains('hidden')) return;
   if (puzzleResizeTimer) window.clearTimeout(puzzleResizeTimer);
   puzzleResizeTimer = window.setTimeout(layoutPuzzle, 180);
+});
+
+
+
+
+letterHuntLevelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+letterHuntLevelButtons.forEach((button) => button.addEventListener('click', () => {
+  const levelName = button.dataset.letterHuntLevel;
+  selectLetterHuntLevel(levelName);
+  navigateToRoute({ view: 'letter-hunt-game', letterHuntLevel: levelName }, { replace: true });
+}));
+letterHuntBackButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+letterHuntResetButton.addEventListener('click', restartLetterHuntGame);
+letterHuntPlayAgainButton.addEventListener('click', (event) => {
+  event.preventDefault();
+  restartLetterHuntGame();
+});
+letterHuntTryAgainButton.addEventListener('click', (event) => {
+  event.preventDefault();
+  restartLetterHuntGame();
+});
+letterHuntHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+letterHuntLoseHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+letterHuntBasket.addEventListener('pointerdown', beginLetterHuntBasketDrag);
+letterHuntBasket.addEventListener('keydown', (event) => {
+  if (!letterHuntRunning) return;
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault();
+    positionLetterHuntBasket(letterHuntBasketX - 28);
+  } else if (event.key === 'ArrowRight') {
+    event.preventDefault();
+    positionLetterHuntBasket(letterHuntBasketX + 28);
+  }
+});
+window.addEventListener('resize', () => {
+  if (letterHuntGameScreen.classList.contains('hidden')) return;
+  if (letterHuntResizeTimer) window.clearTimeout(letterHuntResizeTimer);
+  letterHuntResizeTimer = window.setTimeout(centerLetterHuntBasket, 160);
 });
 
 
