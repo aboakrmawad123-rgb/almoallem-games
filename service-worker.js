@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v32-letter-hunt';
+const CACHE_NAME = 'almoallem-v33-letter-hunt-basket-fix';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=32',
+  './script.js?v=33',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',

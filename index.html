@@ -547,17 +547,40 @@
       bottom: 7px;
       display: grid;
       place-items: center;
-      width: 104px;
-      height: 72px;
+      width: 82px;
+      height: 58px;
       border: 0;
       background: transparent;
       color: inherit;
       font: inherit;
-      font-size: 4.2rem;
+      font-size: 1rem;
       cursor: grab;
       touch-action: none;
-      filter: drop-shadow(0 7px 5px rgba(80, 55, 20, 0.22));
+      filter: drop-shadow(0 6px 5px rgba(80, 55, 20, 0.20));
       will-change: transform;
+    }
+    .letter-hunt-basket::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 5px;
+      height: 32px;
+      border-radius: 10px 10px 14px 14px;
+      background: linear-gradient(180deg, #efc36d 0%, #d99633 100%);
+      border: 3px solid #ad6c24;
+      box-shadow: inset 0 -4px 0 rgba(122, 68, 10, 0.18), inset 0 8px 0 rgba(255,255,255,0.18);
+    }
+    .letter-hunt-basket::after {
+      content: '';
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 28px;
+      height: 8px;
+      border-radius: 999px;
+      background: #b77325;
+      box-shadow: 0 10px 0 0 rgba(183,115,37,0.85), 0 20px 0 0 rgba(183,115,37,0.8);
     }
     .letter-hunt-basket:active { cursor: grabbing; }
     .letter-hunt-basket.basket-pop { animation: basket-pop 280ms ease; }
@@ -1004,7 +1027,7 @@
 
       <div id="letter-hunt-field" class="letter-hunt-field" aria-label="منطقة سقوط الحروف">
         <div id="letter-hunt-letters-layer" class="letter-hunt-letters-layer" aria-hidden="true"></div>
-        <button id="letter-hunt-basket" class="letter-hunt-basket" type="button" aria-label="سلة صيد الحروف، اسحبها يمينًا ويسارًا" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">🧺</button>
+        <button id="letter-hunt-basket" class="letter-hunt-basket" type="button" aria-label="سلة صيد الحروف، اسحبها يمينًا ويسارًا" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"></button>
       </div>
 
       <p id="letter-hunt-feedback" class="letter-hunt-feedback" aria-live="assertive">ابدأ بتحريك السلة والتقط الحرف المطلوب</p>

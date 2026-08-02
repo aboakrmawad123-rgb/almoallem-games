@@ -734,7 +734,7 @@ function stopLetterHuntGame(options = {}) {
 
 function positionLetterHuntBasket(nextX) {
   const fieldWidth = letterHuntField.clientWidth;
-  const basketWidth = letterHuntBasket.offsetWidth || 104;
+  const basketWidth = letterHuntBasket.offsetWidth || 82;
   const maxX = Math.max(0, fieldWidth - basketWidth);
   letterHuntBasketX = Math.max(0, Math.min(maxX, nextX));
   letterHuntBasket.style.transform = `translate3d(${letterHuntBasketX}px, 0, 0)`;
@@ -743,7 +743,7 @@ function positionLetterHuntBasket(nextX) {
 }
 
 function centerLetterHuntBasket() {
-  const maxX = Math.max(0, letterHuntField.clientWidth - (letterHuntBasket.offsetWidth || 104));
+  const maxX = Math.max(0, letterHuntField.clientWidth - (letterHuntBasket.offsetWidth || 82));
   positionLetterHuntBasket(maxX / 2);
 }
 
@@ -873,8 +873,8 @@ function letterHuntLoop(timestamp) {
 
   const fieldHeight = letterHuntField.clientHeight;
   const basketTop = letterHuntBasket.offsetTop;
-  const basketWidth = letterHuntBasket.offsetWidth || 104;
-  const basketHeight = letterHuntBasket.offsetHeight || 72;
+  const basketWidth = letterHuntBasket.offsetWidth || 82;
+  const basketHeight = letterHuntBasket.offsetHeight || 58;
 
   for (let index = letterHuntFallingLetters.length - 1; index >= 0; index -= 1) {
     const item = letterHuntFallingLetters[index];
@@ -882,9 +882,15 @@ function letterHuntLoop(timestamp) {
     item.element.style.transform = `translate3d(${item.x}px, ${item.y}px, 0)`;
 
     const itemBottom = item.y + item.size;
-    const horizontalHit = item.x + (item.size * 0.78) >= letterHuntBasketX
-      && item.x + (item.size * 0.22) <= letterHuntBasketX + basketWidth;
-    const verticalHit = itemBottom >= basketTop + 12 && item.y <= basketTop + basketHeight - 8;
+    const itemCenterX = item.x + (item.size / 2);
+    const itemCenterY = item.y + (item.size * 0.58);
+    const catchInset = basketWidth * 0.27;
+    const catchLeft = letterHuntBasketX + catchInset;
+    const catchRight = letterHuntBasketX + basketWidth - catchInset;
+    const horizontalHit = itemCenterX >= catchLeft && itemCenterX <= catchRight;
+    const verticalHit = itemBottom >= basketTop + 10
+      && itemCenterY >= basketTop + 8
+      && itemCenterY <= basketTop + basketHeight - 6;
     if (horizontalHit && verticalHit) {
       const caughtTarget = item.letter === letterHuntTargetValue;
       handleLetterHuntCatch(index);
