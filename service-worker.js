@@ -1,12 +1,13 @@
-const CACHE_NAME = 'almoallem-v33-letter-hunt-basket-fix';
+const CACHE_NAME = 'almoallem-v34-letter-hunt-easy-tuning';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=33',
+  './script.js?v=34',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
+  './letter-hunt-basket.webp',
   './apple.webp',
   './banana.webp',
   './orange.webp',

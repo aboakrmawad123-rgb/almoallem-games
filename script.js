@@ -305,10 +305,10 @@ const letterHuntLevels = {
   one: {
     label: 'المستوى الأول',
     goal: 10,
-    spawnInterval: 940,
-    speedMin: 72,
-    speedMax: 100,
-    targetChance: 0.43,
+    spawnInterval: 1250,
+    speedMin: 58,
+    speedMax: 78,
+    targetChance: 0.48,
     targetPool: ['أ', 'ب', 'د', 'س', 'م', 'ن', 'و', 'ك'],
     letterPool: ['أ', 'ب', 'د', 'س', 'م', 'ن', 'و', 'ك', 'ر', 'ل']
   },
@@ -734,7 +734,7 @@ function stopLetterHuntGame(options = {}) {
 
 function positionLetterHuntBasket(nextX) {
   const fieldWidth = letterHuntField.clientWidth;
-  const basketWidth = letterHuntBasket.offsetWidth || 82;
+  const basketWidth = letterHuntBasket.offsetWidth || 90;
   const maxX = Math.max(0, fieldWidth - basketWidth);
   letterHuntBasketX = Math.max(0, Math.min(maxX, nextX));
   letterHuntBasket.style.transform = `translate3d(${letterHuntBasketX}px, 0, 0)`;
@@ -743,7 +743,7 @@ function positionLetterHuntBasket(nextX) {
 }
 
 function centerLetterHuntBasket() {
-  const maxX = Math.max(0, letterHuntField.clientWidth - (letterHuntBasket.offsetWidth || 82));
+  const maxX = Math.max(0, letterHuntField.clientWidth - (letterHuntBasket.offsetWidth || 90));
   positionLetterHuntBasket(maxX / 2);
 }
 
@@ -769,8 +769,8 @@ function spawnLetterHuntLetter(timestamp) {
     ? letterHuntTargetValue
     : distractors[Math.floor(Math.random() * distractors.length)];
   const size = selectedLetterHuntLevel === 'one'
-    ? 58 + Math.floor(Math.random() * 8)
-    : 52 + Math.floor(Math.random() * 9);
+    ? 48 + Math.floor(Math.random() * 7)
+    : 46 + Math.floor(Math.random() * 8);
   const maxX = Math.max(0, letterHuntField.clientWidth - size - 8);
   const element = document.createElement('span');
   element.className = `falling-letter tone-${1 + Math.floor(Math.random() * 4)}`;
@@ -873,8 +873,8 @@ function letterHuntLoop(timestamp) {
 
   const fieldHeight = letterHuntField.clientHeight;
   const basketTop = letterHuntBasket.offsetTop;
-  const basketWidth = letterHuntBasket.offsetWidth || 82;
-  const basketHeight = letterHuntBasket.offsetHeight || 58;
+  const basketWidth = letterHuntBasket.offsetWidth || 90;
+  const basketHeight = letterHuntBasket.offsetHeight || 66;
 
   for (let index = letterHuntFallingLetters.length - 1; index >= 0; index -= 1) {
     const item = letterHuntFallingLetters[index];
@@ -883,14 +883,16 @@ function letterHuntLoop(timestamp) {
 
     const itemBottom = item.y + item.size;
     const itemCenterX = item.x + (item.size / 2);
-    const itemCenterY = item.y + (item.size * 0.58);
-    const catchInset = basketWidth * 0.27;
-    const catchLeft = letterHuntBasketX + catchInset;
-    const catchRight = letterHuntBasketX + basketWidth - catchInset;
+    const itemCenterY = item.y + (item.size / 2);
+    // الالتقاط يتم فقط داخل فتحة السلة الوسطية، وليس عند جسم السلة أو أطرافها.
+    const catchLeft = letterHuntBasketX + (basketWidth * 0.25);
+    const catchRight = letterHuntBasketX + (basketWidth * 0.75);
+    const catchTop = basketTop + (basketHeight * 0.08);
+    const catchBottom = basketTop + (basketHeight * 0.42);
     const horizontalHit = itemCenterX >= catchLeft && itemCenterX <= catchRight;
-    const verticalHit = itemBottom >= basketTop + 10
-      && itemCenterY >= basketTop + 8
-      && itemCenterY <= basketTop + basketHeight - 6;
+    const verticalHit = itemBottom >= catchTop
+      && itemCenterY >= catchTop
+      && itemCenterY <= catchBottom;
     if (horizontalHit && verticalHit) {
       const caughtTarget = item.letter === letterHuntTargetValue;
       handleLetterHuntCatch(index);
