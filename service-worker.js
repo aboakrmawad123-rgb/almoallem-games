@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v34-letter-hunt-easy-tuning';
+const CACHE_NAME = 'almoallem-v36-word-treasure-entry-fix';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=35',
+  './script.js?v=36',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
