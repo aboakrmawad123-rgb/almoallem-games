@@ -348,6 +348,28 @@ const videoPlaylists = {
 const homeScreen = document.querySelector('#home-screen');
 const gamesMenuScreen = document.querySelector('#games-menu-screen');
 const watchMenuScreen = document.querySelector('#watch-menu-screen');
+
+const wordTreasureLevels = {
+  one: { label: 'المستوى الأول', images: ['l1-kitchen','l1-room'] },
+  two: { label: 'المستوى الثاني', images: ['l2-school','l2-garden-azzam','l2-garden'] }
+};
+const wordTreasureScenes = {
+  'l1-kitchen': { image:'word-treasure-l1-kitchen.webp', title:'المطبخ', objects:[
+    {id:'apple',name:'التفاحة',q:'أين التفاحة؟',x:4,y:52,w:17,h:14},{id:'banana',name:'الموزة',q:'أين الموزة؟',x:23,y:53,w:18,h:12},{id:'bread',name:'الخبز',q:'أين رغيف الخبز؟',x:47,y:51,w:25,h:16},{id:'cup',name:'الكوب',q:'أين الكوب الأزرق؟',x:6,y:66,w:18,h:15},{id:'plate',name:'الصحن',q:'أين الصحن؟',x:27,y:67,w:25,h:13},{id:'spoon',name:'الملعقة',q:'أين الملعقة؟',x:52,y:70,w:22,h:9},{id:'basket',name:'السلة',q:'أين السلة؟',x:36,y:28,w:18,h:16},{id:'teapot',name:'إبريق الشاي',q:'أين إبريق الشاي الأحمر؟',x:60,y:31,w:18,h:15}]},
+  'l1-room': { image:'word-treasure-l1-room.webp', title:'غرفة عزّام', objects:[
+    {id:'car',name:'السيارة',q:'أين السيارة الحمراء؟',x:1,y:75,w:24,h:22},{id:'ball',name:'الكرة',q:'أين الكرة الملونة؟',x:0,y:60,w:18,h:18},{id:'book',name:'الكتاب',q:'أين الكتاب المفتوح؟',x:20,y:72,w:40,h:17},{id:'pencil',name:'القلم',q:'أين القلم؟',x:56,y:72,w:20,h:13},{id:'bear',name:'الدبدوب',q:'أين الدبدوب؟',x:10,y:43,w:22,h:23},{id:'drum',name:'الطبل',q:'أين الطبل؟',x:72,y:67,w:25,h:25},{id:'cup',name:'الكوب',q:'أين الكوب الأزرق؟',x:67,y:59,w:16,h:15},{id:'bag',name:'الحقيبة',q:'أين الحقيبة؟',x:79,y:40,w:20,h:25}]},
+  'l2-school': { image:'word-treasure-l2-school.webp', title:'ساحة المدرسة', objects:[
+    {id:'bag',name:'الحقيبة',q:'أين الحقيبة المدرسية؟',x:0,y:44,w:22,h:23},{id:'ball',name:'الكرة',q:'أين الكرة؟',x:0,y:68,w:20,h:19},{id:'bottle',name:'قارورة الماء',q:'أين قارورة الماء؟',x:22,y:64,w:15,h:21},{id:'notebook',name:'الدفتر',q:'أين الدفتر الأزرق؟',x:34,y:70,w:25,h:18},{id:'ruler',name:'المسطرة',q:'أين المسطرة؟',x:48,y:83,w:27,h:10},{id:'case',name:'المقلمة',q:'أين المقلمة الصفراء؟',x:55,y:71,w:20,h:13},{id:'bell',name:'الجرس',q:'أين الجرس؟',x:80,y:61,w:14,h:17},{id:'plane',name:'الطائرة',q:'أين الطائرة اللعبة؟',x:78,y:78,w:21,h:17}]},
+  'l2-garden-azzam': { image:'word-treasure-l2-garden-azzam.webp', title:'حديقة عزّام', objects:[
+    {id:'cat',name:'القطة',q:'أين القطة؟',x:73,y:32,w:22,h:20},{id:'butterfly',name:'الفراشة',q:'أين الفراشة؟',x:24,y:21,w:15,h:14},{id:'bird',name:'الطائر',q:'أين الطائر؟',x:5,y:5,w:15,h:14},{id:'hat',name:'القبعة',q:'أين القبعة؟',x:62,y:68,w:24,h:17},{id:'ball',name:'الكرة',q:'أين الكرة الملونة؟',x:80,y:78,w:19,h:20},{id:'gloves',name:'القفازات',q:'أين قفازات الحديقة؟',x:19,y:79,w:22,h:17},{id:'pot',name:'أصيص الزرع',q:'أين الأصيص الفارغ؟',x:3,y:73,w:20,h:22},{id:'shovel',name:'المجرفة',q:'أين المجرفة؟',x:42,y:71,w:23,h:20}]},
+  'l2-garden': { image:'word-treasure-l2-garden.webp', title:'حديقة المنزل', objects:[
+    {id:'cat',name:'القطة',q:'أين القطة؟',x:56,y:32,w:19,h:22},{id:'hose',name:'الخرطوم',q:'أين خرطوم الماء؟',x:73,y:51,w:26,h:18},{id:'basket',name:'سلة الزهور',q:'أين سلة الزهور؟',x:72,y:71,w:26,h:25},{id:'hat',name:'القبعة',q:'أين القبعة؟',x:38,y:69,w:25,h:18},{id:'ball',name:'الكرة',q:'أين الكرة؟',x:48,y:55,w:17,h:17},{id:'shovel',name:'المجرفة',q:'أين المجرفة الكبيرة؟',x:2,y:72,w:36,h:25},{id:'pot',name:'الأصيص',q:'أين أصيص الزرع الفارغ؟',x:25,y:55,w:17,h:20},{id:'watering',name:'إبريق السقي',q:'أين إبريق السقي؟',x:3,y:49,w:25,h:22}]}
+};
+let selectedWordTreasureLevel='one', wordTreasureSceneIndex=0, wordTreasureQuestionIndex=0, wordTreasureQuestions=[], wordTreasureFound=new Set(), wordTreasureStartTime=0, wordTreasureTimerId=null, wordTreasurePenalty=0, wordTreasureTimed=false;
+const WORD_TREASURE_L1_KEY='wordTreasureLevelOneNext';
+const WORD_TREASURE_UNLOCK_KEY='wordTreasureTimedUnlocked';
+const WORD_TREASURE_BEST_KEY='wordTreasureBestSeconds';
+
 const levelScreen = document.querySelector('#level-screen');
 const gameScreen = document.querySelector('#game-screen');
 const lettersLevelScreen = document.querySelector('#letters-level-screen');
@@ -358,7 +380,10 @@ const puzzleLevelScreen = document.querySelector('#puzzle-level-screen');
 const puzzleGameScreen = document.querySelector('#puzzle-game-screen');
 const letterHuntLevelScreen = document.querySelector('#letter-hunt-level-screen');
 const letterHuntGameScreen = document.querySelector('#letter-hunt-game-screen');
-const allScreens = [homeScreen, gamesMenuScreen, watchMenuScreen, levelScreen, gameScreen, lettersLevelScreen, lettersGameScreen, quranLevelScreen, quranGameScreen, puzzleLevelScreen, puzzleGameScreen, letterHuntLevelScreen, letterHuntGameScreen];
+const wordTreasureLevelScreen=document.querySelector('#word-treasure-level-screen');
+const wordTreasureGameScreen=document.querySelector('#word-treasure-game-screen');
+
+const allScreens = [homeScreen, gamesMenuScreen, watchMenuScreen, levelScreen, gameScreen, lettersLevelScreen, lettersGameScreen, quranLevelScreen, quranGameScreen, puzzleLevelScreen, puzzleGameScreen, letterHuntLevelScreen, letterHuntGameScreen, wordTreasureLevelScreen, wordTreasureGameScreen];
 
 const openGamesSectionButton = document.querySelector('#open-games-section');
 const openWatchSectionButton = document.querySelector('#open-watch-section');
@@ -371,6 +396,25 @@ const lettersGameCard = document.querySelector('#letters-game-card');
 const quranGameCard = document.querySelector('#quran-game-card');
 const puzzleGameCard = document.querySelector('#puzzle-game-card');
 const letterHuntGameCard = document.querySelector('#letter-hunt-game-card');
+const wordTreasureGameCard=document.querySelector('#word-treasure-game-card');
+const wordTreasureLevelHomeButton=document.querySelector('#word-treasure-level-home-button');
+const wordTreasureLevelButtons=[...document.querySelectorAll('.word-treasure-level-card[data-word-treasure-level]')];
+const wordTreasureBackButton=document.querySelector('#word-treasure-back-button');
+const wordTreasureLevelLabel=document.querySelector('#word-treasure-level-label');
+const wordTreasureProgress=document.querySelector('#word-treasure-progress');
+const wordTreasureTimer=document.querySelector('#word-treasure-timer');
+const wordTreasureBest=document.querySelector('#word-treasure-best');
+const wordTreasureQuestion=document.querySelector('#word-treasure-question');
+const wordTreasureImage=document.querySelector('#word-treasure-image');
+const wordTreasureHotspots=document.querySelector('#word-treasure-hotspots');
+const wordTreasureFeedback=document.querySelector('#word-treasure-feedback');
+const wordTreasureResetButton=document.querySelector('#word-treasure-reset-button');
+const wordTreasureResult=document.querySelector('#word-treasure-result');
+const wordTreasureResultTitle=document.querySelector('#word-treasure-result-title');
+const wordTreasureResultText=document.querySelector('#word-treasure-result-text');
+const wordTreasurePlayAgainButton=document.querySelector('#word-treasure-play-again-button');
+const wordTreasureHomeButton=document.querySelector('#word-treasure-home-button');
+
 const levelHomeButton = document.querySelector('#level-home-button');
 const levelButtons = [...document.querySelectorAll('.level-card[data-level]')];
 const startButton = document.querySelector('#start-button');
@@ -2027,6 +2071,7 @@ function playSingleVideoNow(playlistKey, videoId, index, resolvedTitle = '') {
 function showOnly(screen) {
   if (screen !== watchMenuScreen) closeVideoBrowser();
   if (screen !== letterHuntGameScreen) stopLetterHuntGame();
+  if (screen !== wordTreasureGameScreen) stopWordTreasureTimer();
   allScreens.forEach((item) => item.classList.add('hidden'));
   screen.classList.remove('hidden');
   winModal.classList.add('hidden');
@@ -2114,6 +2159,56 @@ function showLetterHuntGame() {
   startLetterHuntGame();
 }
 
+
+function shuffleWordTreasure(items){ return [...items].sort(()=>Math.random()-.5); }
+function formatTreasureTime(seconds){ const value=Math.max(0,Math.floor(seconds)); return `${Math.floor(value/60)}:${String(value%60).padStart(2,'0')}`; }
+function stopWordTreasureTimer(){ if(wordTreasureTimerId) clearInterval(wordTreasureTimerId); wordTreasureTimerId=null; }
+function updateWordTreasureTimer(){ if(!wordTreasureTimed)return; const elapsed=(performance.now()-wordTreasureStartTime)/1000+wordTreasurePenalty; wordTreasureTimer.textContent=`⏱️ ${formatTreasureTime(elapsed)}`; }
+function getWordTreasureSceneKey(){ return wordTreasureLevels[selectedWordTreasureLevel].images[wordTreasureSceneIndex]; }
+function renderWordTreasureScene(){
+  const scene=wordTreasureScenes[getWordTreasureSceneKey()];
+  wordTreasureImage.src=scene.image; wordTreasureImage.alt=`مشهد ${scene.title}`;
+  wordTreasureHotspots.replaceChildren(); wordTreasureFound.clear();
+  wordTreasureQuestions=shuffleWordTreasure(scene.objects); wordTreasureQuestionIndex=0;
+  scene.objects.forEach(obj=>{ const b=document.createElement('button'); b.type='button'; b.className='treasure-hotspot'; b.dataset.objectId=obj.id; b.setAttribute('aria-label',obj.name); b.style.cssText=`left:${obj.x}%;top:${obj.y}%;width:${obj.w}%;height:${obj.h}%;`; b.addEventListener('click',()=>handleWordTreasureChoice(b,obj)); wordTreasureHotspots.appendChild(b); });
+  showWordTreasureQuestion();
+}
+function showWordTreasureQuestion(){
+  const scene=wordTreasureScenes[getWordTreasureSceneKey()]; const current=wordTreasureQuestions[wordTreasureQuestionIndex];
+  const total=selectedWordTreasureLevel==='one'?wordTreasureQuestions.length:wordTreasureLevels.two.images.length*8;
+  const done=selectedWordTreasureLevel==='one'?wordTreasureQuestionIndex:wordTreasureSceneIndex*8+wordTreasureQuestionIndex;
+  wordTreasureProgress.textContent=`${done+1} / ${total}`; wordTreasureQuestion.textContent=current.q; wordTreasureFeedback.textContent='ابحث جيدًا داخل الصورة'; wordTreasureFeedback.className='treasure-feedback';
+}
+function handleWordTreasureChoice(button,obj){
+  const current=wordTreasureQuestions[wordTreasureQuestionIndex]; if(!current)return;
+  if(obj.id!==current.id){ button.classList.add('wrong'); setTimeout(()=>button.classList.remove('wrong'),420); wordTreasureFeedback.textContent=`هذا ${obj.name}، ابحث عن ${current.name}`; wordTreasureFeedback.className='treasure-feedback wrong'; if(wordTreasureTimed){wordTreasurePenalty+=2;updateWordTreasureTimer();} playEncouragement('wrong','حاول مرة أخرى'); return; }
+  button.classList.add('found'); wordTreasureFound.add(obj.id); wordTreasureFeedback.textContent=`أحسنت! وجدت ${obj.name}`; wordTreasureFeedback.className='treasure-feedback correct'; playEncouragement('correct',['أحسنت','رائع','ممتاز يا بطل'][Math.floor(Math.random()*3)]);
+  wordTreasureQuestionIndex++;
+  if(wordTreasureQuestionIndex<wordTreasureQuestions.length){ setTimeout(showWordTreasureQuestion,650); return; }
+  if(selectedWordTreasureLevel==='two' && wordTreasureSceneIndex<wordTreasureLevels.two.images.length-1){ wordTreasureSceneIndex++; wordTreasureFeedback.textContent='أحسنت، انتقلت إلى الكنز التالي'; setTimeout(renderWordTreasureScene,850); return; }
+  finishWordTreasureGame();
+}
+function finishWordTreasureGame(){
+  stopWordTreasureTimer(); let elapsed=(performance.now()-wordTreasureStartTime)/1000+wordTreasurePenalty;
+  wordTreasureResult.classList.remove('hidden'); wordTreasureResultTitle.textContent='رائع يا بطل!';
+  if(selectedWordTreasureLevel==='one') wordTreasureResultText.textContent='وجدت جميع الأغراض في الصورة.';
+  else if(!wordTreasureTimed){ localStorage.setItem(WORD_TREASURE_UNLOCK_KEY,'1'); wordTreasureResultText.textContent='ختمت الصور الثلاث! تم فتح تحدّي أسرع وقت للجولة القادمة.'; }
+  else { const old=Number(localStorage.getItem(WORD_TREASURE_BEST_KEY)||0); if(!old||elapsed<old)localStorage.setItem(WORD_TREASURE_BEST_KEY,String(elapsed)); const best=Number(localStorage.getItem(WORD_TREASURE_BEST_KEY)); wordTreasureResultText.textContent=`أنهيت التحدي خلال ${formatTreasureTime(elapsed)}. أفضل زمن: ${formatTreasureTime(best)}.`; }
+  playEncouragement('win','رائع يا بطل، أنهيت المستوى');
+}
+function startWordTreasureGame(){
+  stopWordTreasureTimer(); wordTreasureResult.classList.add('hidden'); wordTreasurePenalty=0;
+  if(selectedWordTreasureLevel==='one'){ let next=Number(localStorage.getItem(WORD_TREASURE_L1_KEY)||0)%2; wordTreasureSceneIndex=next; localStorage.setItem(WORD_TREASURE_L1_KEY,String((next+1)%2)); wordTreasureTimed=false; }
+  else { wordTreasureSceneIndex=0; wordTreasureTimed=localStorage.getItem(WORD_TREASURE_UNLOCK_KEY)==='1'; }
+  wordTreasureLevelLabel.textContent=wordTreasureLevels[selectedWordTreasureLevel].label;
+  wordTreasureTimer.classList.toggle('hidden',!wordTreasureTimed); wordTreasureBest.classList.toggle('hidden',!wordTreasureTimed);
+  if(wordTreasureTimed){ const best=Number(localStorage.getItem(WORD_TREASURE_BEST_KEY)||0); wordTreasureBest.textContent=best?`أفضل زمن: ${formatTreasureTime(best)}`:'أفضل زمن: --'; wordTreasureStartTime=performance.now(); wordTreasureTimerId=setInterval(updateWordTreasureTimer,250); updateWordTreasureTimer(); }
+  else wordTreasureStartTime=performance.now();
+  renderWordTreasureScene();
+}
+function showWordTreasureLevels(){ headerSubtitle.textContent='اختر مستوى كنز الكلمات'; showOnly(wordTreasureLevelScreen); }
+function showWordTreasureGame(){ headerSubtitle.textContent='ابحث عن الغرض المطلوب داخل الصورة'; showOnly(wordTreasureGameScreen); startWordTreasureGame(); }
+
 function showWin() {
   finalMoves.textContent = String(moves);
   winModal.classList.remove('hidden');
@@ -2161,6 +2256,8 @@ function normalizeRouteState(state) {
     'puzzle-game',
     'letter-hunt-levels',
     'letter-hunt-game',
+    'word-treasure-levels',
+    'word-treasure-game',
     'watch-playlist',
     'watch-video'
   ]);
@@ -2175,7 +2272,8 @@ function normalizeRouteState(state) {
     videoTitle: typeof candidate.videoTitle === 'string' ? candidate.videoTitle : '',
     puzzleLevel: puzzleLevels[candidate.puzzleLevel] ? candidate.puzzleLevel : 'one',
     puzzleImageId: typeof candidate.puzzleImageId === 'string' ? candidate.puzzleImageId : '',
-    letterHuntLevel: letterHuntLevels[candidate.letterHuntLevel] ? candidate.letterHuntLevel : 'one'
+    letterHuntLevel: letterHuntLevels[candidate.letterHuntLevel] ? candidate.letterHuntLevel : 'one',
+    wordTreasureLevel: wordTreasureLevels[candidate.wordTreasureLevel] ? candidate.wordTreasureLevel : 'one'
   };
 }
 
@@ -2222,6 +2320,13 @@ function applyRouteState(rawState) {
     case 'letter-hunt-game':
       selectLetterHuntLevel(state.letterHuntLevel);
       showLetterHuntGame();
+      break;
+    case 'word-treasure-levels':
+      showWordTreasureLevels();
+      break;
+    case 'word-treasure-game':
+      selectedWordTreasureLevel=state.wordTreasureLevel;
+      showWordTreasureGame();
       break;
     case 'watch-playlist':
       showWatchMenu();
@@ -2313,6 +2418,7 @@ lettersGameCard.addEventListener('click', () => navigateToRoute({ view: 'letters
 quranGameCard.addEventListener('click', () => navigateToRoute({ view: 'quran-levels' }));
 puzzleGameCard.addEventListener('click', () => navigateToRoute({ view: 'puzzle-levels' }));
 letterHuntGameCard.addEventListener('click', () => navigateToRoute({ view: 'letter-hunt-levels' }));
+wordTreasureGameCard.addEventListener('click',()=>navigateToRoute({view:'word-treasure-levels'}));
 levelHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 levelButtons.forEach((button) => button.addEventListener('click', () => {
   selectLevel(button.dataset.level);
@@ -2414,6 +2520,14 @@ letterHuntTryAgainButton.addEventListener('click', (event) => {
 });
 letterHuntHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
 letterHuntLoseHomeButton.addEventListener('click', () => navigateBack({ view: 'games-menu' }));
+
+wordTreasureLevelHomeButton.addEventListener('click',()=>navigateBack({view:'games-menu'}));
+wordTreasureLevelButtons.forEach(button=>button.addEventListener('click',()=>{ selectedWordTreasureLevel=button.dataset.wordTreasureLevel; navigateToRoute({view:'word-treasure-game',wordTreasureLevel:selectedWordTreasureLevel},{replace:true}); }));
+wordTreasureBackButton.addEventListener('click',()=>navigateBack({view:'games-menu'}));
+wordTreasureResetButton.addEventListener('click',startWordTreasureGame);
+wordTreasurePlayAgainButton.addEventListener('click',startWordTreasureGame);
+wordTreasureHomeButton.addEventListener('click',()=>navigateBack({view:'games-menu'}));
+
 letterHuntBasket.addEventListener('pointerdown', beginLetterHuntBasketDrag);
 letterHuntBasket.addEventListener('keydown', (event) => {
   if (!letterHuntRunning) return;

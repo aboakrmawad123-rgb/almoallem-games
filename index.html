@@ -586,6 +586,30 @@
       .letter-hunt-target-card { max-width: 520px; margin-inline: auto; margin-bottom: 10px; }
     }
 
+  
+    .word-treasure-preview { position:relative; overflow:hidden; }
+    .word-treasure-preview img { width:100%; height:100%; object-fit:cover; }
+    .word-treasure-preview::after { content:"🔎"; position:absolute; left:8px; bottom:6px; font-size:2rem; filter:drop-shadow(0 2px 2px #fff); }
+    .treasure-level-hero { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:12px 0 18px; }
+    .treasure-level-hero img { width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:18px; border:3px solid #fff; box-shadow:0 5px 14px rgba(31,91,119,.16); }
+    .treasure-game-panel { max-width:760px; }
+    .treasure-hud { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; margin:8px 0 12px; }
+    .treasure-chip { background:#eef9ff; border:2px solid #c5e9f9; border-radius:16px; padding:8px 12px; font-weight:900; color:#246b8b; }
+    .treasure-question { text-align:center; font-size:1.25rem; font-weight:900; color:#285f79; margin:10px 0; }
+    .treasure-scene { position:relative; width:100%; overflow:hidden; border-radius:24px; border:4px solid #fff; box-shadow:0 10px 24px rgba(27,108,148,.18),0 0 0 2px rgba(33,150,243,.18); background:#eaf8ff; }
+    .treasure-scene img { display:block; width:100%; height:auto; }
+    .treasure-hotspot { position:absolute; border:0; background:transparent; border-radius:18px; cursor:pointer; min-width:22px; min-height:22px; }
+    .treasure-hotspot:focus-visible { outline:4px solid #1f99d0; outline-offset:2px; }
+    .treasure-hotspot.found { border:5px solid #45b96b; background:rgba(76,205,116,.16); animation:treasure-found .55s ease; pointer-events:none; }
+    .treasure-hotspot.wrong { border:4px solid #e55b55; background:rgba(229,91,85,.12); animation:basket-shake .35s ease; }
+    @keyframes treasure-found { 0%{transform:scale(.86)} 60%{transform:scale(1.08)} 100%{transform:scale(1)} }
+    .treasure-feedback { min-height:34px; text-align:center; margin:10px 0 4px; font-weight:900; color:#37657d; }
+    .treasure-feedback.correct { color:#27834a; }
+    .treasure-feedback.wrong { color:#b33e39; }
+    .treasure-result { text-align:center; padding:18px; margin-top:12px; border-radius:22px; background:#f0fbff; border:3px solid #c6ebfa; }
+    .treasure-result h3 { margin:0 0 8px; color:#24769a; }
+    .treasure-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:12px; }
+
   </style>
 </head>
 <body>
@@ -712,7 +736,33 @@
           </span>
           <span class="game-arrow" aria-hidden="true">←</span>
         </button>
+
+        <button id="word-treasure-game-card" class="game-choice available" type="button">
+          <span class="game-preview word-treasure-preview" aria-hidden="true"><img src="word-treasure-l1-room.webp" alt=""></span>
+          <span class="game-copy"><span class="game-status">مستويان متاحان</span><strong>كنز الكلمات</strong><small>ابحث داخل الصور واعثر على الغرض المطلوب</small></span>
+          <span class="game-arrow" aria-hidden="true">←</span>
+        </button>
       </div>
+    </section>
+
+
+    <section id="word-treasure-level-screen" class="panel start-panel hidden" aria-labelledby="word-treasure-level-title">
+      <div class="screen-heading"><button id="word-treasure-level-home-button" class="mini-back-button" type="button" aria-label="العودة إلى الألعاب">←</button><div><p class="screen-kicker">كنز الكلمات</p><h2 id="word-treasure-level-title">اختر المستوى</h2></div></div>
+      <div class="treasure-level-hero" aria-hidden="true"><img src="word-treasure-l1-room.webp" alt=""><img src="word-treasure-l2-garden-azzam.webp" alt=""></div>
+      <div class="level-picker" aria-label="اختيار مستوى كنز الكلمات">
+        <button class="level-card word-treasure-level-card" type="button" data-word-treasure-level="one"><span class="level-icon">🔎</span><strong>المستوى الأول</strong><small>صورتان بالتناوب · بحث هادئ بدون وقت</small></button>
+        <button class="level-card word-treasure-level-card" type="button" data-word-treasure-level="two"><span class="level-icon">🏆</span><strong>المستوى الثاني</strong><small>اختم 3 صور، ثم افتح تحدّي أسرع وقت</small></button>
+      </div>
+    </section>
+
+    <section id="word-treasure-game-screen" class="panel treasure-game-panel hidden" aria-label="لعبة كنز الكلمات">
+      <div class="game-title-row"><button id="word-treasure-back-button" class="mini-back-button" type="button" aria-label="العودة إلى الألعاب">←</button><div><p id="word-treasure-level-label" class="screen-kicker">المستوى الأول</p><h2>كنز الكلمات</h2></div></div>
+      <div class="treasure-hud"><span id="word-treasure-progress" class="treasure-chip">1 / 8</span><span id="word-treasure-timer" class="treasure-chip hidden">⏱️ 0:00</span><span id="word-treasure-best" class="treasure-chip hidden">أفضل زمن: --</span></div>
+      <p id="word-treasure-question" class="treasure-question">أين الكرة؟</p>
+      <div id="word-treasure-scene" class="treasure-scene"><img id="word-treasure-image" src="word-treasure-l1-room.webp" alt="مشهد البحث"><div id="word-treasure-hotspots"></div></div>
+      <p id="word-treasure-feedback" class="treasure-feedback" aria-live="assertive">ابحث جيدًا داخل الصورة</p>
+      <button id="word-treasure-reset-button" class="secondary-button" type="button">إعادة الجولة</button>
+      <div id="word-treasure-result" class="treasure-result hidden"><h3 id="word-treasure-result-title">أحسنت!</h3><p id="word-treasure-result-text"></p><div class="treasure-actions"><button id="word-treasure-play-again-button" class="primary-button" type="button">العب مرة أخرى</button><button id="word-treasure-home-button" class="secondary-button" type="button">العودة إلى الألعاب</button></div></div>
     </section>
 
     <section id="watch-menu-screen" class="panel home-panel hidden" aria-label="قسم شاهد وتعلّم">
