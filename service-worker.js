@@ -1,9 +1,9 @@
-const CACHE_NAME = 'almoallem-v36-word-treasure-entry-fix';
+const CACHE_NAME = 'almoallem-v37-play-store-prep';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css?v=20',
-  './script.js?v=36',
+  './script.js?v=37',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
