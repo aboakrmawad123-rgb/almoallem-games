@@ -1,9 +1,10 @@
-const CACHE_NAME = 'almoallem-v38-parent-gate';
+const CACHE_NAME = 'almoallem-v39-store-final-prep';
 const APP_SHELL = [
   './',
   './index.html',
+  './privacy.html',
   './style.css?v=20',
-  './script.js?v=38',
+  './script.js?v=39',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',

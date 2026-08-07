@@ -1919,11 +1919,15 @@ function showPlaylistLoadError(playlistKey, message = '') {
   retry.addEventListener('click', () => loadPlaylistVideos(playlistKey, true));
 
   const link = document.createElement('a');
-  link.className = 'youtube-fallback-link playlist-error-link';
+  link.className = 'youtube-fallback-link playlist-error-link parent-gated-link';
   link.href = playlist.youtubeUrl;
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
   link.textContent = 'فتح القائمة في يوتيوب';
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+    openParentGatedUrl(link.href);
+  });
 
   actions.append(retry, link);
   videoItemsGrid.appendChild(actions);
