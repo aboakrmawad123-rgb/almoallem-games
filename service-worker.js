@@ -1,4 +1,4 @@
-const CACHE_NAME = 'almoallem-v41-watch-controls';
+const CACHE_NAME = 'almoallem-v43-no-pull-refresh';
 const APP_SHELL = [
   './',
   './index.html',
