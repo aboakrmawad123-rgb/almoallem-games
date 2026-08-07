@@ -531,6 +531,12 @@ const menuBackdrop = document.querySelector('#menu-backdrop');
 const closeSocialMenuButton = document.querySelector('#close-social-menu');
 const socialLinksToggleButton = document.querySelector('#social-links-toggle');
 const socialLinksSubmenu = document.querySelector('#social-links-submenu');
+const parentGateModal = document.querySelector('#parent-gate-modal');
+const parentGateQuestion = document.querySelector('#parent-gate-question');
+const parentGateAnswer = document.querySelector('#parent-gate-answer');
+const parentGateError = document.querySelector('#parent-gate-error');
+const parentGateConfirm = document.querySelector('#parent-gate-confirm');
+const parentGateCancel = document.querySelector('#parent-gate-cancel');
 const shareAppButton = document.querySelector('#share-app-button');
 const shareAppStatus = document.querySelector('#share-app-status');
 const aboutAppButton = document.querySelector('#about-app-button');
@@ -1434,6 +1440,53 @@ function closeSocialMenu() {
   socialMenu.setAttribute('aria-hidden', 'true');
   moreMenuButton.setAttribute('aria-expanded', 'false');
   document.body.classList.remove('menu-open');
+}
+
+let parentGateExpectedAnswer = null;
+let parentGatePendingAction = null;
+
+function makeParentGateQuestion() {
+  const left = 6 + Math.floor(Math.random() * 8);
+  const right = 2 + Math.floor(Math.random() * 8);
+  parentGateExpectedAnswer = left + right;
+  parentGateQuestion.textContent = `كم يساوي ${left} + ${right}؟`;
+}
+
+function closeParentGate() {
+  parentGatePendingAction = null;
+  parentGateExpectedAnswer = null;
+  parentGateAnswer.value = '';
+  parentGateError.textContent = '';
+  parentGateModal.classList.add('hidden');
+}
+
+function requestParentGate(action) {
+  parentGatePendingAction = action;
+  parentGateAnswer.value = '';
+  parentGateError.textContent = '';
+  makeParentGateQuestion();
+  parentGateModal.classList.remove('hidden');
+  window.setTimeout(() => parentGateAnswer.focus(), 40);
+}
+
+function confirmParentGate() {
+  const value = Number.parseInt(parentGateAnswer.value, 10);
+  if (!Number.isFinite(value) || value !== parentGateExpectedAnswer) {
+    parentGateError.textContent = 'الإجابة غير صحيحة. حاول مرة أخرى.';
+    parentGateAnswer.select();
+    return;
+  }
+  const action = parentGatePendingAction;
+  closeParentGate();
+  if (typeof action === 'function') action();
+}
+
+function openParentGatedUrl(url) {
+  if (!url || url === '#') return;
+  requestParentGate(() => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+    closeSocialMenu();
+  });
 }
 
 async function shareApp() {
@@ -2394,8 +2447,26 @@ moreMenuButton.addEventListener('click', openSocialMenu);
 closeSocialMenuButton.addEventListener('click', closeSocialMenu);
 socialLinksToggleButton.addEventListener('click', toggleSocialLinks);
 menuBackdrop.addEventListener('click', closeSocialMenu);
-socialMenu.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeSocialMenu));
-shareAppButton.addEventListener('click', shareApp);
+socialMenu.querySelectorAll('a.parent-gated-link').forEach((link) => link.addEventListener('click', (event) => {
+  event.preventDefault();
+  openParentGatedUrl(link.href);
+}));
+document.querySelectorAll('a.parent-gated-link').forEach((link) => {
+  if (socialMenu.contains(link)) return;
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+    openParentGatedUrl(link.href);
+  });
+});
+shareAppButton.addEventListener('click', () => requestParentGate(shareApp));
+parentGateConfirm.addEventListener('click', confirmParentGate);
+parentGateCancel.addEventListener('click', closeParentGate);
+parentGateAnswer.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') confirmParentGate();
+});
+parentGateModal.addEventListener('click', (event) => {
+  if (event.target === parentGateModal) closeParentGate();
+});
 aboutAppButton.addEventListener('click', showAboutApp);
 soundToggleButton.addEventListener('click', toggleSound);
 closeAboutAppButton.addEventListener('click', closeAboutApp);
@@ -2404,7 +2475,8 @@ aboutAppModal.addEventListener('click', (event) => {
 });
 document.addEventListener('keydown', (event) => {
   if (event.key !== 'Escape') return;
-  if (!aboutAppModal.classList.contains('hidden')) closeAboutApp();
+  if (!parentGateModal.classList.contains('hidden')) closeParentGate();
+  else if (!aboutAppModal.classList.contains('hidden')) closeAboutApp();
   else if (!socialMenu.classList.contains('hidden')) closeSocialMenu();
 });
 

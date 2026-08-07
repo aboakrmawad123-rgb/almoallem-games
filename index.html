@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#2196f3">
-  <meta name="description" content="تعلّم واستمتع مع تطبيق المعلّم الصغير">
+  <meta name="description" content="تعلّم واستمتع مع تطبيق المعلّم الصغير للأطفال">
   <meta name="application-name" content="المعلّم الصغير">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -49,6 +49,58 @@
       font-weight: 800;
       color: #1679b8;
     }
+
+    .parent-gate-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      background: rgba(10, 45, 65, 0.56);
+      backdrop-filter: blur(3px);
+    }
+    .parent-gate-modal.hidden { display: none !important; }
+    .parent-gate-card {
+      width: min(430px, 100%);
+      padding: 24px;
+      border: 3px solid #fff;
+      border-radius: 26px;
+      background: #f9fdff;
+      box-shadow: 0 18px 46px rgba(0, 55, 87, 0.24);
+      text-align: center;
+    }
+    .parent-gate-card h2 { margin: 0 0 8px; color: #176f9d; }
+    .parent-gate-card p { margin: 7px 0; color: #486a79; font-weight: 700; }
+    .parent-gate-question {
+      margin: 18px 0 14px !important;
+      padding: 14px;
+      border-radius: 18px;
+      background: #e8f7ff;
+      color: #126f9f !important;
+      font-size: 1.35rem;
+      font-weight: 900 !important;
+    }
+    .parent-gate-answer {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 13px 14px;
+      border: 2px solid #9bd5ef;
+      border-radius: 16px;
+      background: #fff;
+      color: #244c5f;
+      font: inherit;
+      font-size: 1.15rem;
+      font-weight: 800;
+      text-align: center;
+      outline: none;
+    }
+    .parent-gate-answer:focus { border-color: #218fc5; box-shadow: 0 0 0 4px rgba(33,143,197,0.12); }
+    .parent-gate-error { min-height: 24px; margin: 8px 0 0 !important; color: #b42318 !important; }
+    .parent-gate-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .parent-gate-actions button { min-height: 48px; border-radius: 16px; font: inherit; font-weight: 900; cursor: pointer; }
+    .parent-gate-confirm { border: 0; background: #228fc4; color: #fff; }
+    .parent-gate-cancel { border: 2px solid #b7dceb; background: #fff; color: #376277; }
 
     .animal-options.level-two-options {
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -614,14 +666,14 @@
 </head>
 <body>
   <main class="app-shell">
-    <button id="more-menu-button" class="more-menu-button" type="button" aria-label="فتح قائمة التطبيق" aria-controls="social-menu" aria-expanded="false">
+    <button id="more-menu-button" class="more-menu-button" type="button" aria-label="فتح قائمة التواصل" aria-controls="social-menu" aria-expanded="false">
       <span aria-hidden="true">⋮</span>
     </button>
     <header class="brand-header">
       <div class="brand-mark" aria-hidden="true"><img src="card-back.webp" alt=""></div>
       <div>
         <p class="eyebrow">المعلّم الصغير</p>
-        <h1>تعلّم واستمتع</h1>
+        <h1>ألعاب تعليمية ممتعة</h1>
         <p id="header-subtitle" class="subtitle">اختر لعبتك وابدأ التحدي</p>
       </div>
     </header>
@@ -629,9 +681,9 @@
     <section id="home-screen" class="panel home-panel" aria-label="الواجهة الرئيسية">
       <div class="welcome-row">
         <div>
-          <span class="welcome-badge">الإصدار السابع والثلاثون</span>
+          <span class="welcome-badge">الإصدار الثاني والثلاثون</span>
           <h2>ماذا تريد أن تفعل اليوم؟</h2>
-          <p>اختر قسم المشاهدة والتعلّم أو قسم الألعاب.</p>
+          <p>اختر قسم الألعاب أو قسم المشاهدة والتعلّم.</p>
         </div>
         <div class="welcome-avatar" aria-hidden="true"><img src="card-back.webp" alt=""></div>
       </div>
@@ -655,7 +707,7 @@
             <img src="apple.webp" alt=""><img src="card-back.webp" alt=""><img src="lion.webp" alt="">
           </span>
           <span class="game-copy">
-            <span class="game-status">تعلّم واستمتع</span>
+            <span class="game-status">ألعاب تعليمية ممتعة</span>
             <strong>الألعاب</strong>
             <small>ادخل واختر اللعبة والمستوى المناسب</small>
           </span>
@@ -807,7 +859,7 @@
             <iframe id="video-player" title="مشغّل فيديو المعلّم الصغير" src="about:blank" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
           </div>
           <p id="video-connection-note" class="video-connection-note">تحتاج مشاهدة المقاطع إلى اتصال بالإنترنت.</p>
-          <a id="open-video-youtube" class="youtube-fallback-link" href="#" target="_blank" rel="noopener noreferrer">فتح هذا المقطع في يوتيوب</a>
+          <a id="open-video-youtube" class="youtube-fallback-link parent-gated-link" href="#" target="_blank" rel="noopener noreferrer">فتح هذا المقطع في يوتيوب</a>
         </section>
 
         <div id="playlist-loader" class="playlist-loader hidden" aria-live="polite">
@@ -1077,26 +1129,24 @@
     </div>
 
     <nav class="social-menu-links" aria-label="روابط المعلّم الصغير">
-
-
       <button id="social-links-toggle" class="social-menu-link menu-action-button social-submenu-toggle" type="button" aria-expanded="false" aria-controls="social-links-submenu">
-        <span class="social-icon" aria-hidden="true">🌐</span><span><strong>تواصلوا معنا عبر قنواتنا الرسمية</strong><small>يوتيوب وقنوات المعلّم الصغير الرسمية</small></span><span class="external-arrow submenu-chevron" aria-hidden="true">←</span>
+        <span class="social-icon" aria-hidden="true">🌐</span><span><strong>تواصلوا معنا عبر قنواتنا الرسمية</strong><small>روابط مخصّصة للوالدين</small></span><span class="external-arrow submenu-chevron" aria-hidden="true">←</span>
       </button>
 
       <div id="social-links-submenu" class="social-submenu hidden" aria-hidden="true">
-        <a class="social-menu-link channel-link" href="https://whatsapp.com/channel/0029Vae4AbxHLHQfoWscwP04" target="_blank" rel="noopener noreferrer">
+        <a class="social-menu-link channel-link parent-gated-link" href="https://whatsapp.com/channel/0029Vae4AbxHLHQfoWscwP04" target="_blank" rel="noopener noreferrer">
           <span class="social-icon" aria-hidden="true">📣</span><span><strong>قناة واتساب</strong><small>تابع آخر المحتوى</small></span><span class="external-arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="social-menu-link youtube-link" href="https://youtube.com/@Littleteacher2024" target="_blank" rel="noopener noreferrer">
+        <a class="social-menu-link youtube-link parent-gated-link" href="https://youtube.com/@Littleteacher2024" target="_blank" rel="noopener noreferrer">
           <span class="social-icon" aria-hidden="true">▶</span><span><strong>يوتيوب</strong><small>@Littleteacher2024</small></span><span class="external-arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="social-menu-link facebook-link" href="https://www.facebook.com/Littleteacher2024" target="_blank" rel="noopener noreferrer">
+        <a class="social-menu-link facebook-link parent-gated-link" href="https://www.facebook.com/Littleteacher2024" target="_blank" rel="noopener noreferrer">
           <span class="social-icon social-letter" aria-hidden="true">f</span><span><strong>فيسبوك</strong><small>Littleteacher2024</small></span><span class="external-arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="social-menu-link instagram-link" href="https://www.instagram.com/littleteacher2024" target="_blank" rel="noopener noreferrer">
+        <a class="social-menu-link instagram-link parent-gated-link" href="https://www.instagram.com/littleteacher2024" target="_blank" rel="noopener noreferrer">
           <span class="social-icon" aria-hidden="true">◎</span><span><strong>إنستغرام</strong><small>@littleteacher2024</small></span><span class="external-arrow" aria-hidden="true">↗</span>
         </a>
-        <a class="social-menu-link tiktok-link" href="https://www.tiktok.com/@littleteacher2024" target="_blank" rel="noopener noreferrer">
+        <a class="social-menu-link tiktok-link parent-gated-link" href="https://www.tiktok.com/@littleteacher2024" target="_blank" rel="noopener noreferrer">
           <span class="social-icon" aria-hidden="true">♪</span><span><strong>تيك توك</strong><small>@littleteacher2024</small></span><span class="external-arrow" aria-hidden="true">↗</span>
         </a>
       </div>
@@ -1117,8 +1167,8 @@
     <div class="modal-card about-app-card">
       <div class="about-app-logo" aria-hidden="true"><img src="card-back.webp" alt=""></div>
       <h2 id="about-app-title">المعلّم الصغير</h2>
-      <p>المعلّم الصغير تطبيق تعليمي وتربوي للأطفال، يقدّم أنشطة تفاعلية ممتعة تساعد على تعلّم الحروف، وتنمية الذاكرة والتركيز، ومراجعة القرآن الكريم وحفظه، والتعرّف إلى القيم والسلوكيات الإيجابية، ضمن بيئة بسيطة وآمنة ومناسبة للأطفال.</p>
-      <p class="about-credit">برمجة وتطوير: فريق المعلّم الصغير</p>
+      <p>تطبيق تعليمي ممتع للأطفال، يقدّم ألعابًا بسيطة ومسلية تساعد على تنمية الذاكرة والتركيز والتعلّم بطريقة محببة، مع إضافة ألعاب جديدة باستمرار.</p>
+      <p class="about-credit">برمجة فريق المعلّم الصغير</p>
       <button id="close-about-app" class="primary-button" type="button">حسنًا</button>
     </div>
   </div>
@@ -1193,6 +1243,21 @@
   </div>
 
 
-  <script src="script.js?v=37"></script>
+  <div id="parent-gate-modal" class="parent-gate-modal hidden" role="dialog" aria-modal="true" aria-labelledby="parent-gate-title" aria-describedby="parent-gate-description">
+    <div class="parent-gate-card">
+      <p class="screen-kicker">للوالدين فقط</p>
+      <h2 id="parent-gate-title">بوابة الوالدين</h2>
+      <p id="parent-gate-description">لحماية الأطفال، أجب عن السؤال قبل فتح الرابط الخارجي.</p>
+      <p id="parent-gate-question" class="parent-gate-question">كم يساوي 7 + 5؟</p>
+      <input id="parent-gate-answer" class="parent-gate-answer" type="number" inputmode="numeric" autocomplete="off" aria-label="إجابة سؤال الوالدين">
+      <p id="parent-gate-error" class="parent-gate-error" aria-live="assertive"></p>
+      <div class="parent-gate-actions">
+        <button id="parent-gate-confirm" class="parent-gate-confirm" type="button">متابعة</button>
+        <button id="parent-gate-cancel" class="parent-gate-cancel" type="button">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js?v=38"></script>
 </body>
 </html>
