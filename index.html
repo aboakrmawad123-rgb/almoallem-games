@@ -662,6 +662,30 @@
     .treasure-result h3 { margin:0 0 8px; color:#24769a; }
     .treasure-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:12px; }
 
+  
+    .video-player-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 12px 0 6px;
+      flex-wrap: wrap;
+    }
+    .video-control-button {
+      min-width: 116px;
+      border: 0;
+      border-radius: 14px;
+      padding: 11px 18px;
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+      background: #edf7ff;
+      color: #24546c;
+      box-shadow: 0 4px 12px rgba(35, 101, 132, 0.12);
+    }
+    .video-control-button.primary {
+      background: #2e9fd6;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -857,6 +881,10 @@
           </div>
           <div class="video-frame-wrap">
             <iframe id="video-player" title="مشغّل فيديو المعلّم الصغير" src="about:blank" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+          </div>
+          <div class="video-player-controls" aria-label="التحكم بالفيديو">
+            <button id="video-play-button" class="video-control-button primary" type="button">▶ تشغيل</button>
+            <button id="video-pause-button" class="video-control-button" type="button">⏸ إيقاف مؤقت</button>
           </div>
           <p id="video-connection-note" class="video-connection-note">تحتاج مشاهدة المقاطع إلى اتصال بالإنترنت.</p>
           <a id="open-video-youtube" class="youtube-fallback-link parent-gated-link" href="#" target="_blank" rel="noopener noreferrer">فتح هذا المقطع في يوتيوب</a>

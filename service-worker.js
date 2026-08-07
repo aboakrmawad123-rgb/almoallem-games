@@ -1,10 +1,10 @@
-const CACHE_NAME = 'almoallem-v40-privacy-back-fix';
+const CACHE_NAME = 'almoallem-v41-watch-controls';
 const APP_SHELL = [
   './',
   './index.html',
   './privacy.html',
   './style.css?v=20',
-  './script.js?v=40',
+  './script.js?v=41',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',

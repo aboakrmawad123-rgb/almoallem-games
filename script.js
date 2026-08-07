@@ -521,6 +521,8 @@ const videoPlayer = document.querySelector('#video-player');
 const activeVideoTitle = document.querySelector('#active-video-title');
 const openVideoYoutube = document.querySelector('#open-video-youtube');
 const closeVideoPlayerButton = document.querySelector('#close-video-player');
+const videoPlayButton = document.querySelector('#video-play-button');
+const videoPauseButton = document.querySelector('#video-pause-button');
 const videoConnectionNote = document.querySelector('#video-connection-note');
 const playlistLoader = document.querySelector('#playlist-loader');
 const showMoreVideosButton = document.querySelector('#show-more-videos');
@@ -2099,6 +2101,15 @@ function stopVideoPlayback() {
   videoItemsGrid.querySelectorAll('.video-item-card').forEach((button) => button.classList.remove('playing'));
 }
 
+function sendYouTubePlayerCommand(command) {
+  if (!videoPlayer || !videoPlayer.contentWindow || !videoPlayer.dataset.videoId) return;
+  videoPlayer.contentWindow.postMessage(JSON.stringify({
+    event: 'command',
+    func: command,
+    args: []
+  }), 'https://www.youtube-nocookie.com');
+}
+
 function playSingleVideoNow(playlistKey, videoId, index, resolvedTitle = '') {
   const playlist = videoPlaylists[playlistKey];
   if (!playlist) return;
@@ -2117,7 +2128,7 @@ function playSingleVideoNow(playlistKey, videoId, index, resolvedTitle = '') {
   activeVideoTitle.textContent = exactTitle || `${playlist.itemLabel} ${index + 1} · ${playlist.title}`;
   videoPlayer.dataset.videoId = videoId;
   openVideoYoutube.href = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&list=${encodeURIComponent(playlist.playlistId)}`;
-  videoPlayer.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&playsinline=1&hl=ar&rel=0`;
+  videoPlayer.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&playsinline=1&hl=ar&rel=0&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
   videoPlayerSection.classList.remove('hidden');
   videoItemsGrid.querySelectorAll('.video-item-card').forEach((button) => {
     button.classList.toggle('playing', button.dataset.videoId === videoId);
@@ -2626,6 +2637,9 @@ playlistButtons.forEach((button) => button.addEventListener('click', () => navig
   view: 'watch-playlist',
   playlistKey: button.dataset.playlist
 })));
+
+if (videoPlayButton) videoPlayButton.addEventListener('click', () => sendYouTubePlayerCommand('playVideo'));
+if (videoPauseButton) videoPauseButton.addEventListener('click', () => sendYouTubePlayerCommand('pauseVideo'));
 videoBrowserBackButton.addEventListener('click', () => navigateBack({ view: 'watch-menu' }));
 showMoreVideosButton.addEventListener('click', appendNextVideoBatch);
 closeVideoPlayerButton.addEventListener('click', () => navigateBack({
@@ -2664,8 +2678,18 @@ window.addEventListener('appinstalled', () => {
 
 
 
-const initialRouteState = normalizeRouteState(window.history.state);
-window.history.replaceState(initialRouteState, '');
+const launchParams = new URLSearchParams(window.location.search);
+let initialRouteState = normalizeRouteState(window.history.state);
+if (launchParams.get('open') === 'watch') {
+  const requestedPlaylist = launchParams.get('playlist') || '';
+  initialRouteState = normalizeRouteState({
+    appRoute: APP_ROUTE_MARKER,
+    view: videoPlaylists[requestedPlaylist] ? 'watch-playlist' : 'watch-menu',
+    playlistKey: requestedPlaylist,
+    depth: 0
+  });
+}
+window.history.replaceState(initialRouteState, '', window.location.pathname);
 applyRouteState(initialRouteState);
 
 
