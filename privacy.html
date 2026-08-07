@@ -8,12 +8,16 @@
   <style>
     *{box-sizing:border-box} body{margin:0;background:#f4fbff;color:#24495b;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;line-height:1.9}
     main{width:min(820px,calc(100% - 28px));margin:28px auto;background:#fff;border:1px solid #d8edf7;border-radius:24px;padding:26px;box-shadow:0 10px 30px rgba(21,105,145,.08)}
+    .topbar{display:flex;align-items:center;justify-content:flex-start;margin-bottom:18px}
+    .back-button{appearance:none;border:1px solid #bfe3f4;background:#eef9ff;color:#176f9d;border-radius:14px;padding:10px 16px;font:inherit;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+    .back-button:active{transform:scale(.98)}
     h1,h2{color:#176f9d} h1{margin-top:0;font-size:1.75rem} h2{margin-top:28px;font-size:1.15rem} p,li{font-size:1rem} ul{padding-right:22px}
     .note{background:#eef9ff;border-radius:16px;padding:14px 16px}.footer{margin-top:28px;padding-top:18px;border-top:1px solid #d8edf7;color:#56717f}
   </style>
 </head>
 <body>
 <main>
+  <div class="topbar"><button id="privacy-back-button" class="back-button" type="button" aria-label="العودة إلى التطبيق">→ <span>العودة إلى التطبيق</span></button></div>
   <h1>سياسة الخصوصية لتطبيق المعلّم الصغير</h1>
   <p class="note">آخر تحديث: 7 آب/أغسطس 2026</p>
   <p>نحن في فريق <strong>المعلّم الصغير</strong> نهتم بخصوصية الأطفال وأسرهم، وقد صُمم التطبيق ليقدّم محتوى تعليميًا وترفيهيًا مناسبًا للأطفال مع تقليل جمع البيانات إلى الحد الأدنى.</p>
@@ -47,5 +51,17 @@
 
   <div class="footer">المطوّر: فريق المعلّم الصغير</div>
 </main>
+<script>
+  document.getElementById('privacy-back-button').addEventListener('click', () => {
+    try {
+      const referrer = document.referrer ? new URL(document.referrer) : null;
+      if (referrer && referrer.origin === window.location.origin && window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+    } catch {}
+    window.location.href = './index.html';
+  });
+</script>
 </body>
 </html>

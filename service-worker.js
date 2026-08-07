@@ -1,10 +1,10 @@
-const CACHE_NAME = 'almoallem-v39-store-final-prep';
+const CACHE_NAME = 'almoallem-v40-privacy-back-fix';
 const APP_SHELL = [
   './',
   './index.html',
   './privacy.html',
   './style.css?v=20',
-  './script.js?v=39',
+  './script.js?v=40',
   './manifest.webmanifest',
   './favicon.ico',
   './card-back.webp',
@@ -80,14 +80,16 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (event.request.mode === 'navigate') {
+    const isPrivacyPage = requestUrl.pathname.endsWith('/privacy.html');
+    const cacheKey = isPrivacyPage ? './privacy.html' : './index.html';
     event.respondWith(
       fetch(event.request)
         .then((response) => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put('./index.html', copy));
+          caches.open(CACHE_NAME).then((cache) => cache.put(cacheKey, copy));
           return response;
         })
-        .catch(() => caches.match('./index.html'))
+        .catch(() => caches.match(cacheKey))
     );
     return;
   }
