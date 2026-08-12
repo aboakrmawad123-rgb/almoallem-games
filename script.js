@@ -2527,12 +2527,71 @@ function updateNotificationButton() {
 updateNotificationButton();
 
 if (notificationToggleButton) {
-  notificationToggleButton.addEventListener('click', () => {
-    notificationsEnabled = !notificationsEnabled;
+  notificationToggleButton.addEventListener('click', async () => {
+    const wantToEnable = !notificationsEnabled;
+
+    if (wantToEnable) {
+      if (!messaging || !('Notification' in window)) {
+        notificationToggleStatus.textContent = 'الإشعارات غير متاحة';
+        return;
+      }
+
+      try {
+        const permission = await Notification.requestPermission();
+
+        if (permission !== 'granted') {
+          notificationsEnabled = false;
+          localStorage.setItem(
+            'almoallem-notifications-enabled',
+            'false'
+          );
+          updateNotificationButton();
+          return;
+        }
+
+        const serviceWorkerRegistration =
+          await navigator.serviceWorker.ready;
+
+        const token = await messaging.getToken({
+          vapidKey: FIREBASE_VAPID_KEY,
+          serviceWorkerRegistration
+        });
+
+        if (!token) {
+          notificationToggleStatus.textContent = 'تعذّر تفعيل الإشعارات';
+          return;
+        }
+
+        console.log('FCM token:', token);
+
+        notificationsEnabled = true;
+        localStorage.setItem(
+          'almoallem-notifications-enabled',
+          'true'
+        );
+
+        updateNotificationButton();
+      } catch (error) {
+        console.error('Notification activation error:', error);
+        notificationToggleStatus.textContent = 'تعذّر تفعيل الإشعارات';
+      }
+
+      return;
+    }
+
+    try {
+      if (messaging) {
+        await messaging.deleteToken();
+      }
+    } catch (error) {
+      console.error('Notification disable error:', error);
+    }
+
+    notificationsEnabled = false;
 
     localStorage.setItem(
       'almoallem-notifications-enabled',
-      notificationsEnabled ? 'true' : 'false'
+      'false'
     );
 
     updateNotificationButton();
