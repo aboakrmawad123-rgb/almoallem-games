@@ -88,7 +88,7 @@ messaging.onBackgroundMessage((payload) => {
 
 // اسم الكاش الجديد حتى تتحدث الأجهزة
 const CACHE_NAME =
-  'almoallem-v44-firebase-notifications';
+  'almoallem-v45-recovery';
 
 
 // ملفات التطبيق التي يتم حفظها للعمل دون اتصال
