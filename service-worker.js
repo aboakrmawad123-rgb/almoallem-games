@@ -40,7 +40,7 @@ importScripts(
 
 // إعداد Firebase
 firebase.initializeApp({
-  apiKey: "AIzaSyBxex74kaRa_XwiZAkJi2EoBJx9egIVCNA",
+  apiKey: "AIzaSyBr3gk_UiPy_qLBaV-o8GRj5N4yMMjtFQM",
   authDomain: "almoallem-al-saghir.firebaseapp.com",
   projectId: "almoallem-al-saghir",
   storageBucket: "almoallem-al-saghir.firebasestorage.app",
