@@ -545,6 +545,9 @@ const aboutAppButton = document.querySelector('#about-app-button');
 const soundToggleButton = document.querySelector('#sound-toggle-button');
 const soundToggleStatus = document.querySelector('#sound-toggle-status');
 const soundToggleIcon = document.querySelector('#sound-toggle-icon');
+const notificationToggleButton = document.querySelector('#notification-toggle-button');
+const notificationToggleStatus = document.querySelector('#notification-toggle-status');
+const notificationToggleIcon = document.querySelector('#notification-toggle-icon');
 const aboutAppModal = document.querySelector('#about-app-modal');
 const closeAboutAppButton = document.querySelector('#close-about-app');
 
