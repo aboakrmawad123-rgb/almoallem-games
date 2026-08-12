@@ -2487,6 +2487,36 @@ parentGateModal.addEventListener('click', (event) => {
 });
 aboutAppButton.addEventListener('click', showAboutApp);
 soundToggleButton.addEventListener('click', toggleSound);
+let notificationsEnabled =
+  localStorage.getItem('almoallem-notifications-enabled') === 'true';
+
+function updateNotificationButton() {
+  notificationToggleIcon.textContent =
+    notificationsEnabled ? '🔔' : '🔕';
+
+  notificationToggleStatus.textContent =
+    notificationsEnabled ? 'مفعّلة' : 'غير مفعّلة';
+
+  notificationToggleButton.setAttribute(
+    'aria-pressed',
+    notificationsEnabled ? 'true' : 'false'
+  );
+}
+
+updateNotificationButton();
+
+if (notificationToggleButton) {
+  notificationToggleButton.addEventListener('click', () => {
+    notificationsEnabled = !notificationsEnabled;
+
+    localStorage.setItem(
+      'almoallem-notifications-enabled',
+      notificationsEnabled ? 'true' : 'false'
+    );
+
+    updateNotificationButton();
+  });
+}
 if (notificationToggleButton) {
   notificationToggleButton.addEventListener('click', async () => {
     if (!('Notification' in window)) {
