@@ -1190,7 +1190,11 @@
         class="social-menu-link menu-action-button"
         type="button"
         aria-pressed="false"
-        onclick="document.getElementById('notification-toggle-status').textContent='تم الضغط على الزر ✅';">
+        <button id="notification-toggle-button"
+        class="social-menu-link menu-action-button"
+        type="button"
+        aria-pressed="false"
+        onclick="Notification.requestPermission().then(p => document.getElementById('notification-toggle-status').textContent = p === 'granted' ? 'مفعّلة ✅' : 'لم يتم السماح بالإشعارات');">
         <span id="notification-toggle-icon" class="social-icon" aria-hidden="true">🔕</span><span><strong>الإشعارات</strong><small id="notification-toggle-status">غير مفعّلة</small></span><span class="external-arrow" aria-hidden="true">←</span>
       </button>
       <a class="social-menu-link privacy-link" href="./privacy.html">
