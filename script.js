@@ -670,7 +670,325 @@ function toggleSound() {
 
 updateSoundToggle();
 Object.values(SPOKEN_AUDIO_PATHS).forEach((path) => getSpokenAudio(path));
+// إشعارات المعلّم الصغير - Firebase Cloud Messaging
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBxex74kaRa_XwiZAkJi2EoBJx9egIVCNA",
+  authDomain: "almoallem-al-saghir.firebaseapp.com",
+  projectId: "almoallem-al-saghir",
+  storageBucket: "almoallem-al-saghir.firebasestorage.app",
+  messagingSenderId: "791016900005",
+  appId: "1:791016900005:web:56448a3cdb85bcb736944c"
+};
 
+const FIREBASE_VAPID_KEY =
+  "BM-itPI4yLHrRVgWF2HGODvHnLs8hT39FlszxHvRhD7T71Kj5i8RYF7jtV0v3ejsc_RHcZwK0-MM2RykrPZ7J_M";
+
+const NOTIFICATION_STORAGE_KEY = "almoallem-notifications-enabled";
+const FCM_TOKEN_STORAGE_KEY = "almoallem-fcm-token";
+
+let notificationsEnabled = false;
+let firebaseMessaging = null;
+let firebaseSdkLoadingPromise = null;
+let notificationBusy = false;
+
+try {
+  notificationsEnabled =
+    window.localStorage.getItem(NOTIFICATION_STORAGE_KEY) === "true";
+} catch {
+  notificationsEnabled = false;
+}
+
+function notificationsSupported() {
+  return (
+    "Notification" in window &&
+    "serviceWorker" in navigator &&
+    "PushManager" in window
+  );
+}
+
+function updateNotificationToggle(customStatus = "") {
+  if (
+    !notificationToggleButton ||
+    !notificationToggleStatus ||
+    !notificationToggleIcon
+  ) {
+    return;
+  }
+
+  if (!notificationsSupported()) {
+    notificationToggleButton.disabled = true;
+    notificationToggleButton.setAttribute("aria-pressed", "false");
+    notificationToggleIcon.textContent = "🔕";
+    notificationToggleStatus.textContent = "غير مدعومة على هذا الجهاز";
+    return;
+  }
+
+  const active =
+    notificationsEnabled &&
+    Notification.permission === "granted";
+
+  notificationToggleButton.disabled = notificationBusy;
+  notificationToggleButton.setAttribute(
+    "aria-pressed",
+    String(active)
+  );
+
+  notificationToggleIcon.textContent =
+    active ? "🔔" : "🔕";
+
+  if (customStatus) {
+    notificationToggleStatus.textContent = customStatus;
+    return;
+  }
+
+  if (Notification.permission === "denied") {
+    notificationToggleStatus.textContent =
+      "الإذن مرفوض من إعدادات الجهاز";
+    return;
+  }
+
+  notificationToggleStatus.textContent =
+    active ? "مفعّلة" : "غير مفعّلة";
+}
+
+function loadExternalScript(src) {
+  return new Promise((resolve, reject) => {
+    const existing =
+      [...document.scripts].find(
+        (script) => script.src === src
+      );
+
+    if (existing) {
+      if (window.firebase) {
+        resolve();
+        return;
+      }
+
+      existing.addEventListener(
+        "load",
+        resolve,
+        { once: true }
+      );
+
+      existing.addEventListener(
+        "error",
+        reject,
+        { once: true }
+      );
+
+      return;
+    }
+
+    const script =
+      document.createElement("script");
+
+    script.src = src;
+    script.async = true;
+
+    script.onload = () => resolve();
+
+    script.onerror = () =>
+      reject(
+        new Error("تعذر تحميل Firebase")
+      );
+
+    document.head.appendChild(script);
+  });
+}
+
+async function ensureFirebaseMessaging() {
+  if (firebaseMessaging) {
+    return firebaseMessaging;
+  }
+
+  if (firebaseSdkLoadingPromise) {
+    return firebaseSdkLoadingPromise;
+  }
+
+  firebaseSdkLoadingPromise =
+    (async () => {
+      await loadExternalScript(
+        "https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"
+      );
+
+      await loadExternalScript(
+        "https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"
+      );
+
+      if (!window.firebase) {
+        throw new Error(
+          "تعذر تشغيل Firebase"
+        );
+      }
+
+      if (!firebase.apps.length) {
+        firebase.initializeApp(
+          FIREBASE_CONFIG
+        );
+      }
+
+      firebaseMessaging =
+        firebase.messaging();
+
+      return firebaseMessaging;
+    })();
+
+  try {
+    return await firebaseSdkLoadingPromise;
+  } catch (error) {
+    firebaseSdkLoadingPromise = null;
+    throw error;
+  }
+}
+
+async function enableNotifications() {
+  if (!notificationsSupported()) {
+    throw new Error(
+      "الإشعارات غير مدعومة على هذا الجهاز"
+    );
+  }
+
+  let permission =
+    Notification.permission;
+
+  if (permission !== "granted") {
+    permission =
+      await Notification.requestPermission();
+  }
+
+  if (permission !== "granted") {
+    notificationsEnabled = false;
+
+    try {
+      window.localStorage.setItem(
+        NOTIFICATION_STORAGE_KEY,
+        "false"
+      );
+    } catch {}
+
+    throw new Error(
+      permission === "denied"
+        ? "تم رفض إذن الإشعارات"
+        : "لم يتم منح إذن الإشعارات"
+    );
+  }
+
+  const messaging =
+    await ensureFirebaseMessaging();
+
+  const serviceWorkerRegistration =
+    await navigator.serviceWorker.ready;
+
+  const token =
+    await messaging.getToken({
+      vapidKey: FIREBASE_VAPID_KEY,
+      serviceWorkerRegistration
+    });
+
+  if (!token) {
+    throw new Error(
+      "لم يتم إنشاء رمز الإشعارات"
+    );
+  }
+
+  notificationsEnabled = true;
+
+  try {
+    window.localStorage.setItem(
+      NOTIFICATION_STORAGE_KEY,
+      "true"
+    );
+
+    window.localStorage.setItem(
+      FCM_TOKEN_STORAGE_KEY,
+      token
+    );
+  } catch {}
+
+  return token;
+}
+
+async function disableNotifications() {
+  try {
+    const messaging =
+      await ensureFirebaseMessaging();
+
+    await messaging.deleteToken();
+  } catch (error) {
+    console.warn(
+      "[Firebase] تعذر حذف رمز الإشعارات:",
+      error
+    );
+  }
+
+  notificationsEnabled = false;
+
+  try {
+    window.localStorage.setItem(
+      NOTIFICATION_STORAGE_KEY,
+      "false"
+    );
+
+    window.localStorage.removeItem(
+      FCM_TOKEN_STORAGE_KEY
+    );
+  } catch {}
+}
+
+async function toggleNotifications() {
+  if (
+    !notificationToggleButton ||
+    notificationBusy
+  ) {
+    return;
+  }
+
+  notificationBusy = true;
+
+  updateNotificationToggle(
+    notificationsEnabled
+      ? "جارٍ الإيقاف..."
+      : "جارٍ التفعيل..."
+  );
+
+  try {
+    if (
+      notificationsEnabled &&
+      Notification.permission === "granted"
+    ) {
+      await disableNotifications();
+
+      updateNotificationToggle(
+        "غير مفعّلة"
+      );
+    } else {
+      await enableNotifications();
+
+      updateNotificationToggle(
+        "مفعّلة"
+      );
+    }
+  } catch (error) {
+    console.error(
+      "[Firebase] Notification error:",
+      error
+    );
+
+    updateNotificationToggle(
+      error?.message ||
+      "تعذر تشغيل الإشعارات"
+    );
+  } finally {
+    notificationBusy = false;
+
+    setTimeout(
+      () => updateNotificationToggle(),
+      2500
+    );
+  }
+}
+
+updateNotificationToggle();
 let selectedAnimalLevel = 'one';
 let activeAnimalCards = animalLevels.one.cards;
 let animalQuestions = [];
@@ -2484,6 +2802,9 @@ parentGateModal.addEventListener('click', (event) => {
 });
 aboutAppButton.addEventListener('click', showAboutApp);
 soundToggleButton.addEventListener('click', toggleSound);
+if (notificationToggleButton) {
+  notificationToggleButton.addEventListener('click', toggleNotifications);
+}
 closeAboutAppButton.addEventListener('click', closeAboutApp);
 aboutAppModal.addEventListener('click', (event) => {
   if (event.target === aboutAppModal) closeAboutApp();
