@@ -2517,33 +2517,7 @@ if (notificationToggleButton) {
     updateNotificationButton();
   });
 }
-if (notificationToggleButton) {
-  notificationToggleButton.addEventListener('click', async () => {
-    if (!('Notification' in window)) {
-      notificationToggleStatus.textContent = 'غير مدعومة على هذا الجهاز';
-      return;
-    }
 
-    if (Notification.permission === 'granted') {
-      notificationToggleIcon.textContent = '🔔';
-      notificationToggleStatus.textContent = 'مفعّلة';
-      notificationToggleButton.setAttribute('aria-pressed', 'true');
-      return;
-    }
-
-    const permission = await Notification.requestPermission();
-
-    if (permission === 'granted') {
-      notificationToggleIcon.textContent = '🔔';
-      notificationToggleStatus.textContent = 'مفعّلة';
-      notificationToggleButton.setAttribute('aria-pressed', 'true');
-    } else {
-      notificationToggleIcon.textContent = '🔕';
-      notificationToggleStatus.textContent = 'غير مفعّلة';
-      notificationToggleButton.setAttribute('aria-pressed', 'false');
-    }
-  });
-}
 closeAboutAppButton.addEventListener('click', closeAboutApp);
 aboutAppModal.addEventListener('click', (event) => {
   if (event.target === aboutAppModal) closeAboutApp();
