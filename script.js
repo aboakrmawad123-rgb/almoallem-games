@@ -2487,6 +2487,27 @@ parentGateModal.addEventListener('click', (event) => {
 });
 aboutAppButton.addEventListener('click', showAboutApp);
 soundToggleButton.addEventListener('click', toggleSound);
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBxex74kaRa_XwiZAkJi2EoBJx9egIVCNA",
+  authDomain: "almoallem-al-saghir.firebaseapp.com",
+  projectId: "almoallem-al-saghir",
+  storageBucket: "almoallem-al-saghir.firebasestorage.app",
+  messagingSenderId: "791016900005",
+  appId: "1:791016900005:web:56448a3cdb85bcb736944c"
+};
+
+const FIREBASE_VAPID_KEY =
+  "BM-itPI4yLHrRVgWF2HGODvHnLs8hT39FlszxHvRhD7T71Kj5i8RYF7jtV0v3ejsc_RHcZwK0-MM2RykrPZ7J_M";
+
+let messaging = null;
+
+if (typeof firebase !== 'undefined') {
+  if (!firebase.apps.length) {
+    firebase.initializeApp(FIREBASE_CONFIG);
+  }
+
+  messaging = firebase.messaging();
+}
 let notificationsEnabled =
   localStorage.getItem('almoallem-notifications-enabled') === 'true';
 
