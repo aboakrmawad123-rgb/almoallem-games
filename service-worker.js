@@ -97,7 +97,7 @@ const APP_SHELL = [
   './index.html',
   './privacy.html',
   './style.css?v=20',
-  './script.js?v=44',
+  './script.js?v=45',
   './manifest.webmanifest',
   './favicon.ico',
 
