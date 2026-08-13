@@ -2488,7 +2488,7 @@ parentGateModal.addEventListener('click', (event) => {
 aboutAppButton.addEventListener('click', showAboutApp);
 soundToggleButton.addEventListener('click', toggleSound);
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBr3gk_UiPy_qLBaV-o8GRj5N4yMMjtFQM",
+  apiKey: "AIzaSyBxex74kaRa_XwiZAkJi2EoBJx9egIVCNA",
   authDomain: "almoallem-al-saghir.firebaseapp.com",
   projectId: "almoallem-al-saghir",
   storageBucket: "almoallem-al-saghir.firebasestorage.app",
