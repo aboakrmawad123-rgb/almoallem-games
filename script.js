@@ -2563,7 +2563,13 @@ if (notificationToggleButton) {
         }
 
         console.log('FCM token:', token);
-
+await fetch("/api/subscribe", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ token })
+});
         notificationsEnabled = true;
         localStorage.setItem(
           'almoallem-notifications-enabled',
