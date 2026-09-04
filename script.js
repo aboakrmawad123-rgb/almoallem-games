@@ -2585,13 +2585,8 @@ await fetch("/api/subscribe", {
       return;
     }
 
-    try {
-      if (messaging) {
-        await messaging.deleteToken();
-      }
-    } catch (error) {
-      console.error('Notification disable error:', error);
-    }
+   // لا نحذف FCM token عند تعطيل الإشعارات من داخل التطبيق.
+// نكتفي بتغيير حالة التطبيق المحلية.
 
     notificationsEnabled = false;
 
