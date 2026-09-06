@@ -12,20 +12,13 @@ if (!admin.apps.length) {
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
-    return res.status(405).json({
-      error: "Method not allowed",
-    });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   const adminKey = req.headers["x-admin-key"];
 
-  if (
-    !adminKey ||
-    adminKey !== process.env.NOTIFICATION_ADMIN_KEY
-  ) {
-    return res.status(401).json({
-      error: "Unauthorized",
-    });
+  if (!adminKey || adminKey !== process.env.NOTIFICATION_ADMIN_KEY) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   try {
@@ -39,9 +32,17 @@ module.exports = async (req, res) => {
 
     const response = await admin.messaging().send({
       topic: "all-users",
-      notification: {
-        title,
-        body,
+
+      data: {
+        title: String(title),
+        body: String(body),
+        url: "/",
+      },
+
+      webpush: {
+        headers: {
+          Urgency: "high",
+        },
       },
     });
 
