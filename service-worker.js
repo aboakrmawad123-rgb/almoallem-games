@@ -53,30 +53,28 @@ const messaging = firebase.messaging();
 
 // استقبال الإشعارات عندما يكون التطبيق بالخلفية
 messaging.onBackgroundMessage((payload) => {
-  console.log(
-    '[Firebase] Background message:',
-    payload
-  );
+  console.log("[firebase] Background message:", payload);
 
   const notificationTitle =
+    payload.data?.title ||
     payload.notification?.title ||
-    'المعلّم الصغير';
+    "المعلم الصغير";
 
   const notificationOptions = {
     body:
+      payload.data?.body ||
       payload.notification?.body ||
-      'لديك محتوى جديد',
+      "لديك إشعار جديد",
 
-    icon: '/icon-192.png',
-
-    badge: '/icon-192.png',
+    icon: "/icon-192.png",
+    badge: "/icon-192.png",
 
     data: {
       url:
         payload.data?.url ||
         payload.fcmOptions?.link ||
-        '/'
-    }
+        "/",
+    },
   };
 
   return self.registration.showNotification(
