@@ -12,51 +12,49 @@ if (!admin.apps.length) {
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
-    return res.status(405).json({
-      error: "Method not allowed"
-    });
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const adminKey = req.headers["x-admin-key"];
+
+  if (!adminKey || adminKey !== process.env.NOTIFICATION_ADMIN_KEY) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   try {
-    const { token } = req.body;
+    const { title, body } = req.body;
 
-    if (!token) {
+    if (!title || !body) {
       return res.status(400).json({
-        error: "Missing token"
+        error: "Missing title or body",
       });
     }
 
-    // اشترك الجهاز بالإشعارات العامة
-    await admin.messaging().subscribeToTopic(token, "all-users");
+    const response = await admin.messaging().send({
+      topic: "all-users",
 
-    // اختبار مباشر لنفس الجهاز
-    const testMessageId = await admin.messaging().send({
-      token: token,
-      data: {
-        title: "اختبار الإشعارات",
-        body: "إذا ظهر هذا الإشعار فالجهاز يستقبل Firebase بشكل صحيح.",
-        url: "/"
+      notification: {
+        title: String(title),
+        body: String(body),
       },
+
       webpush: {
-        headers: {
-          Urgency: "high"
-        }
-      }
+        fcmOptions: {
+          link: "https://almoallemmemorygame.vercel.app/",
+        },
+      },
     });
 
     return res.status(200).json({
       success: true,
-      subscribed: true,
-      directTestSent: true,
-      messageId: testMessageId
+      messageId: response,
     });
-
   } catch (error) {
-    console.error("Subscribe/test error:", error);
+    console.error("Send notification error:", error);
 
     return res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
     });
   }
 };
