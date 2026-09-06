@@ -39,6 +39,16 @@ module.exports = async (req, res) => {
       },
 
       webpush: {
+        notification: {
+          icon: "https://almoallemmemorygame.vercel.app/app-icon-source.png",
+          badge: "https://almoallemmemorygame.vercel.app/icon-192.png",
+          dir: "rtl",
+          lang: "ar",
+          tag: "almoallem-main",
+          renotify: true,
+          vibrate: [200, 100, 200],
+        },
+
         fcmOptions: {
           link: "https://almoallemmemorygame.vercel.app/",
         },
