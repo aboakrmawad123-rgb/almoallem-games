@@ -52,37 +52,6 @@ const messaging = firebase.messaging();
 
 
 // استقبال الإشعارات عندما يكون التطبيق بالخلفية
-messaging.onBackgroundMessage((payload) => {
-  console.log("[firebase] Background message:", payload);
-
-  const notificationTitle =
-    payload.data?.title ||
-    payload.notification?.title ||
-    "المعلم الصغير";
-
-  const notificationOptions = {
-    body:
-      payload.data?.body ||
-      payload.notification?.body ||
-      "لديك إشعار جديد",
-
-    icon: "/icon-192.png",
-    badge: "/icon-192.png",
-
-    data: {
-      url:
-        payload.data?.url ||
-        payload.fcmOptions?.link ||
-        "/",
-    },
-  };
-
-  return self.registration.showNotification(
-    notificationTitle,
-    notificationOptions
-  );
-});
-
 
 // اسم الكاش الجديد حتى تتحدث الأجهزة
 const CACHE_NAME =
