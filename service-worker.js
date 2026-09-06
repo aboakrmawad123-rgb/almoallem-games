@@ -79,7 +79,7 @@ messaging.onBackgroundMessage((payload) => {
     }
   };
 
-  self.registration.showNotification(
+  return self.registration.showNotification(
     notificationTitle,
     notificationOptions
   );
