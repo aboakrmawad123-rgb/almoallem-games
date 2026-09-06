@@ -12,33 +12,49 @@ if (!admin.apps.length) {
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({
+      error: "Method not allowed",
+    });
+  }
+
+  const adminKey = req.headers["x-admin-key"];
+
+  if (
+    !adminKey ||
+    adminKey !== process.env.NOTIFICATION_ADMIN_KEY
+  ) {
+    return res.status(401).json({
+      error: "Unauthorized",
+    });
   }
 
   try {
     const { title, body } = req.body;
 
     if (!title || !body) {
-      return res.status(400).json({ error: "Missing title or body" });
+      return res.status(400).json({
+        error: "Missing title or body",
+      });
     }
 
     const response = await admin.messaging().send({
       topic: "all-users",
       notification: {
         title,
-        body
-      }
+        body,
+      },
     });
 
     return res.status(200).json({
       success: true,
-      messageId: response
+      messageId: response,
     });
   } catch (error) {
     console.error("Send notification error:", error);
+
     return res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
     });
   }
 };
