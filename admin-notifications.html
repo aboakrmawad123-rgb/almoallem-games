@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>إرسال إشعار</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 30px;
+    }
+
+    .box {
+      max-width: 520px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      border: 0;
+      border-radius: 10px;
+      font-size: 17px;
+      cursor: pointer;
+      background: #111;
+      color: white;
+    }
+
+    #status {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="box">
+    <h2>إرسال إشعار للمستخدمين</h2>
+
+    <label>كلمة المرور</label>
+    <input
+      type="password"
+      id="adminKey"
+      placeholder="أدخل كلمة المرور"
+    />
+
+    <label>عنوان الإشعار</label>
+    <input
+      type="text"
+      id="title"
+      placeholder="مثال: يوميات عزام 📚"
+    />
+
+    <label>نص الإشعار</label>
+    <textarea
+      id="body"
+      placeholder="اكتب نص الإشعار هنا..."
+    ></textarea>
+
+    <button id="sendBtn">إرسال الإشعار</button>
+
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const sendBtn = document.getElementById("sendBtn");
+    const statusEl = document.getElementById("status");
+
+    sendBtn.addEventListener("click", async () => {
+      const adminKey = document.getElementById("adminKey").value.trim();
+      const title = document.getElementById("title").value.trim();
+      const body = document.getElementById("body").value.trim();
+
+      if (!adminKey || !title || !body) {
+        statusEl.textContent = "عبّي كل الخانات أولًا.";
+        return;
+      }
+
+      sendBtn.disabled = true;
+      sendBtn.textContent = "جاري الإرسال...";
+      statusEl.textContent = "";
+
+      try {
+        const response = await fetch("/api/send-notification", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "x-admin-key": adminKey
+          },
+          body: JSON.stringify({
+            title,
+            body
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          statusEl.textContent = "تم إرسال الإشعار بنجاح ✅";
+        } else if (response.status === 401) {
+          statusEl.textContent = "كلمة المرور غير صحيحة ❌";
+        } else {
+          statusEl.textContent =
+            "فشل الإرسال: " + (result.error || "خطأ غير معروف");
+        }
+      } catch (error) {
+        statusEl.textContent = "صار خطأ أثناء الاتصال بالسيرفر.";
+        console.error(error);
+      }
+
+      sendBtn.disabled = false;
+      sendBtn.textContent = "إرسال الإشعار";
+    });
+  </script>
+
+</body>
+</html>
